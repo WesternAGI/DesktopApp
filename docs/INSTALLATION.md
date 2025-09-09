@@ -127,12 +127,6 @@ cmake --build build -j$(nproc)
 - Try skip-auth mode: `./build/GadAI --skip-auth`
 - Delete settings: Windows: `%APPDATA%\GadAI Project\`, macOS/Linux: `~/.config/GadAI Project/`
 
-## Demo Login
-
-After successful installation, use these credentials:
-- **Username:** `demo`
-- **Password:** `demo123`
-
 ## Development Build
 
 For development with debug symbols:

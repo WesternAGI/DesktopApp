@@ -4,11 +4,6 @@ Quick guide to using GadAI desktop chat application.
 
 ## Getting Started
 
-### Installation
-1. Follow installation steps in main README.md
-2. Ensure Qt6 and CMake are installed
-3. Build with `cmake --build build`
-
 ### First Login
 **Demo Account:**
 - Username: `demo`
@@ -62,44 +57,6 @@ Quick guide to using GadAI desktop chat application.
 
 ## Current Features
 
-### What Works Now
-
-✅ **Login System**
-- Demo authentication with phone and password
-- Session remembering (stays logged in)
-- Logout functionality
-
-✅ **Main Chat Interface**
-- Clean, modern chat layout
-- Conversation list in sidebar
-- Message area ready for chat
-- Text input field for typing
-
-✅ **Basic Controls**
-- Menu system with File, Edit, View, Help menus
-- Settings window (basic version)
-- About dialog with app information
-- Theme switching (light/dark modes)
-
-✅ **Keyboard Shortcuts**
-- `Ctrl+Q` or `Cmd+Q`: Quit application
-- `Ctrl+,` or `Cmd+,`: Open settings
-- `F11`: Toggle fullscreen (on some platforms)
-
-### What Doesn't Work Yet
-
-❌ **Real Chat Features**
-- Messages don't actually send anywhere
-- No AI responses yet
-- No conversation history saved
-- No file attachments
-
-❌ **Advanced Features**
-- No search functionality
-- No voice messages
-- No real network communication
-- No data encryption
-
 ## Settings
 
 ### Accessing Settings
@@ -139,18 +96,11 @@ Currently the settings window is basic and includes:
 
 **Problem: Login doesn't work**
 - Make sure you're using the exact demo account details
-- Try the other demo account
 - Use `--skip-auth` to bypass login for testing
 
 **Problem: Window appears blank or broken**
 - Try resizing the window
-- Check if dark theme is making text invisible
 - Switch themes in settings
-
-**Problem: App crashes after login**
-- This is a known issue in the current version
-- Try using `--skip-auth` mode
-- Check the terminal output for error messages
 
 ### Getting Debug Information
 
@@ -214,55 +164,24 @@ This is a prototype version, so:
 
 ## Support
 
-### Getting Help
-- Check this user guide first
-- Read the main README.md for installation help
-- Look at the PROJECT_STATUS.md for current feature status
-- Try the troubleshooting steps above
+## What's Coming Next
 
-### Community
-This is currently a single-developer prototype. Community features and support channels will be added as the project grows.
+### Planned Features (Not Yet Available)
+- **Real AI Chat**: Connect to ChatGPT, Claude, or other AI services
+- **Message History**: Save and load previous conversations
+- **File Sharing**: Send and receive images and documents
+- **Search**: Find messages in your conversation history
+- **Voice Messages**: Record and play audio messages
+- **Better Settings**: More customization options
 
----
-
-**Remember**: GadAI is currently a prototype. Many features shown in the interface are not fully implemented yet. The goal is to get the basic framework working first, then add more features over time.
-* Tests / CI
-
-## 5. Dev Tips
-| Task | Hint |
-|------|------|
-| Reset state | Delete app data directory (see README) |
-| Add demo users | Modify `AuthenticationService::initializeDemoUsers()` |
-| Skip login | Run with `--skip-auth` |
-
-## 6. Planned Message Flow
-```
-Composer -> Persist -> Provider send -> Stream back -> Append UI
-```
-Currently ends before provider send.
-
-## 7. Audio Recording
-Create `AudioRecorder`, call `startRecording("out.wav")`, later `stopRecording()`. Produces 16‑bit mono WAV.
-
-## 8. Troubleshooting
-| Problem | Fix |
-|---------|-----|
-| Login loops | Use `--skip-auth` to continue development |
-| Qt libs missing | Add Qt bin to PATH / LD_LIBRARY_PATH |
-| Build fails after edits | Delete `build/` and reconfigure |
-| UI very large/small | Adjust system scaling DPI or theme | 
-
-## 9. Roadmap Order (Suggested)
-1. Wire composer to provider manager (echo response stub).
-2. Persist conversations properly.
-3. Introduce a small test harness.
-4. Add provider abstraction for real API.
-5. Implement attachment handling + file vault.
-6. Add search indexing.
-7. Harden authentication / storage.
-
-## 10. Disclaimer
-Prototype, not production. Remove assumptions and add validation before shipping.
+### Current Limitations
+This is a prototype version, so:
+- Only demo authentication works
+- Messages don't persist between sessions
+- No real AI integration yet
+- Limited customization options
+- Some UI elements are placeholders
 
 ---
-See `ARCHITECTURE.md` and `SECURITY.md` for more internal details.
+
+**Remember**: GadAI is currently a prototype. Many features shown in the interface are not fully implemented yet.
