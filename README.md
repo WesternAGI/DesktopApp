@@ -5,7 +5,7 @@ Hello! Welcome to the GadAI project.
 A simple desktop chat application built with C++17 and Qt6. This is a prototype with basic login functionality and a clean chat interface.
 
 ## What Works Right Now
-- ✅ Login with demo accounts (phone + password)
+- ✅ Online authentication
 - ✅ Main chat window with conversation list
 - ✅ Theme management (light/dark modes)
 - ✅ Basic settings and preferences
@@ -14,7 +14,6 @@ A simple desktop chat application built with C++17 and Qt6. This is a prototype 
 
 ## What's Not Ready Yet
 - ❌ Real AI chat providers (only demo/echo responses)
-- ❌ Online authentication (uses local demo accounts)
 - ❌ File attachments and sharing
 - ❌ Search functionality
 - ❌ Data encryption
@@ -216,4 +215,3 @@ This is a prototype project. Feel free to:
 - Fork for your own projects
 
 ---
-Built with ❤️ using Qt6 and modern C++17
