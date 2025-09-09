@@ -909,7 +909,7 @@ bool LoginWindow::validateRegisterForm()
     }
     
     if (!validatePassword(password)) {
-        showError("Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character.");
+        showError("Password cannot be empty.");
         m_registerPasswordEdit->setFocus();
         return false;
     }
@@ -936,20 +936,8 @@ bool LoginWindow::validatePhone(const QString &phone)
 
 bool LoginWindow::validatePassword(const QString &password)
 {
-    if (password.length() < 8) {
-        return false;
-    }
-    
-    bool hasUpper = false, hasLower = false, hasDigit = false, hasSpecial = false;
-    
-    for (const QChar &ch : password) {
-        if (ch.isUpper()) hasUpper = true;
-        else if (ch.isLower()) hasLower = true;
-        else if (ch.isDigit()) hasDigit = true;
-        else if (!ch.isLetterOrNumber()) hasSpecial = true;
-    }
-    
-    return hasUpper && hasLower && hasDigit && hasSpecial;
+    // Accept any password - no restrictions for now
+    return !password.isEmpty();
 }
 
 void LoginWindow::showError(const QString &message)
