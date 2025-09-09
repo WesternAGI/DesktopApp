@@ -11,17 +11,15 @@ A desktop chat application built with C++17 and Qt6.
 - ❌ File attachments
 - ❌ Message search
 
-## Requirements
+## Quick Start
+
+### Demo Login
+- Username: `demo` Password: `demo123`
+
+### Requirements
 - Qt6 (6.2+)
 - CMake (3.21+)
 - C++17 compiler
-
-## Quick Start
-
-### Install Qt6
-**Windows:** `winget install Qt.Qt`
-**macOS:** `brew install qt`
-**Linux:** `sudo apt install qt6-base-dev qt6-multimedia-dev cmake`
 
 ### Build & Run
 ```bash
@@ -32,18 +30,13 @@ cmake --build build
 ./build/GadAI  # or .\build\GadAI.exe on Windows
 ```
 
-### Demo Login
-- Username: `demo` Password: `demo123`
+## Documentation
 
-## Project Structure
-```
-src/
-├── core/           # Application startup
-├── ui/             # Login and main windows
-├── services/       # Authentication, settings
-├── providers/      # AI interfaces (demo)
-└── theme/          # Themes and icons
-```
+- **[Installation Guide](docs/INSTALLATION.md)** - Detailed setup instructions for all platforms
+- **[Architecture Guide](docs/ARCHITECTURE.md)** - Technical overview and project structure
+- **[User Guide](docs/USER_GUIDE.md)** - How to use the application
+- **[Security Guide](docs/SECURITY.md)** - Security implementation details
+- **[Project Status](docs/PROJECT_STATUS.md)** - Current development status
 
 ## License
 MIT License
