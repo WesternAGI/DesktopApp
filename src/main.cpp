@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QStandardPaths>
 #include <QTimer>
+#include <QThread>
 #include "core/Application.h"
 #include "core/CrashHandler.h"
 #include "ui/MainWindow.h"
@@ -46,43 +47,42 @@ int main(int argc, char *argv[])
         bool authSuccessful = false;
         QString authenticatedUser;
         QString authToken;
+        bool dialogClosed = false;
         
         // Connect success signal to capture authentication result
         QObject::connect(&loginWindow, &GadAI::LoginWindow::loginSuccessful,
-                        [&authSuccessful, &authenticatedUser, &authToken, &loginWindow]
+                        [&authSuccessful, &authenticatedUser, &authToken, &dialogClosed, &loginWindow]
                         (const QString &username, const QString &token) {
             qDebug() << "loginSuccessful signal received for user:" << username;
             authenticatedUser = username;
             authToken = token;
             authSuccessful = true;
-            qDebug() << "Scheduling loginWindow.accept() with QTimer::singleShot";
-            // Use QTimer::singleShot to defer the accept() call to avoid re-entrancy issues
-            QTimer::singleShot(100, &loginWindow, [&loginWindow]() {
-                qDebug() << "Calling loginWindow.accept() from timer";
-                loginWindow.accept();
-                qDebug() << "loginWindow.accept() completed from timer";
-            });
+            qDebug() << "Closing login window and setting dialogClosed flag";
+            loginWindow.close();
+            dialogClosed = true;
         });
         
-        // Show login dialog modally and wait for result
-        qDebug() << "Starting loginWindow.exec()";
-        int loginResult = 0;
-        try {
-            loginResult = loginWindow.exec();
-            qDebug() << "loginWindow.exec() returned successfully with result:" << loginResult;
-        } catch (const std::exception& e) {
-            qDebug() << "Exception during loginWindow.exec():" << e.what();
-            return -1;
-        } catch (...) {
-            qDebug() << "Unknown exception during loginWindow.exec()";
-            return -1;
+        // Connect rejected signal (user cancels or closes dialog)
+        QObject::connect(&loginWindow, &QDialog::rejected, [&dialogClosed]() {
+            qDebug() << "Login dialog rejected/cancelled";
+            dialogClosed = true;
+        });
+        
+        // Show login window (non-modal)
+        qDebug() << "Showing login window (non-modal)";
+        loginWindow.show();
+        
+        // Process events until dialog is closed
+        qDebug() << "Processing events until dialog closes";
+        while (!dialogClosed) {
+            QApplication::processEvents();
+            QThread::msleep(10); // Small delay to prevent busy loop
         }
         
-        qDebug() << "Login dialog closed with result:" << loginResult << "(QDialog::Accepted=" << QDialog::Accepted << ")";
-        qDebug() << "Auth successful:" << authSuccessful;
+        qDebug() << "Dialog closed. Auth successful:" << authSuccessful;
         qDebug() << "Authenticated user:" << authenticatedUser;
         
-        // Check if authentication was successful (ignore dialog result, rely on our flag)
+        // Check if authentication was successful
         if (authSuccessful) {
             qDebug() << "Authentication successful for user:" << authenticatedUser;
             qDebug() << "Creating main window...";
