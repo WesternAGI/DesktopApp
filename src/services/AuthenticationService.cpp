@@ -36,33 +36,22 @@ AuthenticationService::~AuthenticationService() = default;
 
 void AuthenticationService::initializeDemoUsers()
 {
-    // Create some demo users for testing
-    QJsonObject demoUser1;
-    demoUser1["id"] = "demo-user-1";
-    demoUser1["phoneNumber"] = "+15550000001"; // E.164 demo
-    demoUser1["username"] = "demo";
-    demoUser1["firstName"] = "Demo";
-    demoUser1["lastName"] = "User";
-    demoUser1["passwordHash"] = hashPassword("demo123", "demosalt");
-    demoUser1["salt"] = "demosalt";
-    demoUser1["phoneVerified"] = true;
-    demoUser1["twoFactorEnabled"] = true;
-    demoUser1["createdAt"] = QDateTime::currentDateTime().toString(Qt::ISODate);
+    // Create demo user for testing
+    QJsonObject demoUser;
+    demoUser["id"] = "demo-user-1";
+    demoUser["phoneNumber"] = "+15550000001"; // E.164 demo
+    demoUser["username"] = "demo";
+    demoUser["firstName"] = "Demo";
+    demoUser["lastName"] = "User";
+    demoUser["passwordHash"] = hashPassword("demo123", "demosalt");
+    demoUser["salt"] = "demosalt";
+    demoUser["phoneVerified"] = true;
+    demoUser["twoFactorEnabled"] = false; // Disable 2FA for simplicity
+    demoUser["createdAt"] = QDateTime::currentDateTime().toString(Qt::ISODate);
     
-    QJsonObject demoUser2;
-    demoUser2["id"] = "admin-user-1";
-    demoUser2["phoneNumber"] = "+15550000002";
-    demoUser2["username"] = "admin";
-    demoUser2["firstName"] = "Admin";
-    demoUser2["lastName"] = "User";
-    demoUser2["passwordHash"] = hashPassword("admin123", "adminsalt");
-    demoUser2["salt"] = "adminsalt";
-    demoUser2["phoneVerified"] = true;
-    demoUser2["twoFactorEnabled"] = false;
-    demoUser2["createdAt"] = QDateTime::currentDateTime().toString(Qt::ISODate);
-    
-    m_demoUsers["+15550000001"] = demoUser1;
-    m_demoUsers["+15550000002"] = demoUser2;
+    // Only store the single demo user
+    m_demoUsers["+15550000001"] = demoUser;
+    m_demoUsers["demo"] = demoUser; // Also allow username lookup
 }
 
 void AuthenticationService::signIn(const QString &usernameOrPhone, const QString &password, bool rememberMe)
