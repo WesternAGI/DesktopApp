@@ -28,12 +28,12 @@ int main(int argc, char *argv[])
     // High DPI attributes deprecated in Qt6 (scaling auto-enabled if QT_ENABLE_HIGHDPI_SCALING); removed deprecated calls
     
     // Initialize application core
-    DesktopApp::Application gadApp;
-    if (!gadApp.initialize()) {
+    DesktopApp::Application desktopApp;
+    if (!desktopApp.initialize()) {
         return -1;
     }
     // Install crash handler (mini dumps) to app data crashdumps directory
-    DesktopApp::CrashHandler::install(gadApp.appDataDir() + "/crashdumps", QApplication::applicationName(), QApplication::applicationVersion());
+    DesktopApp::CrashHandler::install(desktopApp.appDataDir() + "/crashdumps", QApplication::applicationName(), QApplication::applicationVersion());
     
     // Check if user wants to skip authentication (for demo purposes)
     bool skipAuth = QApplication::arguments().contains("--skip-auth");
