@@ -1,4 +1,4 @@
-# GadAI Project Status
+# DesktopApp Project Status
 
 ## Current State: Working Prototype
 

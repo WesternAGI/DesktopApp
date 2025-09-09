@@ -1,10 +1,10 @@
 # Architecture Guide
 
-Complete technical overview of GadAI's design, workflow, and codebase structure.
+Complete technical overview of DesktopApp's design, workflow, and codebase structure.
 
 ## System Overview
 
-GadAI is a modular desktop chat application built with C++17/Qt6. The architecture follows a layered approach with clear separation of concerns.
+DesktopApp is a modular desktop chat application built with C++17/Qt6. The architecture follows a layered approach with clear separation of concerns.
 
 ### Design Principles
 - **Modular:** Independent components with well-defined interfaces
@@ -48,7 +48,7 @@ User input → MainWindow → Provider selection → AI processing → Response 
 ## Project Structure
 
 ```
-GadAI/
+DesktopApp/
 ├── src/                    # Source code
 │   ├── core/              # Application core
 │   ├── ui/                # User interface
@@ -191,12 +191,12 @@ connect(authService, &AuthenticationService::authenticationFinished,
 ### CMake Configuration
 - **CMakeLists.txt:** Main build configuration
 - **Cross-platform:** Handles Qt finding and linking
-- **Targets:** Separate library (GadAILib) and executable (GadAI)
+- **Targets:** Separate library (DesktopAppLib) and executable (DesktopApp)
 - **Dependencies:** Automatic Qt component detection
 
 ### Library Structure
-- **GadAILib:** Static library containing all core functionality
-- **GadAI:** Minimal executable that links to library
+- **DesktopAppLib:** Static library containing all core functionality
+- **DesktopApp:** Minimal executable that links to library
 - **Benefits:** Faster incremental builds, easier testing
 
 ## Development Guidelines

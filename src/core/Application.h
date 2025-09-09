@@ -3,7 +3,7 @@
 #include "data/JsonStore.h"
 #include <memory>
 
-namespace GadAI {
+namespace DesktopApp {
 
 class ThemeManager;
 class IconRegistry;
@@ -80,4 +80,4 @@ private:
     QString m_configDir;
 };
 
-} // namespace GadAI
+} // namespace DesktopApp

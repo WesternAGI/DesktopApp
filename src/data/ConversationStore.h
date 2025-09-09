@@ -6,7 +6,7 @@
 #include <QSqlError>
 #include "Models.h"
 
-namespace GadAI {
+namespace DesktopApp {
 
 /**
  * @brief Database store for conversations, messages, and related data
@@ -96,4 +96,4 @@ private:
     static const int LATEST_VERSION = 5;
 };
 
-} // namespace GadAI
+} // namespace DesktopApp

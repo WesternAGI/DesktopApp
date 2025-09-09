@@ -17,7 +17,7 @@
 #include <QDebug>
 #include <QCoreApplication>
 
-namespace GadAI {
+namespace DesktopApp {
 
 Application* Application::s_instance = nullptr;
 
@@ -147,4 +147,4 @@ void Application::onThemeChanged()
     emit themeChanged();
 }
 
-} // namespace GadAI
+} // namespace DesktopApp

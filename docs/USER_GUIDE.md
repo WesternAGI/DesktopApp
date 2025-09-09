@@ -1,6 +1,6 @@
-# GadAI User Guide
+# DesktopApp User Guide
 
-Quick guide to using GadAI desktop chat application.
+Quick guide to using DesktopApp desktop chat application.
 
 ## Getting Started
 
@@ -11,7 +11,7 @@ Quick guide to using GadAI desktop chat application.
 
 **Skip Login (Development):**
 ```bash
-./GadAI --skip-auth
+./DesktopApp --skip-auth
 ```
 
 ## Main Interface
@@ -106,13 +106,13 @@ Currently the settings window is basic and includes:
 
 **On Windows (PowerShell):**
 ```powershell
-.\GadAI.exe
+.\DesktopApp.exe
 # Check the terminal output for error messages
 ```
 
 **On macOS/Linux:**
 ```bash
-./GadAI
+./DesktopApp
 # Error messages will appear in the terminal
 ```
 
@@ -184,4 +184,4 @@ This is a prototype version, so:
 
 ---
 
-**Remember**: GadAI is currently a prototype. Many features shown in the interface are not fully implemented yet.
+**Remember**: DesktopApp is currently a prototype. Many features shown in the interface are not fully implemented yet.

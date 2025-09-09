@@ -6,7 +6,7 @@
 #include <QDebug>
 #include <QSqlRecord>
 
-namespace GadAI {
+namespace DesktopApp {
 
 ConversationStore::ConversationStore(QSqlDatabase &database, QObject *parent)
     : QObject(parent)
@@ -798,4 +798,4 @@ bool ConversationStore::executeQuery(QSqlQuery &query) const
     return true;
 }
 
-} // namespace GadAI
+} // namespace DesktopApp

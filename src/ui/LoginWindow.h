@@ -20,7 +20,7 @@
 #include <QPixmap>
 #include <QMovie>
 
-namespace GadAI {
+namespace DesktopApp {
 
 class AuthenticationService;
 
@@ -196,4 +196,4 @@ private:
     QString m_placeholderColor;
 };
 
-} // namespace GadAI
+} // namespace DesktopApp

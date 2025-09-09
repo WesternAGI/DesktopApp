@@ -10,7 +10,7 @@
 #include <QMediaDevices>
 #include <memory>
 
-namespace GadAI {
+namespace DesktopApp {
 
 /**
  * @brief Audio recording service for voice input
@@ -104,4 +104,4 @@ private:
     QMediaDevices m_mediaDevices; // monitors device changes (Qt6)
 };
 
-} // namespace GadAI
+} // namespace DesktopApp

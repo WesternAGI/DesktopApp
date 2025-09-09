@@ -4,7 +4,7 @@
 #include <QFileInfo>
 #include <QDebug>
 
-namespace GadAI {
+namespace DesktopApp {
 
 // Helper function to generate UUIDs
 QString generateId() {
@@ -423,4 +423,4 @@ bool SearchResult::isValid() const
     return !messageId.isEmpty() && !conversationId.isEmpty();
 }
 
-} // namespace GadAI
+} // namespace DesktopApp

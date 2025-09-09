@@ -19,7 +19,7 @@
 #include <QDateTime>
 #include <QDebug>
 
-namespace GadAI {
+namespace DesktopApp {
 
 EchoProvider::EchoProvider(QObject *parent)
     : AIProvider(parent)
@@ -446,6 +446,6 @@ void EchoProviderConfigWidget::setConfig(const QJsonObject &config)
     m_enableMarkdownCheckBox->setChecked(config.value("enableMarkdown").toBool(true));
 }
 
-} // namespace GadAI
+} // namespace DesktopApp
 
 // MOC include not required when using CMake AUTOMOC and proper Q_OBJECT usage

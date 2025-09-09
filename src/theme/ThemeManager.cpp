@@ -2,7 +2,7 @@
 #include <QApplication>
 #include <QDebug>
 
-namespace GadAI {
+namespace DesktopApp {
 
 ThemeManager::ThemeManager(QObject *parent)
     : QObject(parent)
@@ -328,4 +328,4 @@ QSplitter::handle:vertical {
         .arg(m_tokens.primaryHover.name());   // %8 - primary hover
 }
 
-} // namespace GadAI
+} // namespace DesktopApp

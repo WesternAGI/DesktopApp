@@ -1,7 +1,7 @@
 #include "ProviderSDK.h"
 #include <QDebug>
 
-namespace GadAI {
+namespace DesktopApp {
 
 // AIProvider implementation
 AIProvider::AIProvider(QObject *parent)
@@ -77,4 +77,4 @@ QIcon ProviderRegistry::providerIcon(const QString &id) const
 
 // ProviderManager implementation moved to ProviderManager.{h,cpp}
 
-} // namespace GadAI
+} // namespace DesktopApp

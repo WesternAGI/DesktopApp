@@ -6,7 +6,7 @@
 #include <QFileInfo>
 #include <QStringList>
 
-namespace GadAI {
+namespace DesktopApp {
 
 /**
  * @brief File management service for attachments and media
@@ -126,4 +126,4 @@ private:
     static const QStringList AUDIO_EXTENSIONS;
 };
 
-} // namespace GadAI
+} // namespace DesktopApp

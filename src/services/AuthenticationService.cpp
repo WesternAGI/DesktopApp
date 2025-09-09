@@ -12,13 +12,13 @@
 #include <QUrl>
 #include <QUrlQuery>
 
-namespace GadAI {
+namespace DesktopApp {
 
 AuthenticationService::AuthenticationService(QObject *parent)
     : QObject(parent)
     , m_networkManager(new QNetworkAccessManager(this))
     , m_settings(new QSettings(QSettings::IniFormat, QSettings::UserScope, 
-                              "GadAI", "authentication", this))
+                              "DesktopApp", "authentication", this))
     , m_tokenRefreshTimer(new QTimer(this))
     , m_isAuthenticated(false)
     , m_useLocalAuth(true) // Use local auth for demo purposes
@@ -466,7 +466,7 @@ void AuthenticationService::registerLocally(const QString &firstName, const QStr
 void AuthenticationService::saveLocalUser(const UserProfile &user, const QString &passwordHash)
 {
     QSettings userSettings(QSettings::IniFormat, QSettings::UserScope, 
-                          "GadAI", "users", this);
+                          "DesktopApp", "users", this);
     
     QString userKey = QString("user_%1/").arg(user.phoneNumber);
     userSettings.setValue(userKey + "id", user.id);
@@ -505,4 +505,4 @@ AuthenticationService::UserProfile AuthenticationService::loadLocalUser(const QS
     return user;
 }
 
-} // namespace GadAI
+} // namespace DesktopApp

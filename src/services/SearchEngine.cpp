@@ -6,7 +6,7 @@
 #include <QSet>
 #include <algorithm>
 
-namespace GadAI {
+namespace DesktopApp {
 
 SearchEngine::SearchEngine(JsonStore *conversationStore, QObject *parent)
     : QObject(parent)
@@ -424,4 +424,4 @@ bool SearchEngine::isStopWord(const QString &word) const
     return m_stopWords.contains(word.toLower());
 }
 
-} // namespace GadAI
+} // namespace DesktopApp

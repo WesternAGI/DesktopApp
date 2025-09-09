@@ -8,13 +8,13 @@
 #include <QWidget>
 #include "data/Models.h"
 
-namespace GadAI {
+namespace DesktopApp {
 
 /**
  * @brief Abstract base class for AI providers
  * 
  * Defines the interface that all AI providers must implement to integrate
- * with the GadAI application. This allows for pluggable AI backends.
+ * with the DesktopApp application. This allows for pluggable AI backends.
  */
 class AIProvider : public QObject
 {
@@ -156,4 +156,4 @@ private:
  */
 // ProviderManager now separated into its own header (ProviderManager.h)
 
-} // namespace GadAI
+} // namespace DesktopApp

@@ -7,7 +7,7 @@
 #include <QIcon>
 #include <memory>
 
-namespace GadAI {
+namespace DesktopApp {
 
 /**
  * @brief Icon registry managing SVG icons with theme support
@@ -58,4 +58,4 @@ private:
     QString getDefaultIcon(const QString& name) const;
 };
 
-} // namespace GadAI
+} // namespace DesktopApp

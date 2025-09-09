@@ -12,7 +12,7 @@
 #include <QMenu>
 #include "data/Models.h"
 
-namespace GadAI {
+namespace DesktopApp {
 
 /**
  * @brief Message composer widget with attachment and voice support
@@ -143,4 +143,4 @@ private:
     bool m_hasError;
 };
 
-} // namespace GadAI
+} // namespace DesktopApp

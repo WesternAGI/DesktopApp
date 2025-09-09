@@ -8,7 +8,7 @@
 #include <windows.h>
 #include <dbghelp.h>
 
-namespace GadAI {
+namespace DesktopApp {
 
 QString CrashHandler::s_dumpDir;
 QString CrashHandler::s_appName;
@@ -91,12 +91,12 @@ void CrashHandler::install(const QString &dumpDir, const QString &appName, const
     SetUnhandledExceptionFilter(sehHandler);
 }
 
-} // namespace GadAI
+} // namespace DesktopApp
 
 #else
 
-namespace GadAI {
+namespace DesktopApp {
 void CrashHandler::install(const QString &, const QString &, const QString &) {}
-} // namespace GadAI
+} // namespace DesktopApp
 
 #endif

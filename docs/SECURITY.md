@@ -1,6 +1,6 @@
-# GadAI Security Guide
+# DesktopApp Security Guide
 
-Security features and considerations for GadAI.
+Security features and considerations for DesktopApp.
 
 ## Security Status: Basic Protection
 
@@ -26,9 +26,9 @@ Security features and considerations for GadAI.
 ## Data Storage
 
 ### Local Files
-**Windows:** `%APPDATA%\GadAI Project\GadAI\`  
-**macOS:** `~/Library/Preferences/GadAI Project/GadAI/`  
-**Linux:** `~/.config/GadAI Project/GadAI/`
+**Windows:** `%APPDATA%\DesktopApp Project\DesktopApp\`  
+**macOS:** `~/Library/Preferences/DesktopApp Project/DesktopApp/`  
+**Linux:** `~/.config/DesktopApp Project/DesktopApp/`
 
 ### What's Stored
 - Application settings and preferences
@@ -73,8 +73,8 @@ This is a prototype project. For security concerns:
 
 ## Disclaimer
 
-GadAI is currently a prototype application focused on local development and testing. Security features are basic and suitable only for non-production use. Do not use for sensitive or confidential communications.
-- **Linux**: `~/.config/GadAI Project/GadAI/`
+DesktopApp is currently a prototype application focused on local development and testing. Security features are basic and suitable only for non-production use. Do not use for sensitive or confidential communications.
+- **Linux**: `~/.config/DesktopApp Project/DesktopApp/`
 
 **Future Storage Security:**
 - Message encryption for sensitive conversations
@@ -274,10 +274,10 @@ GadAI is currently a prototype application focused on local development and test
 | Secret rotation | Re-encrypt on passphrase change |
 
 #### Data Files
-GadAI stores conversation data as JSON files under the application data directory:
+DesktopApp stores conversation data as JSON files under the application data directory:
 
 ```
-<AppData>/GadAI/
+<AppData>/DesktopApp/
     conversations.json
     messages.json
 ```
@@ -770,9 +770,9 @@ public:
 
 ## Conclusion
 
-Security is an ongoing process that requires constant vigilance and improvement. This guide provides the foundation for maintaining security throughout the development and deployment lifecycle of GadAI.
+Security is an ongoing process that requires constant vigilance and improvement. This guide provides the foundation for maintaining security throughout the development and deployment lifecycle of DesktopApp.
 
-For security issues or questions, please contact: security@gadai.com
+For security issues or questions, please contact: security@desktopapp.com
 
 ---
 

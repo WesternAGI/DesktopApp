@@ -21,7 +21,7 @@
 #include "services/SearchEngine.h"
 #include <QTimer>
 
-namespace GadAI {
+namespace DesktopApp {
 
 ConversationListWidget::ConversationListWidget(QWidget *parent)
     : QWidget(parent)
@@ -584,4 +584,4 @@ bool ConversationListWidget::eventFilter(QObject *object, QEvent *event)
     return QWidget::eventFilter(object, event);
 }
 
-} // namespace GadAI
+} // namespace DesktopApp

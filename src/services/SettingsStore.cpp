@@ -18,7 +18,7 @@
 #include <QFile>
 #endif
 
-namespace GadAI {
+namespace DesktopApp {
 
 SettingsStore::SettingsStore(const QString &configDir, QObject *parent)
     : QObject(parent)
@@ -86,12 +86,12 @@ void SettingsStore::sync()
 
 QString SettingsStore::getKeychainService() const
 {
-    return "GadAI";
+    return "DesktopApp";
 }
 
 QString SettingsStore::getKeychainKey(const QString &key) const
 {
-    return QString("gadai_%1").arg(key);
+    return QString("desktopapp_%1").arg(key);
 }
 
 #ifdef Q_OS_WIN
@@ -319,7 +319,7 @@ bool SettingsStore::storeSecret(const QString &key, const QString &secret)
     
     // Simple XOR encryption with a fixed key (not secure for production)
     QByteArray secretData = secret.toUtf8();
-    QByteArray key_bytes = "GadAI_Secret_Key_2025"; // In production, use proper encryption
+    QByteArray key_bytes = "DesktopApp_Secret_Key_2025"; // In production, use proper encryption
     
     for (int i = 0; i < secretData.size(); ++i) {
         secretData[i] = secretData[i] ^ key_bytes[i % key_bytes.size()];
@@ -352,7 +352,7 @@ QString SettingsStore::getSecret(const QString &key) const
         file.close();
         
         // Decrypt with same XOR key
-        QByteArray key_bytes = "GadAI_Secret_Key_2025";
+        QByteArray key_bytes = "DesktopApp_Secret_Key_2025";
         
         for (int i = 0; i < encryptedData.size(); ++i) {
             encryptedData[i] = encryptedData[i] ^ key_bytes[i % key_bytes.size()];
@@ -393,4 +393,4 @@ bool SettingsStore::hasSecret(const QString &key) const
 
 #endif
 
-} // namespace GadAI
+} // namespace DesktopApp

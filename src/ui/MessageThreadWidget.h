@@ -17,7 +17,7 @@
 #include "data/Models.h"
 #include "providers/ProviderManager.h"
 
-namespace GadAI {
+namespace DesktopApp {
 
 class MessageWidget;
 class ProviderManager;
@@ -214,4 +214,4 @@ private:
     QGraphicsOpacityEffect *m_actionsEffect;
 };
 
-} // namespace GadAI
+} // namespace DesktopApp

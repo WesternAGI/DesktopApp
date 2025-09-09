@@ -1,6 +1,6 @@
 # Installation Guide
 
-Step-by-step instructions to build and run GadAI on Windows, macOS, and Linux.
+Step-by-step instructions to build and run DesktopApp on Windows, macOS, and Linux.
 
 ## Prerequisites
 
@@ -59,8 +59,8 @@ sudo pacman -S qt6-base qt6-multimedia qt6-svg cmake gcc git
 ## Step 2: Clone Repository
 
 ```bash
-git clone https://github.com/WesternAGI/GadAI.git
-cd GadAI
+git clone https://github.com/WesternAGI/DesktopApp.git
+cd DesktopApp
 ```
 
 ## Step 3: Build Application
@@ -95,14 +95,14 @@ cmake --build build -j$(nproc)
 
 ### Windows
 ```cmd
-.\build\Release\GadAI.exe
+.\build\Release\DesktopApp.exe
 # or for MinGW build:
-.\build\GadAI.exe
+.\build\DesktopApp.exe
 ```
 
 ### macOS/Linux
 ```bash
-./build/GadAI
+./build/DesktopApp
 ```
 
 ## Troubleshooting
@@ -124,8 +124,8 @@ cmake --build build -j$(nproc)
 - Check CMake and compiler versions
 
 **App crashes after login**
-- Try skip-auth mode: `./build/GadAI --skip-auth`
-- Delete settings: Windows: `%APPDATA%\GadAI Project\`, macOS/Linux: `~/.config/GadAI Project/`
+- Try skip-auth mode: `./build/DesktopApp --skip-auth`
+- Delete settings: Windows: `%APPDATA%\DesktopApp Project\`, macOS/Linux: `~/.config/DesktopApp Project/`
 
 ## Development Build
 

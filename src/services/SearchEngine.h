@@ -5,7 +5,7 @@
 #include <QStringList>
 #include "data/Models.h"
 
-namespace GadAI {
+namespace DesktopApp {
 
 class JsonStore;
 
@@ -88,4 +88,4 @@ private:
     QStringList m_stopWords;
 };
 
-} // namespace GadAI
+} // namespace DesktopApp

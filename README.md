@@ -1,4 +1,4 @@
-# GadAI
+# DesktopApp
 
 A desktop chat application built with C++17 and Qt6.
 
@@ -23,11 +23,11 @@ A desktop chat application built with C++17 and Qt6.
 
 ### Build & Run
 ```bash
-git clone https://github.com/WesternAGI/GadAI.git
-cd GadAI
+git clone https://github.com/WesternAGI/DesktopApp.git
+cd DesktopApp
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
-./build/GadAI  # or .\build\GadAI.exe on Windows
+./build/DesktopApp  # or .\build\DesktopApp.exe on Windows
 ```
 
 ## Documentation

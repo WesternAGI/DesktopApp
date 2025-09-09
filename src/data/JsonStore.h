@@ -10,7 +10,7 @@
 #include <QTimer>
 #include "Models.h"
 
-namespace GadAI {
+namespace DesktopApp {
 
 /**
  * @brief Lightweight JSON-based storage replacing SQLite
@@ -70,4 +70,4 @@ private:
     bool m_loaded = false;
 };
 
-} // namespace GadAI
+} // namespace DesktopApp

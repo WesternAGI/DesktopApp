@@ -3,7 +3,7 @@
 #include <QJsonParseError>
 #include <QDebug>
 
-namespace GadAI {
+namespace DesktopApp {
 
 JsonStore::JsonStore(QObject *parent)
     : QObject(parent)
@@ -333,4 +333,4 @@ int JsonStore::getConversationMessageCount(const QString &conversationId) const
     return count;
 }
 
-} // namespace GadAI
+} // namespace DesktopApp

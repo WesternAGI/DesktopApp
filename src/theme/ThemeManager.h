@@ -6,7 +6,7 @@
 #include <QHash>
 #include <QVariant>
 
-namespace GadAI {
+namespace DesktopApp {
 
 /**
  * @brief Design token structure for theming system
@@ -113,4 +113,4 @@ private:
     QHash<QString, QColor> m_colorMap;
 };
 
-} // namespace GadAI
+} // namespace DesktopApp

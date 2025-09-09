@@ -7,7 +7,7 @@
 #include <QUuid>
 #include <QVector>
 
-namespace GadAI {
+namespace DesktopApp {
 
 /**
  * @brief User preferences and settings
@@ -194,4 +194,4 @@ using ProviderAccountList = QVector<ProviderAccount>;
 using PromptList = QVector<Prompt>;
 using SearchResultList = QVector<SearchResult>;
 
-} // namespace GadAI
+} // namespace DesktopApp

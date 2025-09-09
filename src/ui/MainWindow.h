@@ -13,7 +13,7 @@
 #include <QGraphicsOpacityEffect>
 #include <QParallelAnimationGroup>
 
-namespace GadAI {
+namespace DesktopApp {
 
 class ConversationListWidget;
 class MessageThreadWidget;
@@ -97,4 +97,4 @@ private:
     QPropertyAnimation *m_themeFadeAnimation {nullptr};
 };
 
-} // namespace GadAI
+} // namespace DesktopApp

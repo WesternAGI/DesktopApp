@@ -28,7 +28,7 @@
 #include <QRandomGenerator>
 #include "SimpleMarkdown.h"
 
-namespace GadAI {
+namespace DesktopApp {
 
 MessageThreadWidget::MessageThreadWidget(QWidget *parent)
     : QWidget(parent)
@@ -1492,4 +1492,4 @@ void MessageThreadWidget::adjustSuggestionsLayout()
     }
 }
 
-} // namespace GadAI
+} // namespace DesktopApp

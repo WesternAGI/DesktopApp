@@ -7,7 +7,7 @@
 #include <QSettings>
 #include <QMutex>
 
-namespace GadAI {
+namespace DesktopApp {
 
 /**
  * @brief Secure settings store with keychain integration
@@ -102,4 +102,4 @@ private:
     QString m_configDir;
 };
 
-} // namespace GadAI
+} // namespace DesktopApp

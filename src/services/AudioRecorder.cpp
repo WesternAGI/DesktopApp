@@ -7,7 +7,7 @@
 #include <QFile>
 #include <QMediaDevices>
 
-namespace GadAI {
+namespace DesktopApp {
 
 AudioRecorder::AudioRecorder(QObject *parent)
     : QObject(parent)
@@ -258,4 +258,4 @@ void AudioRecorder::handleDeviceChanged()
     }
 }
 
-} // namespace GadAI
+} // namespace DesktopApp

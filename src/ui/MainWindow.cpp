@@ -27,7 +27,7 @@
 #include <QToolBar>
 #include <QPropertyAnimation>
 
-namespace GadAI {
+namespace DesktopApp {
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -41,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_connectionLabel(nullptr)
     , m_modelLabel(nullptr)
 {
-    setWindowTitle("GadAI");
+    setWindowTitle("DesktopApp");
     setMinimumSize(1024, 768);
     resize(1400, 900);
 
@@ -170,7 +170,7 @@ void MainWindow::setupMenuBar()
     // Help menu
     QMenu *helpMenu = menuBar()->addMenu("&Help");
 
-    QAction *aboutAction = helpMenu->addAction("&About GadAI");
+    QAction *aboutAction = helpMenu->addAction("&About DesktopApp");
     connect(aboutAction, &QAction::triggered, this, &MainWindow::onAbout);
 }
 
@@ -327,11 +327,11 @@ void MainWindow::onToggleTheme()
 
 void MainWindow::onAbout()
 {
-    QMessageBox::about(this, "About GadAI",
-        "<h3>GadAI 1.0.0</h3>"
+    QMessageBox::about(this, "About DesktopApp",
+        "<h3>DesktopApp 1.0.0</h3>"
         "<p>A modern AI chat desktop application.</p>"
         "<p>Built with Qt6 and C++17.</p>"
-        "<p>Copyright © 2025 GadAI Project</p>"
+        "<p>Copyright © 2025 DesktopApp Project</p>"
         "<p><b>Features:</b></p>"
         "<ul>"
         "<li>Cross-platform desktop chat interface</li>"
@@ -472,7 +472,7 @@ void MainWindow::onAccountManagement()
     loginWindow->setAttribute(Qt::WA_DeleteOnClose);
     
     // Set window title to indicate it's for account management
-    loginWindow->setWindowTitle("Account Management - GadAI");
+    loginWindow->setWindowTitle("Account Management - DesktopApp");
     
     // Show the login window as a modal dialog
     loginWindow->exec();
@@ -512,4 +512,4 @@ void MainWindow::onSignOut()
     }
 }
 
-} // namespace GadAI
+} // namespace DesktopApp

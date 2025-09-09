@@ -8,7 +8,7 @@
 #include <QDebug>
 #include <QDirIterator>
 
-namespace GadAI {
+namespace DesktopApp {
 
 // Static file extension definitions
 const QStringList FileVault::IMAGE_EXTENSIONS = {
@@ -350,4 +350,4 @@ void FileVault::scanDirectory(const QString &dirPath, VaultStats &stats) const
     }
 }
 
-} // namespace GadAI
+} // namespace DesktopApp

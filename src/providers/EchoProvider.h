@@ -7,7 +7,7 @@
 #include <QSpinBox>
 #include <QCheckBox>
 
-namespace GadAI {
+namespace DesktopApp {
 
 /**
  * @brief Echo provider for offline demonstration
@@ -128,4 +128,4 @@ private:
     class QCheckBox *m_enableMarkdownCheckBox;
 };
 
-} // namespace GadAI
+} // namespace DesktopApp

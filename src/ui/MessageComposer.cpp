@@ -24,7 +24,7 @@
 #include <QPainter>
 #include <QDebug>
 
-namespace GadAI {
+namespace DesktopApp {
 
 MessageComposer::MessageComposer(QWidget *parent)
     : QWidget(parent)
@@ -494,4 +494,4 @@ void AttachmentWidget::paintEvent(QPaintEvent *event)
     }
 }
 
-} // namespace GadAI
+} // namespace DesktopApp

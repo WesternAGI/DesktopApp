@@ -20,7 +20,7 @@ class QListWidget;
 class QStackedWidget;
 class QScrollArea;
 
-namespace GadAI {
+namespace DesktopApp {
 
 class AIProvider;
 class ProviderManager;
@@ -250,4 +250,4 @@ private:
     ProviderManager *m_providerManager;
 };
 
-} // namespace GadAI
+} // namespace DesktopApp

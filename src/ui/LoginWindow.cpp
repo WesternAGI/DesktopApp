@@ -18,7 +18,7 @@
 #include <QStyle>
 #include <QDebug>
 
-namespace GadAI {
+namespace DesktopApp {
 
 LoginWindow::LoginWindow(QWidget *parent)
     : QDialog(parent)
@@ -36,7 +36,7 @@ LoginWindow::LoginWindow(QWidget *parent)
     , m_textColor("#111827")         // Dark gray
     , m_placeholderColor("#9CA3AF")  // Light gray
 {
-    setWindowTitle("Welcome to GadAI");
+    setWindowTitle("Welcome to DesktopApp");
     setModal(true);
     // Keep window resizable but ensure base size without needing scroll
     setMinimumSize(480, 640);
@@ -127,7 +127,7 @@ void LoginWindow::setupHeaderSection()
     m_logoLabel->setAlignment(Qt::AlignCenter);
     
     // Title
-    m_titleLabel = new QLabel("Welcome to GadAI");
+    m_titleLabel = new QLabel("Welcome to DesktopApp");
     m_titleLabel->setAlignment(Qt::AlignCenter);
     
     // Subtitle
@@ -1118,4 +1118,4 @@ void LoginWindow::resetForms()
     setAuthState(Idle);
 }
 
-} // namespace GadAI
+} // namespace DesktopApp

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(GadAI VERSION 1.0.0 LANGUAGES CXX)
+project(DesktopApp VERSION 1.0.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -68,9 +68,9 @@ set(RESOURCES
 )
 
 # Create static library with core sources (without main)
-add_library(GadAILib STATIC ${SOURCES} ${UI_SOURCES} ${RESOURCES})
+add_library(DesktopAppLib STATIC ${SOURCES} ${UI_SOURCES} ${RESOURCES})
 
-target_link_libraries(GadAILib
+target_link_libraries(DesktopAppLib
     PUBLIC
     Qt6::Core 
     Qt6::Widgets 
@@ -81,12 +81,12 @@ target_link_libraries(GadAILib
 )
 
 # Main executable (only main.cpp plus library)
-add_executable(GadAI src/main.cpp)
-target_link_libraries(GadAI PRIVATE GadAILib Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::Multimedia Qt6::TextToSpeech Qt6::Svg)
+add_executable(DesktopApp src/main.cpp)
+target_link_libraries(DesktopApp PRIVATE DesktopAppLib Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::Multimedia Qt6::TextToSpeech Qt6::Svg)
 
 # Link Qt6 libraries
 # (Platform-specific libs applied to both targets)
-foreach(tgt IN ITEMS GadAI GadAILib)
+foreach(tgt IN ITEMS DesktopApp DesktopAppLib)
     if(WIN32)
     target_link_libraries(${tgt} PRIVATE crypt32 Dbghelp)
     elseif(APPLE)
@@ -99,14 +99,14 @@ endforeach()
 # Testing fully removed (can be restored later if needed)
 
 # Install target
-install(TARGETS GadAI DESTINATION bin)
+install(TARGETS DesktopApp DESTINATION bin)
 
 # CPack configuration for installers
 include(CPack)
-set(CPACK_PACKAGE_NAME "GadAI")
+set(CPACK_PACKAGE_NAME "DesktopApp")
 set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Modern AI Chat Desktop Application")
-set(CPACK_PACKAGE_VENDOR "GadAI Project")
+set(CPACK_PACKAGE_VENDOR "DesktopApp Project")
 
 if(WIN32)
     set(CPACK_GENERATOR "WIX")

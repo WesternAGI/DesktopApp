@@ -1,7 +1,7 @@
 #include "SimpleMarkdown.h"
 #include <QRegularExpression>
 
-namespace GadAI {
+namespace DesktopApp {
 
 static QString escapeHtml(const QString &in) {
     QString s = in;
@@ -97,4 +97,4 @@ QString renderMarkdownToHtml(const QString &markdown, const MarkdownOptions &opt
     return html;
 }
 
-} // namespace GadAI
+} // namespace DesktopApp

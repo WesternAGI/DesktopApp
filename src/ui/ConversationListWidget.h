@@ -12,7 +12,7 @@
 #include <QEnterEvent>
 #include "data/Models.h"
 
-namespace GadAI {
+namespace DesktopApp {
 
 /**
  * @brief Widget for displaying and managing conversations list
@@ -130,4 +130,4 @@ private:
     Conversation m_conversation;
 };
 
-} // namespace GadAI
+} // namespace DesktopApp

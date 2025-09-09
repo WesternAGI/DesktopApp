@@ -11,7 +11,7 @@
 #include <QDateTime>
 #include <QElapsedTimer>
 
-namespace GadAI {
+namespace DesktopApp {
 
 /**
  * @brief Authentication service for user management
@@ -150,4 +150,4 @@ private:
     QString m_apiBase = "https://web-production-d7d37.up.railway.app"; // backend base URL
 };
 
-} // namespace GadAI
+} // namespace DesktopApp

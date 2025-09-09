@@ -1,6 +1,6 @@
 #include "ProviderManager.h"
 
-namespace GadAI {
+namespace DesktopApp {
 
 ProviderManager::ProviderManager(QObject *parent)
     : QObject(parent)
@@ -85,4 +85,4 @@ void ProviderManager::onProviderStatusChanged(AIProvider::Status status, const Q
     emit providerStatusChanged(status, message);
 }
 
-} // namespace GadAI
+} // namespace DesktopApp

@@ -2,7 +2,7 @@
 #pragma once
 #include <QString>
 
-namespace GadAI {
+namespace DesktopApp {
 struct MarkdownOptions {
     bool enableTables = true;
     bool enableMath = true; // Placeholder (KaTeX not yet integrated)

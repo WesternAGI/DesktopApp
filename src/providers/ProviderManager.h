@@ -5,7 +5,7 @@
 #include <QJsonObject>
 #include "ProviderSDK.h"
 
-namespace GadAI {
+namespace DesktopApp {
 
 class ProviderManager : public QObject {
     Q_OBJECT
@@ -45,4 +45,4 @@ private:
     QString m_activeProviderId;
 };
 
-} // namespace GadAI
+} // namespace DesktopApp

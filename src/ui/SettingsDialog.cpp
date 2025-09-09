@@ -38,7 +38,7 @@
 #include <QDebug>
 #include <QTimer>
 
-namespace GadAI {
+namespace DesktopApp {
 
 // GeneralSettingsWidget implementation
 GeneralSettingsWidget::GeneralSettingsWidget(QWidget *parent)
@@ -704,7 +704,7 @@ void PrivacySettingsWidget::onExportData()
 {
     QString fileName = QFileDialog::getSaveFileName(this,
                                                     "Export Data",
-                                                    QString("GadAI_Export_%1.json").arg(QDate::currentDate().toString("yyyy-MM-dd")),
+                                                    QString("DesktopApp_Export_%1.json").arg(QDate::currentDate().toString("yyyy-MM-dd")),
                                                     "JSON Files (*.json)");
     
     if (!fileName.isEmpty()) {
@@ -861,7 +861,7 @@ void AdvancedSettingsWidget::setupUI()
     connect(m_browseLogButton, &QPushButton::clicked, [this]() {
         QString fileName = QFileDialog::getSaveFileName(this,
                                                         "Select Log File",
-                                                        "GadAI.log",
+                                                        "DesktopApp.log",
                                                         "Log Files (*.log);;All Files (*.*)");
         if (!fileName.isEmpty()) {
             m_logFilePathEdit->setText(fileName);
@@ -982,7 +982,7 @@ SettingsDialog::SettingsDialog(ProviderManager *providerManager, QWidget *parent
     , m_hasUnsavedChanges(false)
     , m_providerManager(providerManager)
 {
-    setWindowTitle("Settings - GadAI");
+    setWindowTitle("Settings - DesktopApp");
     setModal(true);
     resize(800, 600);
     
@@ -1144,6 +1144,6 @@ void SettingsDialog::reject()
     }
 }
 
-} // namespace GadAI
+} // namespace DesktopApp
 
 // MOC include not needed with AUTOMOC

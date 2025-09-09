@@ -5,7 +5,7 @@
 #endif
 #include <QString>
 
-namespace GadAI {
+namespace DesktopApp {
 
 class CrashHandler {
 public:
@@ -19,4 +19,4 @@ private:
 #endif
 };
 
-} // namespace GadAI
+} // namespace DesktopApp

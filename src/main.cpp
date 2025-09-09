@@ -17,10 +17,10 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     
     // Set application metadata
-    QApplication::setApplicationName("GadAI");
+    QApplication::setApplicationName("DesktopApp");
     QApplication::setApplicationVersion("1.0.0");
-    QApplication::setOrganizationName("GadAI Project");
-    QApplication::setOrganizationDomain("gadai.local");
+    QApplication::setOrganizationName("DesktopApp Project");
+    QApplication::setOrganizationDomain("desktopapp.local");
     
     // Clear any default styling before our theme system takes over
     app.setStyleSheet("");
@@ -28,21 +28,21 @@ int main(int argc, char *argv[])
     // High DPI attributes deprecated in Qt6 (scaling auto-enabled if QT_ENABLE_HIGHDPI_SCALING); removed deprecated calls
     
     // Initialize application core
-    GadAI::Application gadApp;
+    DesktopApp::Application gadApp;
     if (!gadApp.initialize()) {
         return -1;
     }
     // Install crash handler (mini dumps) to app data crashdumps directory
-    GadAI::CrashHandler::install(gadApp.appDataDir() + "/crashdumps", QApplication::applicationName(), QApplication::applicationVersion());
+    DesktopApp::CrashHandler::install(gadApp.appDataDir() + "/crashdumps", QApplication::applicationName(), QApplication::applicationVersion());
     
     // Check if user wants to skip authentication (for demo purposes)
     bool skipAuth = QApplication::arguments().contains("--skip-auth");
     
-    GadAI::MainWindow *mainWindow = nullptr;
+    DesktopApp::MainWindow *mainWindow = nullptr;
     
     if (!skipAuth) {
         // Show login window first (no parent window yet)
-        GadAI::LoginWindow loginWindow;
+        DesktopApp::LoginWindow loginWindow;
         
         bool authSuccessful = false;
         QString authenticatedUser;
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
         bool dialogClosed = false;
         
         // Connect success signal to capture authentication result
-        QObject::connect(&loginWindow, &GadAI::LoginWindow::loginSuccessful,
+        QObject::connect(&loginWindow, &DesktopApp::LoginWindow::loginSuccessful,
                         [&authSuccessful, &authenticatedUser, &authToken, &dialogClosed, &loginWindow]
                         (const QString &username, const QString &token) {
             qDebug() << "loginSuccessful signal received for user:" << username;
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
             
             try {
                 // Now create and show the main window after successful authentication
-                mainWindow = new GadAI::MainWindow();
+                mainWindow = new DesktopApp::MainWindow();
                 qDebug() << "Main window created successfully";
                 mainWindow->show();
                 qDebug() << "Main window shown successfully";
@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
     } else {
         // Skip authentication - create and show main window directly
         qDebug() << "Skipping authentication (--skip-auth flag detected)";
-        mainWindow = new GadAI::MainWindow();
+        mainWindow = new DesktopApp::MainWindow();
         mainWindow->show();
     }
     
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
             mainWindow = nullptr;
         }
         
-        QString logPath = GadAI::Application::instance()->appDataDir() + "/gadai.log";
+        QString logPath = DesktopApp::Application::instance()->appDataDir() + "/desktopapp.log";
         QFile f(logPath);
         if (f.open(QIODevice::Append | QIODevice::Text)) {
             QTextStream ts(&f);
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
     try {
         rc = app.exec();
     } catch (const std::exception &ex) {
-        QString logPath = GadAI::Application::instance()->appDataDir() + "/gadai.log";
+        QString logPath = DesktopApp::Application::instance()->appDataDir() + "/desktopapp.log";
         QFile f(logPath);
         if (f.open(QIODevice::Append | QIODevice::Text)) {
             QTextStream ts(&f);
@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
         }
         rc = -2;
     } catch (...) {
-        QString logPath = GadAI::Application::instance()->appDataDir() + "/gadai.log";
+        QString logPath = DesktopApp::Application::instance()->appDataDir() + "/desktopapp.log";
         QFile f(logPath);
         if (f.open(QIODevice::Append | QIODevice::Text)) {
             QTextStream ts(&f);
@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
     }
     if (rc != 0) {
         // Distinguish abnormal termination if aboutToQuit not emitted (log may lack Normal exit line)
-        QString logPath = GadAI::Application::instance()->appDataDir() + "/gadai.log";
+        QString logPath = DesktopApp::Application::instance()->appDataDir() + "/desktopapp.log";
         QFile f(logPath);
         if (f.open(QIODevice::Append | QIODevice::Text)) {
             QTextStream ts(&f);

@@ -3,7 +3,7 @@
 #include <QPainter>
 #include <QDebug>
 
-namespace GadAI {
+namespace DesktopApp {
 
 IconRegistry::IconRegistry(QObject *parent)
     : QObject(parent)
@@ -208,4 +208,4 @@ QString IconRegistry::getDefaultIcon(const QString& name) const
     </svg>)";
 }
 
-} // namespace GadAI
+} // namespace DesktopApp
