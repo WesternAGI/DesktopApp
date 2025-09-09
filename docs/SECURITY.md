@@ -1,53 +1,79 @@
 # GadAI Security Guide
 
-This document explains the security features and considerations in GadAI.
+Security features and considerations for GadAI.
 
-## Security Overview
+## Security Status: Basic Protection
 
-GadAI is designed with security in mind, though as a prototype, many advanced security features are planned for future versions. The current focus is on basic security practices and safe local data handling.
-
-### Current Security Level: **Basic Protection**
-
-✅ **What's Secure Now:**
-- Local-only data storage (no cloud sync)
-- Basic password hashing for demo accounts
-- Settings stored using Qt's secure storage mechanisms
-- No network communication (reduces attack surface)
-- Local authentication only
-
-⚠️ **What's Planned But Not Implemented:**
-- Message encryption
-- Secure file attachments
-- Advanced authentication (2FA, OAuth)
-- Network security features
-- Enterprise security controls
+**Current Level:** Prototype security for local development  
+**Risk Level:** Low (local-only application, no network features)
 
 ## Current Security Features
 
-### 1. Authentication
+### ✅ Implemented
+- **Local Storage:** All data stays on your computer
+- **Demo Authentication:** Basic password hashing for test accounts
+- **Session Management:** Secure session tokens instead of password storage
+- **File Permissions:** Standard OS file protection
+- **No Network Risk:** No cloud sync or remote data transmission
 
-**Demo Account Security:**
-- Passwords are hashed (not stored in plaintext)
-- Session tokens are used instead of passwords
-- Basic protection against common authentication issues
-
-**Future Authentication Plans:**
-- Real user registration with strong password requirements
+### ⚠️ Planned (Not Yet Implemented)
+- Message encryption for data at rest
+- Secure file attachment handling
 - Two-factor authentication (2FA)
-- OAuth integration with popular services
-- Biometric authentication support
+- OAuth integration with external services
+- Advanced password requirements
 
-### 2. Data Storage
+## Data Storage
 
-**Local Storage:**
-- All data stays on your computer
-- No cloud synchronization (privacy by design)
-- Standard file system permissions protect data
-- Qt's secure settings storage for preferences
+### Local Files
+**Windows:** `%APPDATA%\GadAI Project\GadAI\`  
+**macOS:** `~/Library/Preferences/GadAI Project/GadAI/`  
+**Linux:** `~/.config/GadAI Project/GadAI/`
 
-**File Locations:**
-- **Windows**: `%APPDATA%\GadAI Project\GadAI\`
-- **macOS**: `~/Library/Preferences/GadAI Project/GadAI/`
+### What's Stored
+- Application settings and preferences
+- Demo account session tokens
+- Theme and UI preferences
+- No sensitive user data or messages (in prototype)
+
+## Privacy
+
+### Data Collection
+- **None:** No analytics, telemetry, or usage tracking
+- **Local Only:** All data remains on your device
+- **No Network:** No data transmitted to external servers
+
+### Future Privacy Features
+- Optional message encryption
+- Local-only AI processing options
+- Data export and deletion tools
+- Privacy-focused AI provider options
+
+## Security Best Practices
+
+### For Users
+- Keep your system updated with latest security patches
+- Use strong passwords when real authentication is implemented
+- Review file permissions in data directories
+- Be aware this is a prototype with limited security features
+
+### For Developers
+- Follow secure coding practices
+- Validate all user inputs
+- Use Qt's secure storage mechanisms
+- Plan for security from the beginning
+
+## Reporting Security Issues
+
+This is a prototype project. For security concerns:
+1. Check if the issue affects the current local-only scope
+2. Consider the planned network features in your assessment
+3. Report issues through standard project channels
+4. Include impact assessment and suggested mitigations
+
+## Disclaimer
+
+GadAI is currently a prototype application focused on local development and testing. Security features are basic and suitable only for non-production use. Do not use for sensitive or confidential communications.
 - **Linux**: `~/.config/GadAI Project/GadAI/`
 
 **Future Storage Security:**
