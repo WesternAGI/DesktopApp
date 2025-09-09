@@ -36,30 +36,62 @@ int main(int argc, char *argv[])
     // Check if user wants to skip authentication (for demo purposes)
     bool skipAuth = QApplication::arguments().contains("--skip-auth");
     
-    // Always create and show main window first
-    GadAI::MainWindow *mainWindow = new GadAI::MainWindow();
-    mainWindow->show();
+    GadAI::MainWindow *mainWindow = nullptr;
     
     if (!skipAuth) {
-        // Show login window as a modal dialog
-        GadAI::LoginWindow loginWindow(mainWindow);
+        // Show login window first (no parent window yet)
+        GadAI::LoginWindow loginWindow;
         
-        // Connect success signal to hide the login window
+        bool authSuccessful = false;
+        QString authenticatedUser;
+        QString authToken;
+        
+        // Connect success signal to capture authentication result
         QObject::connect(&loginWindow, &GadAI::LoginWindow::loginSuccessful,
-                        [&loginWindow](const QString &username, const QString &token) {
-            Q_UNUSED(username)
-            Q_UNUSED(token)
-            // Hide the login window instead of calling accept
-            loginWindow.hide();
+                        [&authSuccessful, &authenticatedUser, &authToken, &loginWindow]
+                        (const QString &username, const QString &token) {
+            authenticatedUser = username;
+            authToken = token;
+            authSuccessful = true;
+            loginWindow.accept(); // Close the login dialog
         });
         
-        // Show login dialog modally, but ignore the return value since we handle success differently
-        loginWindow.exec();
+        // Show login dialog modally and wait for result
+        int loginResult = loginWindow.exec();
+        
+        // Only proceed if authentication was successful
+        if (loginResult == QDialog::Accepted && authSuccessful) {
+            qDebug() << "Authentication successful for user:" << authenticatedUser;
+            
+            // Now create and show the main window after successful authentication
+            mainWindow = new GadAI::MainWindow();
+            mainWindow->show();
+        } else {
+            qDebug() << "Authentication failed or cancelled. Exiting application.";
+            return 0; // Exit if authentication failed
+        }
+    } else {
+        // Skip authentication - create and show main window directly
+        qDebug() << "Skipping authentication (--skip-auth flag detected)";
+        mainWindow = new GadAI::MainWindow();
+        mainWindow->show();
+    }
+    
+    // Ensure we have a main window before proceeding
+    if (!mainWindow) {
+        qDebug() << "No main window created. Exiting application.";
+        return 0;
     }
     
     qDebug() << "main.cpp: Starting application event loop";
     
     QObject::connect(&app, &QCoreApplication::aboutToQuit, [&]() {
+        // Clean up main window
+        if (mainWindow) {
+            delete mainWindow;
+            mainWindow = nullptr;
+        }
+        
         QString logPath = GadAI::Application::instance()->appDataDir() + "/gadai.log";
         QFile f(logPath);
         if (f.open(QIODevice::Append | QIODevice::Text)) {
