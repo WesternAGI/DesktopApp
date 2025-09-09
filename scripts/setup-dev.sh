@@ -1,10 +1,10 @@
 #!/bin/bash
-# GadAI Development Setup Script
+# DesktopApp Development Setup Script
 # Supports Windows (via Git Bash/WSL), macOS, and Linux
 
 set -e
 
-echo "🚀 GadAI Development Setup"
+echo "🚀 DesktopApp Development Setup"
 echo "=============================="
 
 # Detect operating system
@@ -230,7 +230,7 @@ else
 fi
 
 # Run tests if available
-if [ -f "./tests/GadAI_Tests" ] || [ -f "./tests/Debug/GadAI_Tests.exe" ]; then
+if [ -f "./tests/DesktopApp_Tests" ] || [ -f "./tests/Debug/DesktopApp_Tests.exe" ]; then
     echo "🧪 Running tests..."
     ctest --output-on-failure
 fi
@@ -239,15 +239,15 @@ echo ""
 echo "🎉 Setup complete!"
 echo "==================="
 echo ""
-echo "To run GadAI:"
+echo "To run DesktopApp:"
 if [ -d "Debug" ]; then
     if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
-        echo "  ./Debug/GadAI.exe"
+        echo "  ./Debug/DesktopApp.exe"
     else
-        echo "  ./Debug/GadAI"
+        echo "  ./Debug/DesktopApp"
     fi
 else
-        echo "  ./GadAI"
+        echo "  ./DesktopApp"
 echo ""
 echo "For development:"
 echo "  - Use Qt Creator or VS Code with C++ extensions"
