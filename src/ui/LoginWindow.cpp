@@ -145,13 +145,13 @@ void LoginWindow::setupSignInPage()
     formLayout->setSpacing(8); // compact vertical rhythm
     formLayout->setContentsMargins(0,0,0,0);
     
-    // Phone field
-    QLabel *phoneLabel = new QLabel("Phone Number");
-    phoneLabel->setObjectName("fieldLabel");
+    // Username field
+    QLabel *usernameLabel = new QLabel("Username");
+    usernameLabel->setObjectName("fieldLabel");
     m_signInPhoneEdit = new QLineEdit;
-    m_signInPhoneEdit->setPlaceholderText("Enter phone (e.g. +15551234567)");
+    m_signInPhoneEdit->setPlaceholderText("Enter your username");
 
-    formLayout->addWidget(phoneLabel);
+    formLayout->addWidget(usernameLabel);
     formLayout->addWidget(m_signInPhoneEdit);
     
     // Password field
