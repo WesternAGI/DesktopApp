@@ -22,8 +22,8 @@ qrc_*.cpp
 
 # Executables
 *.exe
-GadAI
-GadAI.app/
+DesktopApp
+DesktopApp.app/
 
 # Libraries
 *.lib
