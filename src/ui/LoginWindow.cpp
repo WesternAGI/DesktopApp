@@ -1004,13 +1004,13 @@ void LoginWindow::performSignIn()
         m_authService->signIn(username, password, rememberMe);
     } else {
         // Simulate authentication
-        QTimer::singleShot(2000, [this, phone]() {
-            if (phone == "+15550000001" && m_signInPasswordEdit->text() == "demo123") {
-                m_pendingUsername = phone;
+        QTimer::singleShot(2000, [this, username]() {
+            if (username == "demo" && m_signInPasswordEdit->text() == "demo123") {
+                m_pendingUsername = username;
                 showTwoFactorPage(); // Simulate 2FA requirement
                 setAuthState(Idle);
             } else {
-                onAuthenticationFinished(false, "Invalid phone or password.");
+                onAuthenticationFinished(false, "Invalid username or password.");
             }
         });
     }
