@@ -141,6 +141,7 @@ private:
     // Register Form
     QLineEdit *m_firstNameEdit;
     QLineEdit *m_lastNameEdit;
+    QLineEdit *m_registerUsernameEdit;
     QLineEdit *m_registerPhoneEdit;
     QLineEdit *m_registerPasswordEdit;
     QLineEdit *m_confirmPasswordEdit;
