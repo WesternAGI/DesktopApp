@@ -61,6 +61,8 @@ LoginWindow::LoginWindow(QWidget *parent)
     // Connect authentication service signals
     connect(m_authService, &AuthenticationService::authenticationFinished,
             this, &LoginWindow::onAuthenticationFinished);
+    connect(m_authService, &AuthenticationService::registrationFinished,
+            this, &LoginWindow::onAuthenticationFinished);
 }
 
 LoginWindow::~LoginWindow() = default;
