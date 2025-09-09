@@ -273,6 +273,15 @@ void LoginWindow::setupRegisterPage()
     
     formLayout->addWidget(nameContainer);
     
+    // Username field
+    QLabel *usernameRegLabel = new QLabel("Username");
+    usernameRegLabel->setObjectName("fieldLabel");
+    m_registerUsernameEdit = new QLineEdit;
+    m_registerUsernameEdit->setPlaceholderText("Choose a unique username");
+
+    formLayout->addWidget(usernameRegLabel);
+    formLayout->addWidget(m_registerUsernameEdit);
+    
     // Phone field
     QLabel *phoneRegLabel = new QLabel("Phone Number");
     phoneRegLabel->setObjectName("fieldLabel");
