@@ -65,22 +65,41 @@ int main(int argc, char *argv[])
         });
         
         // Show login dialog modally and wait for result
-        int loginResult = loginWindow.exec();
+        qDebug() << "Starting loginWindow.exec()";
+        int loginResult = 0;
+        try {
+            loginResult = loginWindow.exec();
+            qDebug() << "loginWindow.exec() returned successfully with result:" << loginResult;
+        } catch (const std::exception& e) {
+            qDebug() << "Exception during loginWindow.exec():" << e.what();
+            return -1;
+        } catch (...) {
+            qDebug() << "Unknown exception during loginWindow.exec()";
+            return -1;
+        }
         
-        qDebug() << "Login dialog closed with result:" << loginResult;
+        qDebug() << "Login dialog closed with result:" << loginResult << "(QDialog::Accepted=" << QDialog::Accepted << ")";
         qDebug() << "Auth successful:" << authSuccessful;
         qDebug() << "Authenticated user:" << authenticatedUser;
         
-        // Only proceed if authentication was successful
-        if (loginResult == QDialog::Accepted && authSuccessful) {
+        // Check if authentication was successful (ignore dialog result, rely on our flag)
+        if (authSuccessful) {
             qDebug() << "Authentication successful for user:" << authenticatedUser;
             qDebug() << "Creating main window...";
             
-            // Now create and show the main window after successful authentication
-            mainWindow = new GadAI::MainWindow();
-            qDebug() << "Main window created successfully";
-            mainWindow->show();
-            qDebug() << "Main window shown successfully";
+            try {
+                // Now create and show the main window after successful authentication
+                mainWindow = new GadAI::MainWindow();
+                qDebug() << "Main window created successfully";
+                mainWindow->show();
+                qDebug() << "Main window shown successfully";
+            } catch (const std::exception& e) {
+                qDebug() << "Exception during MainWindow creation/show:" << e.what();
+                return -1;
+            } catch (...) {
+                qDebug() << "Unknown exception during MainWindow creation/show";
+                return -1;
+            }
         } else {
             qDebug() << "Authentication failed or cancelled. Exiting application.";
             return 0; // Exit if authentication failed
