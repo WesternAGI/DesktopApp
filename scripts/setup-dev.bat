@@ -1,5 +1,5 @@
 @echo off
-REM EyadGPT Development Setup Script for Windows
+REM GadAI Development Setup Script for Windows
 REM Requires PowerShell and administrator privileges for some operations
 
 @echo off
