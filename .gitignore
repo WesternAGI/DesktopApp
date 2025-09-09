@@ -1,0 +1,55 @@
+# Local configuration files
+mailmap.txt
+
+# Build directories
+build/
+build-debug/
+
+# IDE files
+.vscode/
+.vs/
+*.pro.user*
+*.vcxproj.user
+
+# Qt generated files
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+
+# Compiled object files
+*.o
+*.obj
+
+# Executables
+*.exe
+GadAI
+GadAI.app/
+
+# Libraries
+*.lib
+*.a
+*.so
+*.dylib
+*.dll
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+compile_commands.json
+
+# Package files
+*.deb
+*.rpm
+*.msi
+*.dmg
+
+# Temporary files
+*~
+*.tmp
+*.bak
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
