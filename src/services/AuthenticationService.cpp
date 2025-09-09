@@ -323,8 +323,8 @@ void AuthenticationService::processLoginResponse(int status, const QJsonObject &
     m_isAuthenticated = true;
     scheduleExpiryLogout(expiresIn);
     saveCredentials(m_session.accessToken, QString(), true); // always remember for now
-    // Temporarily disable this to test if it's causing the app to exit
-    // emit authenticationFinished(true, QStringLiteral("Signed in as %1").arg(m_session.username));
+    
+    emit authenticationFinished(true, QStringLiteral("Signed in as %1").arg(m_session.username));
 }
 
 void AuthenticationService::processRegisterResponse(int status, const QJsonObject &obj, const QString &networkError)
