@@ -1,12 +1,12 @@
 @echo off
-REM GadAI Development Setup Script for Windows
+REM DesktopApp Development Setup Script for Windows
 REM Requires PowerShell and administrator privileges for some operations
 
 @echo off
-REM GadAI Development Setup Script for Windows
+REM DesktopApp Development Setup Script for Windows
 setlocal
 
-echo 🚀 GadAI Development Setup for Windows
+echo 🚀 DesktopApp Development Setup for Windows
 echo ==========================================
 
 REM Check for administrator privileges
@@ -134,7 +134,7 @@ if %errorLevel% neq 0 (
 echo ✅ Build successful
 
 REM Run tests if available
-if exist "tests\Debug\GadAI_Tests.exe" (
+if exist "tests\Debug\DesktopApp_Tests.exe" (
     echo 🧪 Running tests...
     ctest --output-on-failure -C Debug
 )
@@ -143,8 +143,8 @@ echo.
 echo 🎉 Setup complete!
 echo ===================
 echo.
-echo To run GadAI:
-echo   Debug\GadAI.exe
+echo To run DesktopApp:
+echo   Debug\DesktopApp.exe
 echo.
 echo For development:
 echo   - Use Visual Studio, Qt Creator, or VS Code with C++ extensions
