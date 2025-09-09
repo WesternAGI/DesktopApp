@@ -34,7 +34,7 @@ Application::~Application()
 
 bool Application::initialize()
 {
-    qDebug() << "Initializing GadAI Application...";
+    qDebug() << "Initializing DesktopApp Application...";
 
     // Initialize directories first
     if (!initializeDirectories()) {
@@ -45,7 +45,7 @@ bool Application::initialize()
     // Initialize all services
     initializeServices();
 
-    qDebug() << "GadAI Application initialized successfully";
+    qDebug() << "DesktopApp Application initialized successfully";
     return true;
 }
 
