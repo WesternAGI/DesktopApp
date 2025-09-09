@@ -1,0 +1,5 @@
+<RCC>
+	<qresource prefix="/">
+		<!-- Login window resources will be added when icon files are created -->
+	</qresource>
+</RCC>
