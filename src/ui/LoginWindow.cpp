@@ -799,9 +799,12 @@ void LoginWindow::onPageTransitionFinished()
 
 void LoginWindow::onAuthenticationFinished(bool success, const QString &message)
 {
+    qDebug() << "LoginWindow::onAuthenticationFinished called with success:" << success << "message:" << message;
+    
     setAuthState(success ? Success : Error);
     
     if (success) {
+        qDebug() << "Authentication successful, showing success and emitting loginSuccessful signal";
         showSuccess(message);
         // Emit loginSuccessful so the main window can appear (main.cpp listens for this)
         QString usernameUsed;
@@ -814,7 +817,9 @@ void LoginWindow::onAuthenticationFinished(bool success, const QString &message)
             // Fallback to what user typed in the sign-in field
             if (m_signInUsernameEdit) usernameUsed = m_signInUsernameEdit->text().trimmed();
         }
+        qDebug() << "Emitting loginSuccessful signal for user:" << usernameUsed;
         emit loginSuccessful(usernameUsed, token);
+        qDebug() << "loginSuccessful signal emitted successfully";
         // Don't call accept() - let the main.cpp handle the success signal
         // This avoids the dialog event loop issue
     } else {

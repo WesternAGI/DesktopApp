@@ -2,6 +2,7 @@
 #include <QStyleFactory>
 #include <QDir>
 #include <QStandardPaths>
+#include <QTimer>
 #include "core/Application.h"
 #include "core/CrashHandler.h"
 #include "ui/MainWindow.h"
@@ -50,22 +51,36 @@ int main(int argc, char *argv[])
         QObject::connect(&loginWindow, &GadAI::LoginWindow::loginSuccessful,
                         [&authSuccessful, &authenticatedUser, &authToken, &loginWindow]
                         (const QString &username, const QString &token) {
+            qDebug() << "loginSuccessful signal received for user:" << username;
             authenticatedUser = username;
             authToken = token;
             authSuccessful = true;
-            loginWindow.accept(); // Close the login dialog
+            qDebug() << "Scheduling loginWindow.accept() with QTimer::singleShot";
+            // Use QTimer::singleShot to defer the accept() call to avoid re-entrancy issues
+            QTimer::singleShot(100, &loginWindow, [&loginWindow]() {
+                qDebug() << "Calling loginWindow.accept() from timer";
+                loginWindow.accept();
+                qDebug() << "loginWindow.accept() completed from timer";
+            });
         });
         
         // Show login dialog modally and wait for result
         int loginResult = loginWindow.exec();
         
+        qDebug() << "Login dialog closed with result:" << loginResult;
+        qDebug() << "Auth successful:" << authSuccessful;
+        qDebug() << "Authenticated user:" << authenticatedUser;
+        
         // Only proceed if authentication was successful
         if (loginResult == QDialog::Accepted && authSuccessful) {
             qDebug() << "Authentication successful for user:" << authenticatedUser;
+            qDebug() << "Creating main window...";
             
             // Now create and show the main window after successful authentication
             mainWindow = new GadAI::MainWindow();
+            qDebug() << "Main window created successfully";
             mainWindow->show();
+            qDebug() << "Main window shown successfully";
         } else {
             qDebug() << "Authentication failed or cancelled. Exiting application.";
             return 0; // Exit if authentication failed
