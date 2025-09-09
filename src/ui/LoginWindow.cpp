@@ -868,6 +868,7 @@ bool LoginWindow::validateRegisterForm()
 {
     QString firstName = m_firstNameEdit->text().trimmed();
     QString lastName = m_lastNameEdit->text().trimmed();
+    QString username = m_registerUsernameEdit->text().trimmed();
     QString phone = m_registerPhoneEdit->text().trimmed();
     QString password = m_registerPasswordEdit->text();
     QString confirmPassword = m_confirmPasswordEdit->text();
@@ -881,6 +882,18 @@ bool LoginWindow::validateRegisterForm()
     if (lastName.isEmpty()) {
         showError("Please enter your last name.");
         m_lastNameEdit->setFocus();
+        return false;
+    }
+    
+    if (username.isEmpty()) {
+        showError("Please enter a username.");
+        m_registerUsernameEdit->setFocus();
+        return false;
+    }
+    
+    if (username.length() < 3) {
+        showError("Username must be at least 3 characters long.");
+        m_registerUsernameEdit->setFocus();
         return false;
     }
     
