@@ -1015,18 +1015,13 @@ void LoginWindow::performRegistration()
     
     QString firstName = m_firstNameEdit->text().trimmed();
     QString lastName = m_lastNameEdit->text().trimmed();
+    QString username = m_registerUsernameEdit->text().trimmed();
     QString phone = m_registerPhoneEdit->text().trimmed();
     QString password = m_registerPasswordEdit->text();
     
     // TODO: Replace with actual registration
     if (m_authService) {
-        QString username;
-        if (!firstName.isEmpty() || !lastName.isEmpty()) {
-            username = (firstName + lastName).toLower().replace(" ", "");
-            if (username.isEmpty()) username = phone;
-        } else {
-            username = phone;
-        }
+        // Use the username field that the user actually entered
         m_authService->registerUser(username, phone, password);
     } else {
         // Simulate registration
