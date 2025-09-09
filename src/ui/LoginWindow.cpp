@@ -148,11 +148,11 @@ void LoginWindow::setupSignInPage()
     // Username field
     QLabel *usernameLabel = new QLabel("Username");
     usernameLabel->setObjectName("fieldLabel");
-    m_signInPhoneEdit = new QLineEdit;
-    m_signInPhoneEdit->setPlaceholderText("Enter your username");
+    m_signInUsernameEdit = new QLineEdit;
+    m_signInUsernameEdit->setPlaceholderText("Enter your username");
 
     formLayout->addWidget(usernameLabel);
-    formLayout->addWidget(m_signInPhoneEdit);
+    formLayout->addWidget(m_signInUsernameEdit);
     
     // Password field
     QLabel *passwordLabel = new QLabel("Password");
@@ -213,11 +213,11 @@ void LoginWindow::setupSignInPage()
     connect(m_forgotPasswordButton, &QPushButton::clicked, this, &LoginWindow::onSwitchToForgotPassword);
     connect(m_switchToRegisterButton, &QPushButton::clicked, this, &LoginWindow::onSwitchToRegister);
     connect(m_rememberMeCheckBox, &QCheckBox::toggled, this, &LoginWindow::onRememberMeToggled);
-    connect(m_signInPhoneEdit, &QLineEdit::textChanged, this, &LoginWindow::onInputChanged);
+    connect(m_signInUsernameEdit, &QLineEdit::textChanged, this, &LoginWindow::onInputChanged);
     connect(m_signInPasswordEdit, &QLineEdit::textChanged, this, &LoginWindow::onInputChanged);
     
     // Enter key handling
-    connect(m_signInPhoneEdit, &QLineEdit::returnPressed, m_signInButton, &QPushButton::click);
+    connect(m_signInUsernameEdit, &QLineEdit::returnPressed, m_signInButton, &QPushButton::click);
     connect(m_signInPasswordEdit, &QLineEdit::returnPressed, m_signInButton, &QPushButton::click);
     
     m_stackedWidget->addWidget(m_signInPage);
@@ -846,12 +846,12 @@ void LoginWindow::animateToPage(int page)
 
 bool LoginWindow::validateSignInForm()
 {
-    QString phone = m_signInPhoneEdit->text().trimmed();
+    QString username = m_signInUsernameEdit->text().trimmed();
     QString password = m_signInPasswordEdit->text();
 
-    if (phone.isEmpty()) {
-        showError("Please enter your phone number.");
-        m_signInPhoneEdit->setFocus();
+    if (username.isEmpty()) {
+        showError("Please enter your username.");
+        m_signInUsernameEdit->setFocus();
         return false;
     }
 

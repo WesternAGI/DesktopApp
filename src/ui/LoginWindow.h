@@ -130,7 +130,7 @@ private:
     QLabel *m_subtitleLabel;
     
     // Sign In Form
-    QLineEdit *m_signInPhoneEdit;
+    QLineEdit *m_signInUsernameEdit;
     QLineEdit *m_signInPasswordEdit;
     QPushButton *m_signInButton;
     QPushButton *m_showSignInPasswordButton;
