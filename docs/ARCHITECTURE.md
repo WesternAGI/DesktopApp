@@ -1,52 +1,95 @@
 # GadAI Architecture Guide
 
-This document explains how the GadAI desktop chat application is designed and built.
+Technical overview of GadAI's design and structure.
 
 ## Overview
 
-GadAI is a desktop chat application built with C++17 and Qt6. It uses a clean, modular architecture that separates concerns and makes the code easy to understand and extend.
+GadAI is a C++17/Qt6 desktop chat application with modular architecture for easy extension and maintenance.
 
-### Key Design Principles
-
-1. **Simple and Clear**: Code is organized in a way that's easy to follow
-2. **Modular**: Different parts of the app are separated into logical components
-3. **Extensible**: New features can be added without breaking existing code
-4. **Cross-Platform**: Works on Windows, macOS, and Linux
+### Design Principles
+- **Modular:** Separate components for different responsibilities
+- **Simple:** Clear code organization and minimal complexity
+- **Extensible:** Easy to add new features and AI providers
+- **Cross-Platform:** Works on Windows, macOS, and Linux
 
 ## Project Structure
 
 ```
 src/
-├── core/               # Application startup and core services
-│   ├── Application.h   # Main application coordinator
-│   └── main.cpp        # Program entry point
-├── ui/                 # User interface components
-│   ├── LoginWindow.h   # Login screen
-│   ├── MainWindow.h    # Main chat window
-│   └── ...             # Other UI components
-├── services/           # Business logic and data services
-│   ├── AuthenticationService.h  # Login and user management
-│   ├── SettingsStore.h          # App settings and preferences
-│   └── ...                      # Other services
-├── providers/          # AI provider integrations
-│   ├── EchoProvider.h  # Demo AI provider for testing
-│   └── ...             # Future AI providers (ChatGPT, Claude, etc.)
-├── theme/              # Theming and visual design
-│   ├── ThemeManager.h  # Light/dark theme switching
-│   └── IconRegistry.h  # Icon management
-└── data/               # Data models and storage
-    └── Models.h        # Conversation, Message, User models
+├── core/           # Application startup and coordination
+├── ui/             # User interface components
+├── services/       # Business logic and data management
+├── providers/      # AI provider integrations
+├── theme/          # Theming and visual design
+└── data/           # Data models and storage
 ```
 
 ## Core Components
 
-### 1. Application Core
+### Application Core
+- **Application.h/cpp:** Main coordinator, service startup, lifecycle management
+- **main.cpp:** Entry point, authentication flow, window management
 
-**Application.h/cpp** - The main coordinator
-- Starts up all the services
-- Manages the application lifecycle
-- Coordinates between different parts of the app
-- Handles shutdown and cleanup
+### User Interface
+- **LoginWindow:** Authentication interface with username/password forms
+- **MainWindow:** Main chat interface with conversation list and message area
+- **Dialogs:** Settings, about, and other modal dialogs
+
+### Services
+- **AuthenticationService:** Login, session management, demo accounts
+- **SettingsStore:** Application preferences and configuration
+- **AudioRecording:** Voice message recording (planned)
+
+### Providers
+- **EchoProvider:** Demo AI provider for testing
+- **Future:** ChatGPT, Claude, custom AI integrations
+
+### Theme System
+- **ThemeManager:** Light/dark theme switching
+- **IconRegistry:** Icon loading and management
+
+## Key Architectural Patterns
+
+### Qt Signals/Slots
+- Event-driven communication between components
+- Loose coupling between UI and business logic
+- Thread-safe asynchronous operations
+
+### Service Layer
+- Business logic separated from UI
+- Dependency injection for testing
+- Clear service interfaces
+
+### Provider Pattern
+- Pluggable AI provider architecture
+- Standard interface for different AI services
+- Easy to add new providers
+
+## Build System
+
+### CMake Configuration
+- Cross-platform build support
+- Qt6 integration and dependency management
+- Separate library and executable targets
+
+### Dependencies
+- **Qt6:** Core, Widgets, Multimedia, Network
+- **C++17:** Modern C++ features and standards
+- **Platform:** Windows (MSVC/MinGW), macOS (Clang), Linux (GCC)
+
+## Development Guidelines
+
+### Code Organization
+- Header files define interfaces
+- Implementation in corresponding .cpp files
+- Qt MOC system for signals/slots
+- RAII for resource management
+
+### Adding Features
+1. Define service interface in `services/`
+2. Implement UI components in `ui/`
+3. Update CMakeLists.txt for new files
+4. Follow Qt naming conventions and patterns
 
 **main.cpp** - Program entry point
 - Creates the Qt application
