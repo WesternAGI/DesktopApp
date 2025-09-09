@@ -1,52 +1,64 @@
 # GadAI User Guide
 
-A simple guide to using the GadAI desktop chat application.
+Quick guide to using GadAI desktop chat application.
 
 ## Getting Started
 
-### First Time Setup
+### Installation
+1. Follow installation steps in main README.md
+2. Ensure Qt6 and CMake are installed
+3. Build with `cmake --build build`
 
-1. **Download and Install**
-   - Follow the installation instructions in the main README.md
-   - Make sure Qt6 is installed on your system
-   - Build the application using CMake
+### First Login
+**Demo Account:**
+- Username: `demo`
+- Password: `demo123`
 
-2. **Launch the Application**
-   - Run `GadAI.exe` on Windows or `./GadAI` on macOS/Linux
-   - The login window will appear first
-
-### Logging In
-
-**Demo Accounts Available:**
-- **Account 1**: Phone `+15550000001`, Password `demo123`
-- **Account 2**: Phone `+15550000002`, Password `admin123`
-
-**Steps to Login:**
-1. Enter one of the demo phone numbers
-2. Enter the corresponding password
-3. Click "Login"
-4. Wait for the main window to appear
-
-**Skip Login (For Developers):**
+**Skip Login (Development):**
 ```bash
 ./GadAI --skip-auth
 ```
 
 ## Main Interface
 
-### Window Layout
+### Layout
+- **Left Panel:** Conversation list
+- **Center:** Chat messages
+- **Bottom:** Message input box
 
-The main window has three main areas:
+### Basic Usage
+1. Click conversations to switch between them
+2. Type messages in the bottom input box
+3. Press Enter to send (echo responses only)
+4. Use menu for settings and themes
 
-1. **Left Sidebar**: Conversation list
-2. **Center Area**: Chat messages and conversation view
-3. **Bottom Area**: Message input box and send controls
+### Keyboard Shortcuts
+- `Ctrl+Q` - Quit application
+- `Ctrl+N` - New conversation
+- `Ctrl+,` - Open settings
 
-### Basic Navigation
+## Features
 
-- **Switch Conversations**: Click on conversations in the left sidebar
-- **Scroll Messages**: Use mouse wheel or scrollbar in the center area
-- **Type Messages**: Click in the text box at the bottom
+### Themes
+- Switch between light and dark modes
+- Access via menu or theme button
+
+### Settings
+- Basic preferences and configuration
+- Authentication settings
+- Theme selection
+
+## Troubleshooting
+
+### Common Issues
+- **App won't start:** Check Qt installation
+- **Login fails:** Use exact demo credentials
+- **UI issues:** Try different theme or restart
+
+### Getting Help
+- Check README.md for build issues
+- Verify Qt6 installation and paths
+- Review PROJECT_STATUS.md for known limitations
 
 ## Current Features
 
