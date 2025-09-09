@@ -812,7 +812,7 @@ void LoginWindow::onAuthenticationFinished(bool success, const QString &message)
         }
         if (usernameUsed.isEmpty()) {
             // Fallback to what user typed in the sign-in field
-            if (m_signInPhoneEdit) usernameUsed = m_signInPhoneEdit->text().trimmed();
+            if (m_signInUsernameEdit) usernameUsed = m_signInUsernameEdit->text().trimmed();
         }
         emit loginSuccessful(usernameUsed, token);
         // Don't call accept() - let the main.cpp handle the success signal
@@ -995,13 +995,13 @@ void LoginWindow::performSignIn()
 {
     setAuthState(Authenticating);
     
-    QString phone = m_signInPhoneEdit->text().trimmed();
+    QString username = m_signInUsernameEdit->text().trimmed();
     QString password = m_signInPasswordEdit->text();
     bool rememberMe = m_rememberMeCheckBox->isChecked();
     
     // TODO: Replace with actual authentication
     if (m_authService) {
-        m_authService->signIn(phone, password, rememberMe);
+        m_authService->signIn(username, password, rememberMe);
     } else {
         // Simulate authentication
         QTimer::singleShot(2000, [this, phone]() {
@@ -1062,7 +1062,7 @@ void LoginWindow::updateButtonStates()
     
     // Sign in page
     if (m_signInButton) {
-    bool canSignIn = !m_signInPhoneEdit->text().trimmed().isEmpty() && 
+    bool canSignIn = !m_signInUsernameEdit->text().trimmed().isEmpty() && 
                         !m_signInPasswordEdit->text().isEmpty() && 
                         !isAuthenticating;
         m_signInButton->setEnabled(canSignIn);
@@ -1100,7 +1100,7 @@ void LoginWindow::updateButtonStates()
 void LoginWindow::resetForms()
 {
     // Clear all form fields
-    m_signInPhoneEdit->clear();
+    m_signInUsernameEdit->clear();
     m_signInPasswordEdit->clear();
     m_firstNameEdit->clear();
     m_lastNameEdit->clear();
