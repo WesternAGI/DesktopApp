@@ -17,6 +17,7 @@
 - Cross-platform support (Windows, macOS, Linux)
 
 ### ✅ Demo Features
+- Development mode with `--skip-auth` flag
 - Echo chat responses for testing
 - Session management and logout
 
