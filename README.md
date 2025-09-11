@@ -13,11 +13,18 @@ A desktop chat application built with C++17 and Qt6.
 
 ## Quick Start
 
+### Development Mode
+To skip authentication during development:
+```bash
+./build/DesktopApp --skip-auth  # Linux/macOS
+.\build\DesktopApp.exe --skip-auth  # Windows
+```
+
 ### Requirements
 - Qt6 (6.2+)
 - CMake (3.21+)
 - C++17 compiler
-- Internet connection for authentication
+- Internet connection for authentication (unless using --skip-auth)
 
 ### Build & Run
 ```bash
