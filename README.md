@@ -32,7 +32,12 @@ git clone https://github.com/WesternAGI/DesktopApp.git
 cd DesktopApp
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
+
+# Normal mode (requires authentication)
 ./build/DesktopApp  # or .\build\DesktopApp.exe on Windows
+
+# Development mode (skip authentication)
+./build/DesktopApp --skip-auth  # or .\build\DesktopApp.exe --skip-auth on Windows
 ```
 
 ## Documentation
