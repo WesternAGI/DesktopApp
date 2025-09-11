@@ -10,14 +10,13 @@
 
 ### ✅ Core Functions
 - Application startup and initialization
-- Login window with username/password authentication
+- Login window with online authentication
 - Main chat interface with conversation list
 - Light/dark theme switching
 - Settings and preferences
 - Cross-platform support (Windows, macOS, Linux)
 
 ### ✅ Demo Features
-- Demo login: Username `demo`, Password `demo123`
 - Echo chat responses for testing
 - Session management and logout
 

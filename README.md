@@ -3,7 +3,7 @@
 A desktop chat application built with C++17 and Qt6.
 
 ## Features
-- ✅ Login system with authentication
+- ✅ Login system with online authentication
 - ✅ Chat interface with conversation list
 - ✅ Light/dark theme support
 - ✅ Cross-platform (Windows, macOS, Linux)
@@ -13,13 +13,11 @@ A desktop chat application built with C++17 and Qt6.
 
 ## Quick Start
 
-### Demo Login
-- Username: `demo` Password: `demo123`
-
 ### Requirements
 - Qt6 (6.2+)
 - CMake (3.21+)
 - C++17 compiler
+- Internet connection for authentication
 
 ### Build & Run
 ```bash

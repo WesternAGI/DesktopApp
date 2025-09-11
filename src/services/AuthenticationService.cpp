@@ -17,48 +17,21 @@ namespace DesktopApp {
 AuthenticationService::AuthenticationService(QObject *parent)
     : QObject(parent)
     , m_networkManager(new QNetworkAccessManager(this))
-    , m_settings(new QSettings(QSettings::IniFormat, QSettings::UserScope, 
+    , m_settings(new QSettings(QSettings::IniFormat, QSettings::UserScope,
                               "DesktopApp", "authentication", this))
     , m_tokenRefreshTimer(new QTimer(this))
     , m_isAuthenticated(false)
-    , m_useLocalAuth(true) // Use local auth for demo purposes
 {
     connect(m_tokenRefreshTimer, &QTimer::timeout, this, &AuthenticationService::onTokenRefreshTimer);
     
-    // Initialize demo users
-    initializeDemoUsers();
-    
     // Try to restore previous session
     restoreSession();
-}
-
-AuthenticationService::~AuthenticationService() = default;
-
-void AuthenticationService::initializeDemoUsers()
-{
-    // Create demo user for testing
-    QJsonObject demoUser;
-    demoUser["id"] = "demo-user-1";
-    demoUser["phoneNumber"] = "+15550000001"; // E.164 demo
-    demoUser["username"] = "demo";
-    demoUser["firstName"] = "Demo";
-    demoUser["lastName"] = "User";
-    demoUser["passwordHash"] = hashPassword("demo123", "demosalt");
-    demoUser["salt"] = "demosalt";
-    demoUser["phoneVerified"] = true;
-    demoUser["twoFactorEnabled"] = false; // Disable 2FA for simplicity
-    demoUser["createdAt"] = QDateTime::currentDateTime().toString(Qt::ISODate);
-    
-    // Only store the single demo user
-    m_demoUsers["+15550000001"] = demoUser;
-    m_demoUsers["demo"] = demoUser; // Also allow username lookup
-}
+}AuthenticationService::~AuthenticationService() = default;
 
 void AuthenticationService::signIn(const QString &usernameOrPhone, const QString &password, bool rememberMe)
 {
     Q_UNUSED(rememberMe)
-    qDebug() << "AuthenticationService: Remote sign in for" << usernameOrPhone;
-    m_useLocalAuth = false; // switch to remote mode
+    qDebug() << "AuthenticationService: Sign in for" << usernameOrPhone;
     QJsonObject payload;
     payload["username"] = usernameOrPhone;
     payload["password"] = password;
@@ -67,8 +40,7 @@ void AuthenticationService::signIn(const QString &usernameOrPhone, const QString
 
 void AuthenticationService::registerUser(const QString &username, const QString &phoneNumber, const QString &password)
 {
-    qDebug() << "AuthenticationService: Remote registration for" << username;
-    m_useLocalAuth = false;
+    qDebug() << "AuthenticationService: Registration for" << username;
     QJsonObject payload;
     payload["username"] = username;
     payload["password"] = password;
@@ -101,16 +73,6 @@ void AuthenticationService::resetPassword(const QString &phoneNumber)
 {
     qDebug() << "AuthenticationService: Password reset requested for" << phoneNumber;
     
-    if (m_useLocalAuth) {
-        // Simulate password reset
-        if (m_demoUsers.contains(phoneNumber)) {
-            emit passwordResetFinished(true, "Password reset code sent to your phone");
-        } else {
-            emit passwordResetFinished(false, "No account found with this phone number");
-        }
-        return;
-    }
-    
     QJsonObject requestData;
     requestData["phoneNumber"] = phoneNumber;
     
@@ -120,18 +82,6 @@ void AuthenticationService::resetPassword(const QString &phoneNumber)
 void AuthenticationService::verifyTwoFactor(const QString &code)
 {
     qDebug() << "AuthenticationService: Verifying 2FA code";
-    
-    if (m_useLocalAuth) {
-        // For demo purposes, accept "123456" as valid code
-        if (code == "123456") {
-            m_isAuthenticated = true;
-            startTokenRefreshTimer();
-            emit twoFactorVerificationFinished(true, "Two-factor authentication successful");
-        } else {
-            emit twoFactorVerificationFinished(false, "Invalid verification code");
-        }
-        return;
-    }
     
     QJsonObject payload;
     payload["code"] = code;
@@ -413,96 +363,6 @@ void AuthenticationService::startTokenRefreshTimer()
 void AuthenticationService::stopTokenRefreshTimer()
 {
     m_tokenRefreshTimer->stop();
-}
-
-bool AuthenticationService::authenticateLocally(const QString &phoneNumber, const QString &password)
-{
-    if (!m_demoUsers.contains(phoneNumber)) {
-        return false;
-    }
-    
-    QJsonObject user = m_demoUsers[phoneNumber].toObject();
-    QString storedHash = user["passwordHash"].toString();
-    QString salt = user["salt"].toString();
-    QString providedHash = hashPassword(password, salt);
-    
-    return storedHash == providedHash;
-}
-
-void AuthenticationService::registerLocally(const QString &firstName, const QString &lastName,
-                                          const QString &phoneNumber, const QString &password)
-{
-    QString salt = generateSalt();
-    QString passwordHash = hashPassword(password, salt);
-    
-    UserProfile newUser;
-    newUser.id = QUuid::createUuid().toString(QUuid::WithoutBraces);
-    newUser.phoneNumber = phoneNumber;
-    newUser.username = phoneNumber.right(4); // last 4 digits as simple username placeholder
-    newUser.firstName = firstName;
-    newUser.lastName = lastName;
-    newUser.phoneVerified = false; // Would require SMS verification in real app
-    newUser.twoFactorEnabled = false;
-    newUser.createdAt = QDateTime::currentDateTime();
-    
-    saveLocalUser(newUser, passwordHash);
-    
-    // Add to demo users for this session
-    QJsonObject userObj;
-    userObj["id"] = newUser.id;
-    userObj["phoneNumber"] = newUser.phoneNumber;
-    userObj["username"] = newUser.username;
-    userObj["firstName"] = newUser.firstName;
-    userObj["lastName"] = newUser.lastName;
-    userObj["passwordHash"] = passwordHash;
-    userObj["salt"] = salt;
-    userObj["phoneVerified"] = newUser.phoneVerified;
-    userObj["twoFactorEnabled"] = newUser.twoFactorEnabled;
-    userObj["createdAt"] = newUser.createdAt.toString(Qt::ISODate);
-    
-    m_demoUsers[phoneNumber] = userObj;
-}
-
-void AuthenticationService::saveLocalUser(const UserProfile &user, const QString &passwordHash)
-{
-    QSettings userSettings(QSettings::IniFormat, QSettings::UserScope, 
-                          "DesktopApp", "users", this);
-    
-    QString userKey = QString("user_%1/").arg(user.phoneNumber);
-    userSettings.setValue(userKey + "id", user.id);
-    userSettings.setValue(userKey + "phoneNumber", user.phoneNumber);
-    userSettings.setValue(userKey + "username", user.username);
-    userSettings.setValue(userKey + "firstName", user.firstName);
-    userSettings.setValue(userKey + "lastName", user.lastName);
-    userSettings.setValue(userKey + "phoneVerified", user.phoneVerified);
-    userSettings.setValue(userKey + "twoFactorEnabled", user.twoFactorEnabled);
-    userSettings.setValue(userKey + "createdAt", user.createdAt.toString(Qt::ISODate));
-    
-    if (!passwordHash.isEmpty()) {
-        userSettings.setValue(userKey + "passwordHash", passwordHash);
-    }
-    
-    userSettings.sync();
-}
-
-AuthenticationService::UserProfile AuthenticationService::loadLocalUser(const QString &phoneNumber)
-{
-    UserProfile user;
-    
-    if (m_demoUsers.contains(phoneNumber)) {
-        QJsonObject userObj = m_demoUsers[phoneNumber].toObject();
-        user.id = userObj["id"].toString();
-        user.phoneNumber = userObj["phoneNumber"].toString();
-        user.username = userObj["username"].toString();
-        user.firstName = userObj["firstName"].toString();
-        user.lastName = userObj["lastName"].toString();
-        user.phoneVerified = userObj["phoneVerified"].toBool();
-        user.twoFactorEnabled = userObj["twoFactorEnabled"].toBool();
-        user.createdAt = QDateTime::fromString(userObj["createdAt"].toString(), Qt::ISODate);
-        user.lastLoginAt = QDateTime::currentDateTime();
-    }
-    
-    return user;
 }
 
 } // namespace DesktopApp

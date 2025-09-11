@@ -387,7 +387,7 @@ void LoginWindow::setupForgotPasswordPage()
     
     // Instructions
     QLabel *instructionsLabel = new QLabel(
-        "Enter your phone number and we'll send you a reset code (demo)."
+        "Enter your phone number and we'll send you a reset code."
     );
     instructionsLabel->setWordWrap(true);
     layout->addWidget(instructionsLabel);
@@ -429,7 +429,7 @@ void LoginWindow::setupTwoFactorPage()
     
     // Info label
     m_twoFactorInfoLabel = new QLabel(
-        "We've sent a verification code to your phone (demo). Please enter it below."
+        "We've sent a verification code to your phone. Please enter it below."
     );
     m_twoFactorInfoLabel->setWordWrap(true);
     layout->addWidget(m_twoFactorInfoLabel);
@@ -994,20 +994,11 @@ void LoginWindow::performSignIn()
     QString password = m_signInPasswordEdit->text();
     bool rememberMe = m_rememberMeCheckBox->isChecked();
     
-    // TODO: Replace with actual authentication
+    // Perform authentication via service
     if (m_authService) {
         m_authService->signIn(username, password, rememberMe);
     } else {
-        // Simulate authentication
-        QTimer::singleShot(2000, [this, username]() {
-            if (username == "demo" && m_signInPasswordEdit->text() == "demo123") {
-                m_pendingUsername = username;
-                showTwoFactorPage(); // Simulate 2FA requirement
-                setAuthState(Idle);
-            } else {
-                onAuthenticationFinished(false, "Invalid username or password.");
-            }
-        });
+        onAuthenticationFinished(false, "Authentication service not available.");
     }
 }
 
@@ -1021,16 +1012,12 @@ void LoginWindow::performRegistration()
     QString phone = m_registerPhoneEdit->text().trimmed();
     QString password = m_registerPasswordEdit->text();
     
-    // TODO: Replace with actual registration
+    // Perform registration via service
     if (m_authService) {
         // Use the username field that the user actually entered
         m_authService->registerUser(username, phone, password);
     } else {
-        // Simulate registration
-        QTimer::singleShot(2000, [this, phone]() {
-            emit registrationSuccessful(phone);
-            onAuthenticationFinished(true, "Account created successfully! Please verify your phone (demo).");
-        });
+        onAuthenticationFinished(false, "Authentication service not available.");
     }
 }
 
@@ -1040,10 +1027,11 @@ void LoginWindow::performPasswordReset()
     
     QString phone = m_resetPhoneEdit->text().trimmed();
     
-    // TODO: Replace with actual password reset
-    QTimer::singleShot(2000, [this]() {
-        onAuthenticationFinished(true, "Password reset code sent to your phone (demo).");
-    });
+    if (m_authService) {
+        m_authService->resetPassword(phone);
+    } else {
+        onAuthenticationFinished(false, "Authentication service not available.");
+    }
 }
 
 void LoginWindow::updateButtonStates()

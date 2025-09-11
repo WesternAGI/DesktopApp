@@ -83,7 +83,7 @@ DesktopApp/
 - Authentication interface with login/registration forms
 - Handles username/password input and validation
 - Connects to AuthenticationService for credential verification
-- Supports both remote authentication and local demo mode
+- Online authentication only
 
 **MainWindow.h/.cpp**
 - Primary chat interface with conversation management
@@ -102,7 +102,6 @@ DesktopApp/
 **AuthenticationService.h/.cpp**
 - User authentication and session management
 - Remote API communication for login/registration
-- Local demo user validation for development
 - Session token management and automatic refresh
 - Password hashing and security utilities
 
@@ -246,7 +245,7 @@ connect(authService, &AuthenticationService::authenticationFinished,
 
 **LoginWindow** - Authentication interface
 - Simple phone number + password form
-- Demo account support for testing
+- Online authentication only
 - Session management integration
 
 **MainWindow** - Main chat interface
@@ -265,9 +264,9 @@ Services handle the business logic and data management:
 
 **AuthenticationService**
 - Manages user login/logout
-- Handles demo accounts
+- Online authentication only
 - Session persistence
-- Remote authentication (for future real backends)
+- Remote authentication with backend server
 
 **SettingsStore**
 - App preferences and configuration

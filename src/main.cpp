@@ -35,14 +35,10 @@ int main(int argc, char *argv[])
     // Install crash handler (mini dumps) to app data crashdumps directory
     DesktopApp::CrashHandler::install(desktopApp.appDataDir() + "/crashdumps", QApplication::applicationName(), QApplication::applicationVersion());
     
-    // Check if user wants to skip authentication (for demo purposes)
-    bool skipAuth = QApplication::arguments().contains("--skip-auth");
-    
     DesktopApp::MainWindow *mainWindow = nullptr;
     
-    if (!skipAuth) {
-        // Show login window first (no parent window yet)
-        DesktopApp::LoginWindow loginWindow;
+    // Show login window first (no parent window yet)
+    DesktopApp::LoginWindow loginWindow;
         
         bool authSuccessful = false;
         QString authenticatedUser;
@@ -104,12 +100,6 @@ int main(int argc, char *argv[])
             qDebug() << "Authentication failed or cancelled. Exiting application.";
             return 0; // Exit if authentication failed
         }
-    } else {
-        // Skip authentication - create and show main window directly
-        qDebug() << "Skipping authentication (--skip-auth flag detected)";
-        mainWindow = new DesktopApp::MainWindow();
-        mainWindow->show();
-    }
     
     // Ensure we have a main window before proceeding
     if (!mainWindow) {

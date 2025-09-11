@@ -103,22 +103,11 @@ private:
     QString generateSalt();
     void startTokenRefreshTimer();
     void stopTokenRefreshTimer();
-    void initializeDemoUsers();
-    
-    // Local authentication (for demo/offline mode)
-    // Local demo authentication helpers (legacy)
-    bool authenticateLocally(const QString &phoneNumber, const QString &password);
-    void registerLocally(const QString &firstName, const QString &lastName,
-                         const QString &phoneNumber, const QString &password);
-    void saveLocalUser(const UserProfile &user, const QString &passwordHash);
-    UserProfile loadLocalUser(const QString &phoneNumber);
 
     // Remote auth helpers
-    // New remote helpers
     void performApiRequest(const QString &endpoint, const QJsonObject &payload, const QString &purpose);
     void processLoginResponse(int status, const QJsonObject &obj, const QString &networkError);
     void processRegisterResponse(int status, const QJsonObject &obj, const QString &networkError);
-    // Old single-arg versions removed
     void logRequestStart(const QString &id, const QString &endpoint, const QJsonObject &payload) const;
     void logRequestEnd(const QString &id, const QString &endpoint, int statusCode, qint64 msec, const QString &error = QString()) const;
     void scheduleExpiryLogout(int secondsUntilExpiry);
@@ -136,14 +125,11 @@ private:
     AuthSession m_session;
     UserProfile m_currentUser;
     bool m_isAuthenticated;
-    bool m_useLocalAuth; // For demo/offline mode
+    
     // Legacy tokens kept to satisfy old compiled references; will be removed after full clean
     QString m_currentToken;
     QString m_refreshToken;
     
-    // Demo users for testing
-    QJsonObject m_demoUsers;
-
     // Request tracking
     struct PendingRequest { QString purpose; QString endpoint; QDateTime startTime; };
     QHash<QNetworkReply*, PendingRequest> m_pending;
