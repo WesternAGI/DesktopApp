@@ -75,6 +75,7 @@ DesktopApp/
 **main.cpp**
 - Program entry point and Qt application setup
 - Handles authentication flow and window management
+- Supports `--skip-auth` flag for development mode
 - Event loop initialization and exception handling
 
 ### User Interface (`src/ui/`)
@@ -83,7 +84,7 @@ DesktopApp/
 - Authentication interface with login/registration forms
 - Handles username/password input and validation
 - Connects to AuthenticationService for credential verification
-- Online authentication only
+- Online authentication (can be bypassed with `--skip-auth`)
 
 **MainWindow.h/.cpp**
 - Primary chat interface with conversation management
