@@ -790,77 +790,34 @@ void MessageThreadWidget::generateResponse(const QString &userMessage)
     auto *app = Application::instance();
     auto *store = app->conversationStore();
     
-    // If no provider manager or no active provider, just echo the user input as assistant reply.
-    bool haveProvider = m_providerManager && m_providerManager->activeProvider();
-
-    if (!haveProvider) {
-        // Create streaming assistant message for echo response
-        Message assistantEcho(m_currentConversationId, MessageRole::Assistant, "");
-        assistantEcho.isStreaming = true;
-        m_currentAssistantMessageId = assistantEcho.id;
-        
-        if (store->createMessage(assistantEcho)) {
-            m_streamingMessageWidget = new MessageWidget(assistantEcho, this);
-            m_streamingMessageWidget->setStreaming(true);
-            m_streamingMessageWidget->setGenerating(true);
-
-            int insertIndex = m_messagesLayout->count() - 1;
-            m_messagesLayout->insertWidget(insertIndex, m_streamingMessageWidget);
-            
-            // Connect stop generation signal
-            connect(m_streamingMessageWidget, &MessageWidget::stopGenerationRequested,
-                    this, [this]() {
-                        if (m_streamingTimer->isActive()) {
-                            m_streamingTimer->stop();
-                        }
-                        if (m_streamingMessageWidget) {
-                            m_streamingMessageWidget->setGenerating(false);
-                            m_streamingMessageWidget->setStreaming(false);
-                            m_streamingMessageWidget = nullptr;
-                        }
-                        m_currentAssistantMessageId.clear();
-                    });
-
-            scrollToBottom();
-            
-            // Start streaming animation with the echo text
-            startStreamingAnimation(userMessage);
+    // Show loading dots immediately
+    m_loadingDotsWidget = new LoadingDotsWidget(this);
+    int insertIndex = m_messagesLayout->count() - 1;
+    m_messagesLayout->insertWidget(insertIndex, m_loadingDotsWidget);
+    m_loadingDotsWidget->startAnimation();
+    scrollToBottom();
+    
+    // Simulate response generation time
+    QTimer::singleShot(2000, this, [this, userMessage, store]() {
+        // Remove loading dots
+        if (m_loadingDotsWidget) {
+            m_messagesLayout->removeWidget(m_loadingDotsWidget);
+            m_loadingDotsWidget->deleteLater();
+            m_loadingDotsWidget = nullptr;
         }
-        return;
-    }
-
-    // Create assistant message for streaming when provider exists
-    Message assistantMessage(m_currentConversationId, MessageRole::Assistant, "");
-    assistantMessage.isStreaming = true;
-    m_currentAssistantMessageId = assistantMessage.id;
-
-    if (store->createMessage(assistantMessage)) {
-        m_streamingMessageWidget = new MessageWidget(assistantMessage, this);
-        m_streamingMessageWidget->setStreaming(true);
-        m_streamingMessageWidget->setGenerating(true);
-
-        int insertIndex = m_messagesLayout->count() - 1;
-        m_messagesLayout->insertWidget(insertIndex, m_streamingMessageWidget);
         
-        // Connect stop generation signal
-        connect(m_streamingMessageWidget, &MessageWidget::stopGenerationRequested,
-                this, [this]() {
-                    if (m_providerManager) {
-                        // TODO: Add stop method to provider manager
-                    }
-                    if (m_streamingMessageWidget) {
-                        m_streamingMessageWidget->setGenerating(false);
-                        m_streamingMessageWidget->setStreaming(false);
-                        m_streamingMessageWidget = nullptr;
-                    }
-                    m_currentAssistantMessageId.clear();
-                });
-
-        scrollToBottom();
-
-        // Request response from active provider
-        m_providerManager->sendMessage(m_currentConversationId, userMessage);
-    }
+        // Create and display complete assistant response
+        Message assistantMessage(m_currentConversationId, MessageRole::Assistant, userMessage);
+        m_currentAssistantMessageId = assistantMessage.id;
+        
+        if (store->createMessage(assistantMessage)) {
+            addMessageWidget(assistantMessage);
+            scrollToBottom();
+            emit conversationUpdated(m_currentConversationId);
+        }
+        
+        m_currentAssistantMessageId.clear();
+    });
 }
 
 void MessageThreadWidget::onProviderResponse(const QString &, bool) {}
