@@ -114,24 +114,24 @@ void MessageThreadWidget::setupUI()
     m_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     
-    // ChatGPT-like styling for scroll area
+    // Modern chat styling for scroll area
     m_scrollArea->setStyleSheet(R"(
         QScrollArea {
-            background-color: transparent;
+            background-color: #FFFFFF;
             border: none;
         }
         QScrollBar:vertical {
             background-color: transparent;
-            width: 8px;
-            border-radius: 4px;
+            width: 6px;
+            border-radius: 3px;
         }
         QScrollBar::handle:vertical {
-            background-color: #D1D5DB;
-            border-radius: 4px;
+            background-color: #C0C0C0;
+            border-radius: 3px;
             min-height: 20px;
         }
         QScrollBar::handle:vertical:hover {
-            background-color: #9CA3AF;
+            background-color: #A0A0A0;
         }
         QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
             border: none;
@@ -139,14 +139,14 @@ void MessageThreadWidget::setupUI()
         }
     )");
 
-    // Messages container - ChatGPT style
+    // Messages container - clean white background
     m_messagesContainer = new QWidget();
-    m_messagesContainer->setStyleSheet("QWidget { background-color: transparent; }");
+    m_messagesContainer->setStyleSheet("QWidget { background-color: #FFFFFF; }");
     m_messagesLayout = new QVBoxLayout(m_messagesContainer);
     
-    // ChatGPT-like spacing and margins
-    m_messagesLayout->setContentsMargins(24, 24, 24, 24);
-    m_messagesLayout->setSpacing(0); // We'll handle spacing in individual messages
+    // Modern spacing and margins
+    m_messagesLayout->setContentsMargins(20, 20, 20, 20);
+    m_messagesLayout->setSpacing(8); // Tighter spacing between messages
     m_messagesLayout->addStretch(); // Push messages to bottom initially
 
     m_scrollArea->setWidget(m_messagesContainer);
@@ -1005,10 +1005,10 @@ void MessageWidget::setupUI()
     // Make the widget background transparent so bubbles show
     setStyleSheet("MessageWidget { background: transparent; }");
     
-    // Main horizontal layout for alignment
+    // Main horizontal layout for alignment with tighter spacing
     m_mainLayout = new QHBoxLayout(this);
-    m_mainLayout->setContentsMargins(16, 8, 16, 8);
-    m_mainLayout->setSpacing(12);
+    m_mainLayout->setContentsMargins(8, 4, 8, 4);
+    m_mainLayout->setSpacing(8);
     
     setupBubbleLayout();
     setupActions();
