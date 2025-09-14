@@ -114,34 +114,8 @@ void MessageThreadWidget::setupUI()
     m_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     
-    // Modern chat styling for scroll area
-    m_scrollArea->setStyleSheet(R"(
-        QScrollArea {
-            background-color: #FFFFFF;
-            border: none;
-        }
-        QScrollBar:vertical {
-            background-color: transparent;
-            width: 6px;
-            border-radius: 3px;
-        }
-        QScrollBar::handle:vertical {
-            background-color: #C0C0C0;
-            border-radius: 3px;
-            min-height: 20px;
-        }
-        QScrollBar::handle:vertical:hover {
-            background-color: #A0A0A0;
-        }
-        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-            border: none;
-            background: none;
-        }
-    )");
-
-    // Messages container - clean white background
+    // Messages container
     m_messagesContainer = new QWidget();
-    m_messagesContainer->setStyleSheet("QWidget { background-color: #FFFFFF; }");
     m_messagesLayout = new QVBoxLayout(m_messagesContainer);
     
     // Modern spacing and margins
@@ -150,6 +124,9 @@ void MessageThreadWidget::setupUI()
     m_messagesLayout->addStretch(); // Push messages to bottom initially
 
     m_scrollArea->setWidget(m_messagesContainer);
+    
+    // Apply initial theme-aware styling
+    updateChatAreaStyling();
     m_mainLayout->addWidget(m_scrollArea);
 
     // Offline notice label (hidden by default) - using theme tokens
@@ -218,6 +195,9 @@ void MessageThreadWidget::connectSignals()
 
     // Re-style on theme change for better ChatGPT-like contrast
     connect(themeManager, &ThemeManager::themeChanged, this, [this]() {
+        // Update chat area background colors
+        updateChatAreaStyling();
+        
         // Update suggestion panel buttons
         if (m_emptyPanel) {
             auto *themeManager = Application::instance()->themeManager();
@@ -971,6 +951,53 @@ void MessageThreadWidget::onStreamingTimerTick()
 }
 
 // MessageWidget implementation - ChatGPT bubble style
+    m_streamingTimer->stop();
+}
+
+void MessageThreadWidget::updateChatAreaStyling()
+{
+    auto *app = Application::instance();
+    auto *themeManager = app->themeManager();
+    const auto &tokens = themeManager->tokens();
+    
+    // Get background colors based on theme
+    QString chatBg = tokens["background-color"].toString();
+    QString scrollHandleColor = tokens["surface-color"].toString();
+    QString scrollHandleHoverColor = tokens["surface-hover-color"].toString();
+    
+    // Apply theme-aware styling to scroll area
+    QString scrollAreaStyle = QString(R"(
+        QScrollArea {
+            background-color: %1;
+            border: none;
+        }
+        QScrollBar:vertical {
+            background-color: transparent;
+            width: 6px;
+            border-radius: 3px;
+        }
+        QScrollBar::handle:vertical {
+            background-color: %2;
+            border-radius: 3px;
+            min-height: 20px;
+        }
+        QScrollBar::handle:vertical:hover {
+            background-color: %3;
+        }
+        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+            border: none;
+            background: none;
+        }
+    )").arg(chatBg, scrollHandleColor, scrollHandleHoverColor);
+    
+    m_scrollArea->setStyleSheet(scrollAreaStyle);
+    
+    // Apply background to messages container
+    QString containerStyle = QString("QWidget { background-color: %1; }").arg(chatBg);
+    m_messagesContainer->setStyleSheet(containerStyle);
+}
+
+// MessageWidget class implementation
 MessageWidget::MessageWidget(const Message &message, QWidget *parent)
     : QFrame(parent)
     , m_message(message)

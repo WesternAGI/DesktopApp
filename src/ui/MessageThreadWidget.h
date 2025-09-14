@@ -111,6 +111,7 @@ private:
     void startStreamingAnimation(const QString &fullText);
     void onStreamingTimerTick();
     void hideMessagesAfter(const QString &messageId); // Hide messages after the given message ID
+    void updateChatAreaStyling(); // Update chat area colors based on theme
 
     // UI Components
     QVBoxLayout *m_mainLayout;
