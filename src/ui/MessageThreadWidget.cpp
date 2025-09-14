@@ -950,10 +950,6 @@ void MessageThreadWidget::onStreamingTimerTick()
     scrollToBottom();
 }
 
-// MessageWidget implementation - ChatGPT bubble style
-    m_streamingTimer->stop();
-}
-
 void MessageThreadWidget::updateChatAreaStyling()
 {
     auto *app = Application::instance();
