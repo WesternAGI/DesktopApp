@@ -14,6 +14,7 @@
 #include <QEnterEvent>
 #include <QResizeEvent>
 #include <QGridLayout>
+#include <QHBoxLayout>
 #include "data/Models.h"
 #include "providers/ProviderManager.h"
 
@@ -21,6 +22,27 @@ namespace DesktopApp {
 
 class MessageWidget;
 class ProviderManager;
+
+/**
+ * @brief Animated loading dots widget showing (...) -> (..) -> (.) cycle
+ */
+class LoadingDotsWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit LoadingDotsWidget(QWidget *parent = nullptr);
+    void startAnimation();
+    void stopAnimation();
+
+private slots:
+    void updateDots();
+
+private:
+    QLabel *m_dotsLabel;
+    QTimer *m_animationTimer;
+    int m_currentState; // 0=(...), 1=(..), 2=(.)
+};
 
 /**
  * @brief Widget displaying the conversation messages thread
@@ -108,6 +130,7 @@ private:
     QString m_currentConversationId;
     QString m_currentAssistantMessageId;
     MessageWidget *m_streamingMessageWidget;
+    LoadingDotsWidget *m_loadingDotsWidget;
     
     // Streaming animation state
     QTimer *m_streamingTimer;

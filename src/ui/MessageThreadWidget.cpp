@@ -38,6 +38,7 @@ MessageThreadWidget::MessageThreadWidget(QWidget *parent)
     , m_messagesLayout(nullptr)
     , m_emptyLabel(nullptr)
     , m_streamingMessageWidget(nullptr)
+    , m_loadingDotsWidget(nullptr)
     , m_streamingTimer(new QTimer(this))
     , m_streamingPosition(0)
     , m_providerManager(nullptr)
@@ -46,6 +47,52 @@ MessageThreadWidget::MessageThreadWidget(QWidget *parent)
     connectSignals();
     showEmptyState();
     updateOfflineNotice();
+}
+
+// LoadingDotsWidget implementation
+LoadingDotsWidget::LoadingDotsWidget(QWidget *parent)
+    : QWidget(parent)
+    , m_dotsLabel(new QLabel(this))
+    , m_animationTimer(new QTimer(this))
+    , m_currentState(0)
+{
+    auto layout = new QHBoxLayout(this);
+    layout->setContentsMargins(16, 8, 16, 8);
+    layout->addWidget(m_dotsLabel);
+    
+    m_dotsLabel->setText("●●●");
+    m_dotsLabel->setStyleSheet(R"(
+        QLabel {
+            color: #9CA3AF;
+            font-size: 14px;
+            font-weight: bold;
+        }
+    )");
+    
+    m_animationTimer->setInterval(500); // Change dots every 500ms
+    connect(m_animationTimer, &QTimer::timeout, this, &LoadingDotsWidget::updateDots);
+}
+
+void LoadingDotsWidget::startAnimation()
+{
+    m_currentState = 0;
+    updateDots();
+    m_animationTimer->start();
+}
+
+void LoadingDotsWidget::stopAnimation()
+{
+    m_animationTimer->stop();
+}
+
+void LoadingDotsWidget::updateDots()
+{
+    switch (m_currentState) {
+        case 0: m_dotsLabel->setText("●●●"); break;
+        case 1: m_dotsLabel->setText("●●"); break;
+        case 2: m_dotsLabel->setText("●"); break;
+    }
+    m_currentState = (m_currentState + 1) % 3;
 }
 
 void MessageThreadWidget::setupUI()
