@@ -97,12 +97,6 @@ void AuthenticationService::updateProfile(const UserProfile &profile)
 {
     m_currentUser = profile;
     
-    if (m_useLocalAuth) {
-        saveLocalUser(profile, ""); // Don't update password hash
-        emit profileUpdated(profile);
-        return;
-    }
-    
     QJsonObject requestData;
     requestData["firstName"] = profile.firstName;
     requestData["lastName"] = profile.lastName;
