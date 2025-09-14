@@ -58,18 +58,23 @@ LoadingDotsWidget::LoadingDotsWidget(QWidget *parent)
 {
     auto layout = new QHBoxLayout(this);
     layout->setContentsMargins(16, 8, 16, 8);
+    layout->addStretch(); // Push dots to left
     layout->addWidget(m_dotsLabel);
+    layout->addStretch(); // Add stretch after dots too for centering in bubble
     
     m_dotsLabel->setText("●●●");
     m_dotsLabel->setStyleSheet(R"(
         QLabel {
-            color: #9CA3AF;
-            font-size: 14px;
-            font-weight: bold;
+            color: #999999;
+            font-size: 16px;
+            background-color: #F0F0F0;
+            border-radius: 20px;
+            padding: 12px 16px;
+            margin: 2px;
         }
     )");
     
-    m_animationTimer->setInterval(500); // Change dots every 500ms
+    m_animationTimer->setInterval(600); // Change dots every 600ms
     connect(m_animationTimer, &QTimer::timeout, this, &LoadingDotsWidget::updateDots);
 }
 
@@ -1256,21 +1261,21 @@ void MessageWidget::setGenerating(bool generating)
 
 void MessageWidget::updateStyling()
 {
-    // Use hardcoded colors with fallbacks to ensure bubbles are visible
+    // Modern chat bubble styling inspired by popular chat apps
     QString bubbleStyle;
     QString textStyle;
     
     if (m_message.role == MessageRole::User) {
-        // User messages: blue bubble, right-aligned
+        // User messages: clean blue bubble, right-aligned
         bubbleStyle = R"(
             QWidget#bubbleContainer {
-                background-color: #2563EB;
-                border: 2px solid #1D4ED8;
-                border-radius: 18px;
+                background-color: #0084FF;
+                border: none;
+                border-radius: 20px;
                 padding: 12px 16px;
-                margin: 4px;
-                min-width: 200px;
-                max-width: 500px;
+                margin: 2px;
+                min-width: 120px;
+                max-width: 480px;
             }
         )";
         
@@ -1279,24 +1284,25 @@ void MessageWidget::updateStyling()
             QTextEdit#messageContent {
                 background-color: transparent;
                 color: white;
-                font-size: 16px;
-                font-weight: 500;
+                font-size: 15px;
+                font-weight: 400;
                 border: none;
                 padding: 0px;
                 margin: 0px;
+                line-height: 1.4;
             }
         )";
     } else {
-        // AI messages: gray bubble, left-aligned  
+        // AI messages: light gray bubble, left-aligned  
         bubbleStyle = R"(
             QWidget#bubbleContainer {
-                background-color: #F3F4F6;
-                border: 2px solid #E5E7EB;
-                border-radius: 18px;
+                background-color: #F0F0F0;
+                border: none;
+                border-radius: 20px;
                 padding: 12px 16px;
-                margin: 4px;
-                min-width: 200px;
-                max-width: 500px;
+                margin: 2px;
+                min-width: 120px;
+                max-width: 480px;
             }
         )";
            
@@ -1304,12 +1310,13 @@ void MessageWidget::updateStyling()
         textStyle = R"(
             QTextEdit#messageContent {
                 background-color: transparent;
-                color: #111827;
-                font-size: 16px;
-                font-weight: 500;
+                color: #000000;
+                font-size: 15px;
+                font-weight: 400;
                 border: none;
                 padding: 0px;
                 margin: 0px;
+                line-height: 1.4;
             }
         )";
     }
