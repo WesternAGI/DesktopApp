@@ -957,9 +957,9 @@ void MessageThreadWidget::updateChatAreaStyling()
     const auto &tokens = themeManager->tokens();
     
     // Get background colors based on theme
-    QString chatBg = tokens["background-color"].toString();
-    QString scrollHandleColor = tokens["surface-color"].toString();
-    QString scrollHandleHoverColor = tokens["surface-hover-color"].toString();
+    QString chatBg = tokens.background.name();
+    QString scrollHandleColor = tokens.surface.name();
+    QString scrollHandleHoverColor = tokens.surfaceHover.name();
     
     // Apply theme-aware styling to scroll area
     QString scrollAreaStyle = QString(R"(
