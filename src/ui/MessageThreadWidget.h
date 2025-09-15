@@ -217,6 +217,8 @@ private:
     QTextEdit *m_contentEdit;
     QLineEdit *m_editLineEdit; // For inline editing
     QWidget *m_editControls;   // Cancel/Save buttons for editing
+    QLabel *m_timestampLabel;  // Message timestamp
+    QLabel *m_roleLabel;       // User/Assistant indicator
     
     // Actions
     QWidget *m_actionsWidget;
