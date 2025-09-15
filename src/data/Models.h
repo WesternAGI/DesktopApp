@@ -63,6 +63,19 @@ QString messageRoleToString(MessageRole role);
 MessageRole messageRoleFromString(const QString &roleStr);
 
 /**
+ * @brief Message delivery states
+ */
+enum class MessageDeliveryState {
+    Sending,    // Message is being sent
+    Sent,       // Message sent successfully 
+    Failed,     // Message failed to send
+    Delivered   // Message delivered and processed
+};
+
+QString messageDeliveryStateToString(MessageDeliveryState state);
+MessageDeliveryState messageDeliveryStateFromString(const QString &stateStr);
+
+/**
  * @brief Individual message within a conversation
  */
 struct Message {
@@ -74,6 +87,7 @@ struct Message {
     QJsonObject metadata;
     QString parentId; // For message threading/editing
     bool isStreaming;
+    MessageDeliveryState deliveryState;
 
     Message();
     Message(const QString &convId, MessageRole role, const QString &text);

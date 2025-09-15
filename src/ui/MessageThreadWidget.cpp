@@ -632,8 +632,13 @@ void MessageThreadWidget::addUserMessage(const QString &text, const AttachmentLi
 
     // Create user message
     Message userMessage(m_currentConversationId, MessageRole::User, text.trimmed());
+    userMessage.deliveryState = MessageDeliveryState::Sending;
     
     if (store->createMessage(userMessage)) {
+        // Update delivery state to sent
+        userMessage.deliveryState = MessageDeliveryState::Sent;
+        store->updateMessage(userMessage);
+        
         addMessageWidget(userMessage);
         scrollToBottom();
         // Auto title on first user message
@@ -646,6 +651,10 @@ void MessageThreadWidget::addUserMessage(const QString &text, const AttachmentLi
         
         emit messageAdded(userMessage.id);
         emit conversationUpdated(m_currentConversationId);
+    } else {
+        // Failed to send
+        userMessage.deliveryState = MessageDeliveryState::Failed;
+        addMessageWidget(userMessage);
     }
 }
 
@@ -1092,6 +1101,7 @@ MessageWidget::MessageWidget(const Message &message, QWidget *parent)
     , m_editControls(nullptr)
     , m_timestampLabel(nullptr)
     , m_roleLabel(nullptr)
+    , m_deliveryStateLabel(nullptr)
     , m_actionsWidget(nullptr)
     , m_copyButton(nullptr)
     , m_editButton(nullptr)
@@ -1166,9 +1176,18 @@ void MessageWidget::setupBubbleLayout()
     m_timestampLabel = new QLabel();
     m_timestampLabel->setText(m_message.createdAt.toString("h:mm AP"));
     
+    // Delivery state label (only for user messages initially)
+    m_deliveryStateLabel = new QLabel();
+    updateDeliveryStateLabel();
+    
     headerLayout->addWidget(m_roleLabel);
     headerLayout->addStretch();
     headerLayout->addWidget(m_timestampLabel);
+    
+    // Add delivery state for user messages
+    if (m_message.role == MessageRole::User) {
+        headerLayout->addWidget(m_deliveryStateLabel);
+    }
     
     m_bubbleLayout->addWidget(headerWidget);
     
@@ -1429,6 +1448,43 @@ void MessageWidget::updateContent(const QString &content)
     if (auto *threadWidget = qobject_cast<MessageThreadWidget*>(parent())) {
         threadWidget->scrollToBottom();
     }
+}
+
+void MessageWidget::updateDeliveryStateLabel()
+{
+    if (!m_deliveryStateLabel) return;
+    
+    QString stateText;
+    QString stateStyle;
+    
+    switch (m_message.deliveryState) {
+        case MessageDeliveryState::Sending:
+            stateText = "⏳";
+            stateStyle = "color: #F59E0B; font-size: 11px;"; // Orange
+            break;
+        case MessageDeliveryState::Sent:
+            stateText = "✓";
+            stateStyle = "color: #10B981; font-size: 11px;"; // Green  
+            break;
+        case MessageDeliveryState::Failed:
+            stateText = "❌";
+            stateStyle = "color: #EF4444; font-size: 11px;"; // Red
+            break;
+        case MessageDeliveryState::Delivered:
+            stateText = "✓✓";
+            stateStyle = "color: #10B981; font-size: 11px;"; // Green
+            break;
+    }
+    
+    m_deliveryStateLabel->setText(stateText);
+    m_deliveryStateLabel->setStyleSheet(stateStyle);
+    m_deliveryStateLabel->setToolTip(QString("Message %1").arg(messageDeliveryStateToString(m_message.deliveryState)));
+}
+
+void MessageWidget::setDeliveryState(MessageDeliveryState state)
+{
+    m_message.deliveryState = state;
+    updateDeliveryStateLabel();
 }
 
 void MessageWidget::setStreaming(bool streaming)

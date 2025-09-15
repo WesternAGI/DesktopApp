@@ -131,12 +131,34 @@ MessageRole messageRoleFromString(const QString &roleStr)
     return MessageRole::User;
 }
 
+// MessageDeliveryState functions
+QString messageDeliveryStateToString(MessageDeliveryState state)
+{
+    switch (state) {
+    case MessageDeliveryState::Sending: return "sending";
+    case MessageDeliveryState::Sent: return "sent";
+    case MessageDeliveryState::Failed: return "failed";
+    case MessageDeliveryState::Delivered: return "delivered";
+    }
+    return "sent";
+}
+
+MessageDeliveryState messageDeliveryStateFromString(const QString &stateStr)
+{
+    QString lower = stateStr.toLower();
+    if (lower == "sending") return MessageDeliveryState::Sending;
+    if (lower == "failed") return MessageDeliveryState::Failed;
+    if (lower == "delivered") return MessageDeliveryState::Delivered;
+    return MessageDeliveryState::Sent;
+}
+
 // Message implementation
 Message::Message()
     : id(generateId())
     , role(MessageRole::User)
     , createdAt(QDateTime::currentDateTime())
     , isStreaming(false)
+    , deliveryState(MessageDeliveryState::Sent)
 {
 }
 
@@ -159,6 +181,7 @@ QJsonObject Message::toJson() const
     obj["metadata"] = metadata;
     obj["parentId"] = parentId;
     obj["isStreaming"] = isStreaming;
+    obj["deliveryState"] = messageDeliveryStateToString(deliveryState);
     return obj;
 }
 
@@ -173,6 +196,7 @@ Message Message::fromJson(const QJsonObject &json)
     msg.metadata = json["metadata"].toObject();
     msg.parentId = json["parentId"].toString();
     msg.isStreaming = json["isStreaming"].toBool();
+    msg.deliveryState = messageDeliveryStateFromString(json["deliveryState"].toString());
     return msg;
 }
 

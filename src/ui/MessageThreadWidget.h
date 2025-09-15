@@ -175,6 +175,16 @@ public:
     void setGenerating(bool generating);
     
     void updateStyling(); // made public for theme refresh
+    
+    /**
+     * @brief Update delivery state indicator
+     */
+    void updateDeliveryStateLabel();
+    
+    /**
+     * @brief Set message delivery state
+     */
+    void setDeliveryState(MessageDeliveryState state);
 
     /**
      * @brief Get the message
@@ -223,6 +233,7 @@ private:
     QWidget *m_editControls;   // Cancel/Save buttons for editing
     QLabel *m_timestampLabel;  // Message timestamp
     QLabel *m_roleLabel;       // User/Assistant indicator
+    QLabel *m_deliveryStateLabel; // Delivery state indicator
     
     // Actions
     QWidget *m_actionsWidget;
