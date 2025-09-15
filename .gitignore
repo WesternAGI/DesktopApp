@@ -11,6 +11,10 @@ build-debug/
 *.pro.user*
 *.vcxproj.user
 
+# Shell integration scripts (local development environment)
+scripts/setup-shell-integration.bat
+scripts/setup-shell-integration.sh
+
 # Qt generated files
 moc_*.cpp
 ui_*.h
