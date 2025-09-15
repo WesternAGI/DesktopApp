@@ -1246,7 +1246,7 @@ void MessageWidget::setupBubbleLayout()
     m_contentEdit->setFrameStyle(QFrame::NoFrame);
     m_contentEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_contentEdit->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_contentEdit->setStyleSheet("QTextEdit { background: transparent; border: none; padding: 0; margin: 0; }");
+    // Note: Styling will be applied in updateStyling() method
     m_contentEdit->document()->setDocumentMargin(0);
     m_contentEdit->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
     m_contentEdit->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
@@ -1583,6 +1583,8 @@ void MessageWidget::updateStyling()
                 font-size: 14px;
                 font-weight: 400;
                 border: none;
+                padding: 0;
+                margin: 0;
                 line-height: 1.4;
                 selection-background-color: rgba(255,255,255,0.3);
             }
@@ -1618,12 +1620,14 @@ void MessageWidget::updateStyling()
         textStyle = R"(
             QTextEdit#messageContent {
                 background-color: transparent;
-                color: #1F2937;
+                color: #1f2937;
                 font-size: 14px;
                 font-weight: 400;
                 border: none;
+                padding: 0;
+                margin: 0;
                 line-height: 1.4;
-                selection-background-color: rgba(59,130,246,0.3);
+                selection-background-color: rgba(31,41,55,0.2);
             }
         )";
         
