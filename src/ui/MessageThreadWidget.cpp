@@ -26,6 +26,7 @@
 #include <QPropertyAnimation>
 #include <QRegularExpression>
 #include <QRandomGenerator>
+#include <QDateTime>
 #include "SimpleMarkdown.h"
 
 namespace DesktopApp {
@@ -118,9 +119,10 @@ void MessageThreadWidget::setupUI()
     m_messagesContainer = new QWidget();
     m_messagesLayout = new QVBoxLayout(m_messagesContainer);
     
-    // Modern spacing and margins
-    m_messagesLayout->setContentsMargins(20, 20, 20, 20);
-    m_messagesLayout->setSpacing(8); // Tighter spacing between messages
+    // Proper spacing for vertical stacking
+    m_messagesLayout->setContentsMargins(0, 8, 0, 8);
+    m_messagesLayout->setSpacing(12); // Good spacing between messages
+    m_messagesLayout->setAlignment(Qt::AlignTop); // Align messages to top
     m_messagesLayout->addStretch(); // Push messages to bottom initially
 
     m_scrollArea->setWidget(m_messagesContainer);
@@ -1003,6 +1005,8 @@ MessageWidget::MessageWidget(const Message &message, QWidget *parent)
     , m_contentEdit(nullptr)
     , m_editLineEdit(nullptr)
     , m_editControls(nullptr)
+    , m_timestampLabel(nullptr)
+    , m_roleLabel(nullptr)
     , m_actionsWidget(nullptr)
     , m_copyButton(nullptr)
     , m_editButton(nullptr)
@@ -1023,15 +1027,20 @@ MessageWidget::MessageWidget(const Message &message, QWidget *parent)
 void MessageWidget::setupUI()
 {
     setFrameStyle(QFrame::NoFrame);
-    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     
     // Make the widget background transparent so bubbles show
     setStyleSheet("MessageWidget { background: transparent; }");
     
-    // Main horizontal layout for alignment with tighter spacing
+    // Set accessibility properties for the message widget
+    QString roleText = (m_message.role == MessageRole::User) ? "User" : "Assistant";
+    setAccessibleName(QString("%1 message").arg(roleText));
+    setAccessibleDescription(QString("Message from %1 sent at %2").arg(roleText, m_message.createdAt.toString("h:mm AP")));
+    
+    // Use a single main layout without complex nesting
     m_mainLayout = new QHBoxLayout(this);
-    m_mainLayout->setContentsMargins(8, 4, 8, 4);
-    m_mainLayout->setSpacing(8);
+    m_mainLayout->setContentsMargins(16, 8, 16, 8);
+    m_mainLayout->setSpacing(0);
     
     setupBubbleLayout();
     setupActions();
@@ -1040,50 +1049,107 @@ void MessageWidget::setupUI()
 
 void MessageWidget::setupBubbleLayout()
 {
-    // Create bubble container with explicit name
+    // Create bubble container with proper sizing
     m_bubbleContainer = new QWidget();
     m_bubbleContainer->setObjectName("bubbleContainer");
-    m_bubbleContainer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
-    m_bubbleContainer->setMinimumWidth(200);  // Ensure minimum readable width
-    m_bubbleContainer->setMaximumWidth(600);  // Reasonable maximum width
+    m_bubbleContainer->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Minimum);
     
-    // Bubble layout
+    // Set max width in characters (65ch ≈ 520px at 14px font)
+    m_bubbleContainer->setMaximumWidth(520);
+    
+    // Bubble layout with proper padding
     m_bubbleLayout = new QVBoxLayout(m_bubbleContainer);
-    m_bubbleLayout->setContentsMargins(0, 0, 0, 0);  // Remove margins since padding is in stylesheet
-    m_bubbleLayout->setSpacing(4);
+    m_bubbleLayout->setContentsMargins(16, 12, 16, 12);
+    m_bubbleLayout->setSpacing(8);
     
-    // Content area
+    // Role and timestamp header
+    QWidget *headerWidget = new QWidget();
+    QHBoxLayout *headerLayout = new QHBoxLayout(headerWidget);
+    headerLayout->setContentsMargins(0, 0, 0, 0);
+    headerLayout->setSpacing(8);
+    
+    // Role label (User/Assistant)
+    m_roleLabel = new QLabel();
+    if (m_message.role == MessageRole::User) {
+        m_roleLabel->setText("You");
+    } else {
+        m_roleLabel->setText("Assistant");
+    }
+    m_roleLabel->setStyleSheet(R"(
+        QLabel {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.8);
+        }
+    )");
+    
+    // Timestamp label
+    m_timestampLabel = new QLabel();
+    m_timestampLabel->setText(m_message.createdAt.toString("h:mm AP"));
+    m_timestampLabel->setStyleSheet(R"(
+        QLabel {
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+        }
+    )");
+    
+    headerLayout->addWidget(m_roleLabel);
+    headerLayout->addStretch();
+    headerLayout->addWidget(m_timestampLabel);
+    
+    m_bubbleLayout->addWidget(headerWidget);
+    
+    // Content area with proper text wrapping
     m_contentEdit = new QTextEdit();
     m_contentEdit->setObjectName("messageContent");
     m_contentEdit->setReadOnly(true);
     m_contentEdit->setFrameStyle(QFrame::NoFrame);
     m_contentEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_contentEdit->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_contentEdit->setStyleSheet("QTextEdit { background: transparent; border: none; }");
+    m_contentEdit->setStyleSheet("QTextEdit { background: transparent; border: none; padding: 0; margin: 0; }");
     m_contentEdit->document()->setDocumentMargin(0);
+    m_contentEdit->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
     
-    // Auto-resize content
+    // Set accessibility properties for the content
+    QString roleText = (m_message.role == MessageRole::User) ? "User" : "Assistant";
+    m_contentEdit->setAccessibleName(QString("%1 message").arg(roleText));
+    m_contentEdit->setAccessibleDescription(QString("Message from %1 at %2").arg(roleText, m_message.createdAt.toString("h:mm AP")));
+    
+    // Set content text and auto-resize
+    m_contentEdit->setPlainText(m_message.text);
+    
+    // Auto-resize content to fit text
     connect(m_contentEdit->document(), &QTextDocument::contentsChanged, [this]() {
         QSize size = m_contentEdit->document()->size().toSize();
-        m_contentEdit->setFixedHeight(qMax(30, size.height() + 10)); // Increased minimum height
-        
-        // Update bubble container size
-        m_bubbleContainer->adjustSize();
+        int height = qMax(24, size.height());
+        m_contentEdit->setFixedHeight(height);
     });
+    
+    // Trigger initial resize
+    QSize initialSize = m_contentEdit->document()->size().toSize();
+    m_contentEdit->setFixedHeight(qMax(24, initialSize.height()));
+    
+    m_bubbleLayout->addWidget(m_contentEdit);
     
     // Edit line input (hidden by default)
     m_editLineEdit = new QLineEdit();
     m_editLineEdit->hide();
-    m_editLineEdit->setStyleSheet("QLineEdit { border: 1px solid #D1D5DB; border-radius: 6px; padding: 8px; }");
+    m_editLineEdit->setAccessibleName("Edit message text");
+    m_editLineEdit->setAccessibleDescription("Edit the message content and press Save to regenerate");
+    m_editLineEdit->setStyleSheet("QLineEdit { border: 1px solid #D1D5DB; border-radius: 6px; padding: 8px; background: white; }");
+    m_bubbleLayout->addWidget(m_editLineEdit);
     
     // Edit controls (hidden by default)
     m_editControls = new QWidget();
     m_editControls->hide();
+    m_editControls->setAccessibleName("Edit controls");
     QHBoxLayout *editLayout = new QHBoxLayout(m_editControls);
-    editLayout->setContentsMargins(0, 4, 0, 0);
+    editLayout->setContentsMargins(0, 8, 0, 0);
     editLayout->setSpacing(8);
     
     m_cancelEditButton = new QPushButton("Cancel");
+    m_cancelEditButton->setAccessibleName("Cancel edit");
+    m_cancelEditButton->setAccessibleDescription("Cancel editing and restore original message");
     m_cancelEditButton->setStyleSheet(R"(
         QPushButton {
             background: #F3F4F6;
@@ -1093,38 +1159,40 @@ void MessageWidget::setupBubbleLayout()
             font-size: 12px;
         }
         QPushButton:hover { background: #E5E7EB; }
+        QPushButton:focus {
+            outline: 2px solid #0084FF;
+            outline-offset: 2px;
+        }
     )");
     
     m_saveEditButton = new QPushButton("Save");
+    m_saveEditButton->setAccessibleName("Save edit");
+    m_saveEditButton->setAccessibleDescription("Save changes and regenerate response");
     m_saveEditButton->setStyleSheet(R"(
         QPushButton {
-            background: #10B981;
-            border: 1px solid #10B981;
+            background: #0084FF;
+            border: 1px solid #0084FF;
             border-radius: 6px;
             padding: 6px 12px;
             font-size: 12px;
             color: white;
         }
-        QPushButton:hover { background: #059669; }
+        QPushButton:hover { background: #0066CC; }
+        QPushButton:focus {
+            outline: 2px solid #ffffff;
+            outline-offset: 2px;
+        }
     )");
     
-    connect(m_cancelEditButton, &QPushButton::clicked, this, &MessageWidget::onEditCancel);
-    connect(m_saveEditButton, &QPushButton::clicked, this, &MessageWidget::onEditSave);
-    
+    editLayout->addStretch();
     editLayout->addWidget(m_cancelEditButton);
     editLayout->addWidget(m_saveEditButton);
-    editLayout->addStretch();
     
-    // Add to bubble
-    m_bubbleLayout->addWidget(m_contentEdit);
-    m_bubbleLayout->addWidget(m_editLineEdit);
     m_bubbleLayout->addWidget(m_editControls);
     
-    // Set initial content
-    m_contentEdit->setPlainText(m_message.text);
-    
-    // Add bubble to main layout
-    m_mainLayout->addWidget(m_bubbleContainer);
+    // Connect edit controls
+    connect(m_cancelEditButton, &QPushButton::clicked, this, &MessageWidget::onEditCancel);
+    connect(m_saveEditButton, &QPushButton::clicked, this, &MessageWidget::onEditSave);
 }
 
 void MessageWidget::setupActions()
@@ -1132,29 +1200,38 @@ void MessageWidget::setupActions()
     auto *app = Application::instance();
     auto *iconRegistry = app->iconRegistry();
     
-    // Actions container
+    // Actions container - now added inside the bubble
     m_actionsWidget = new QWidget();
-    m_actionsWidget->hide();
+    m_actionsWidget->setStyleSheet("QWidget { background: transparent; }");
+    m_actionsWidget->setAccessibleName("Message actions");
     
     QHBoxLayout *actionsLayout = new QHBoxLayout(m_actionsWidget);
-    actionsLayout->setContentsMargins(0, 0, 0, 0);
-    actionsLayout->setSpacing(4);
+    actionsLayout->setContentsMargins(0, 8, 0, 0);
+    actionsLayout->setSpacing(8);
+    actionsLayout->addStretch(); // Push buttons to the right
     
-    // Copy button (always visible)
-    m_copyButton = new QPushButton();
+    // Copy button with text label
+    m_copyButton = new QPushButton("Copy");
     m_copyButton->setIcon(iconRegistry->icon("copy"));
-    m_copyButton->setToolTip("Copy");
-    m_copyButton->setFixedSize(32, 32);
+    m_copyButton->setToolTip("Copy message");
+    m_copyButton->setAccessibleName("Copy message text");
+    m_copyButton->setAccessibleDescription("Copy this message to clipboard");
     m_copyButton->setStyleSheet(R"(
         QPushButton {
-            border: 1px solid #D1D5DB;
+            border: 1px solid rgba(255,255,255,0.2);
             border-radius: 6px;
-            background: white;
-            padding: 6px;
+            background: rgba(255,255,255,0.1);
+            padding: 4px 8px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.8);
         }
         QPushButton:hover {
-            background: #F9FAFB;
-            border-color: #9CA3AF;
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        QPushButton:focus {
+            outline: 2px solid rgba(255,255,255,0.5);
+            outline-offset: 2px;
         }
     )");
     connect(m_copyButton, &QPushButton::clicked, this, &MessageWidget::onCopyClicked);
@@ -1162,61 +1239,80 @@ void MessageWidget::setupActions()
     
     if (m_message.role == MessageRole::User) {
         // Edit button for user messages
-        m_editButton = new QPushButton();
+        m_editButton = new QPushButton("Edit");
         m_editButton->setIcon(iconRegistry->icon("edit"));
-        m_editButton->setToolTip("Edit");
-        m_editButton->setFixedSize(32, 32);
+        m_editButton->setToolTip("Edit message");
+        m_editButton->setAccessibleName("Edit message");
+        m_editButton->setAccessibleDescription("Edit this message and regenerate response");
         m_editButton->setStyleSheet(R"(
             QPushButton {
-                border: 1px solid #D1D5DB;
+                border: 1px solid rgba(255,255,255,0.2);
                 border-radius: 6px;
-                background: white;
-                padding: 6px;
+                background: rgba(255,255,255,0.1);
+                padding: 4px 8px;
+                font-size: 11px;
+                color: rgba(255,255,255,0.8);
             }
             QPushButton:hover {
-                background: #F9FAFB;
-                border-color: #9CA3AF;
+                background: rgba(255,255,255,0.2);
+                color: white;
+            }
+            QPushButton:focus {
+                outline: 2px solid rgba(255,255,255,0.5);
+                outline-offset: 2px;
             }
         )");
         connect(m_editButton, &QPushButton::clicked, this, &MessageWidget::onEditClicked);
         actionsLayout->addWidget(m_editButton);
-    } else if (m_message.role == MessageRole::Assistant) {
-        // Regenerate/Try again button for AI messages
-        m_regenerateButton = new QPushButton();
-        m_regenerateButton->setIcon(iconRegistry->icon("send"));
-        m_regenerateButton->setToolTip("Try again");
-        m_regenerateButton->setFixedSize(32, 32);
+    } else {
+        // Regenerate button for AI messages  
+        m_regenerateButton = new QPushButton("Retry");
+        m_regenerateButton->setIcon(iconRegistry->icon("refresh"));
+        m_regenerateButton->setToolTip("Regenerate response");
+        m_regenerateButton->setAccessibleName("Regenerate response");
+        m_regenerateButton->setAccessibleDescription("Generate a new response for this message");
         m_regenerateButton->setStyleSheet(R"(
             QPushButton {
-                border: 1px solid #D1D5DB;
+                border: 1px solid rgba(0,0,0,0.1);
                 border-radius: 6px;
-                background: white;
-                padding: 6px;
+                background: rgba(0,0,0,0.05);
+                padding: 4px 8px;
+                font-size: 11px;
+                color: #6B7280;
             }
             QPushButton:hover {
-                background: #F9FAFB;
-                border-color: #9CA3AF;
+                background: rgba(0,0,0,0.1);
+                color: #374151;
+            }
+            QPushButton:focus {
+                outline: 2px solid #0084FF;
+                outline-offset: 2px;
             }
         )");
         connect(m_regenerateButton, &QPushButton::clicked, this, &MessageWidget::onRegenerateClicked);
         actionsLayout->addWidget(m_regenerateButton);
         
         // Stop button (shown when generating)
-        m_stopButton = new QPushButton();
+        m_stopButton = new QPushButton("Stop");
         m_stopButton->setIcon(iconRegistry->icon("stop"));
         m_stopButton->setToolTip("Stop generation");
-        m_stopButton->setFixedSize(32, 32);
+        m_stopButton->setAccessibleName("Stop generation");
+        m_stopButton->setAccessibleDescription("Stop generating the current response");
         m_stopButton->setStyleSheet(R"(
             QPushButton {
                 border: 1px solid #EF4444;
                 border-radius: 6px;
-                background: white;
-                padding: 6px;
+                background: rgba(239,68,68,0.1);
+                padding: 4px 8px;
+                font-size: 11px;
                 color: #EF4444;
             }
             QPushButton:hover {
-                background: #FEF2F2;
-                border-color: #DC2626;
+                background: rgba(239,68,68,0.2);
+            }
+            QPushButton:focus {
+                outline: 2px solid #EF4444;
+                outline-offset: 2px;
             }
         )");
         m_stopButton->hide();
@@ -1224,34 +1320,23 @@ void MessageWidget::setupActions()
         actionsLayout->addWidget(m_stopButton);
     }
     
-    // Add actions to main layout
-    m_mainLayout->addWidget(m_actionsWidget);
-    
-    // Setup hover animations
-    m_actionsEffect = new QGraphicsOpacityEffect(m_actionsWidget);
-    m_actionsWidget->setGraphicsEffect(m_actionsEffect);
-    m_actionsEffect->setOpacity(0.0);
-    
-    m_actionsOpacity = new QPropertyAnimation(m_actionsEffect, "opacity");
-    m_actionsOpacity->setDuration(150);
+    // Add actions to bubble layout instead of main layout
+    m_bubbleLayout->addWidget(m_actionsWidget);
+    m_actionsWidget->hide(); // Initially hidden, shown on hover
 }
 
 void MessageWidget::updateBubbleAlignment()
 {
-    // Clear main layout
+    // Clear any existing widgets from layout
     m_mainLayout->removeWidget(m_bubbleContainer);
-    m_mainLayout->removeWidget(m_actionsWidget);
     
+    // Add widgets based on message role without stretches
     if (m_message.role == MessageRole::User) {
         // User messages: align right
-        m_mainLayout->addStretch();
-        m_mainLayout->addWidget(m_actionsWidget);
-        m_mainLayout->addWidget(m_bubbleContainer);
+        m_mainLayout->addWidget(m_bubbleContainer, 0, Qt::AlignRight);
     } else {
-        // AI messages: align left  
-        m_mainLayout->addWidget(m_bubbleContainer);
-        m_mainLayout->addWidget(m_actionsWidget);
-        m_mainLayout->addStretch();
+        // AI messages: align left
+        m_mainLayout->addWidget(m_bubbleContainer, 0, Qt::AlignLeft);
     }
 }
 
@@ -1287,6 +1372,8 @@ void MessageWidget::updateStyling()
     // Modern chat bubble styling inspired by popular chat apps
     QString bubbleStyle;
     QString textStyle;
+    QString roleStyle;
+    QString timestampStyle;
     
     if (m_message.role == MessageRole::User) {
         // User messages: clean blue bubble, right-aligned
@@ -1294,11 +1381,8 @@ void MessageWidget::updateStyling()
             QWidget#bubbleContainer {
                 background-color: #0084FF;
                 border: none;
-                border-radius: 20px;
-                padding: 12px 16px;
-                margin: 2px;
-                min-width: 120px;
-                max-width: 480px;
+                border-radius: 18px;
+                margin: 0px;
             }
         )";
         
@@ -1307,12 +1391,27 @@ void MessageWidget::updateStyling()
             QTextEdit#messageContent {
                 background-color: transparent;
                 color: white;
-                font-size: 15px;
+                font-size: 14px;
                 font-weight: 400;
                 border: none;
-                padding: 0px;
-                margin: 0px;
                 line-height: 1.4;
+                selection-background-color: rgba(255,255,255,0.3);
+            }
+        )";
+        
+        // Header labels for user messages
+        roleStyle = R"(
+            QLabel {
+                font-size: 11px;
+                font-weight: 600;
+                color: rgba(255,255,255,0.8);
+            }
+        )";
+        
+        timestampStyle = R"(
+            QLabel {
+                font-size: 11px;
+                color: rgba(255,255,255,0.6);
             }
         )";
     } else {
@@ -1321,11 +1420,8 @@ void MessageWidget::updateStyling()
             QWidget#bubbleContainer {
                 background-color: #F0F0F0;
                 border: none;
-                border-radius: 20px;
-                padding: 12px 16px;
-                margin: 2px;
-                min-width: 120px;
-                max-width: 480px;
+                border-radius: 18px;
+                margin: 0px;
             }
         )";
            
@@ -1333,13 +1429,28 @@ void MessageWidget::updateStyling()
         textStyle = R"(
             QTextEdit#messageContent {
                 background-color: transparent;
-                color: #000000;
-                font-size: 15px;
+                color: #1F2937;
+                font-size: 14px;
                 font-weight: 400;
                 border: none;
-                padding: 0px;
-                margin: 0px;
                 line-height: 1.4;
+                selection-background-color: rgba(59,130,246,0.3);
+            }
+        )";
+        
+        // Header labels for AI messages
+        roleStyle = R"(
+            QLabel {
+                font-size: 11px;
+                font-weight: 600;
+                color: rgba(31,41,55,0.8);
+            }
+        )";
+        
+        timestampStyle = R"(
+            QLabel {
+                font-size: 11px;
+                color: rgba(31,41,55,0.6);
             }
         )";
     }
@@ -1347,10 +1458,17 @@ void MessageWidget::updateStyling()
     m_bubbleContainer->setStyleSheet(bubbleStyle);
     m_contentEdit->setStyleSheet(textStyle);
     
+    // Update header labels if they exist
+    if (m_roleLabel) {
+        m_roleLabel->setStyleSheet(roleStyle);
+    }
+    if (m_timestampLabel) {
+        m_timestampLabel->setStyleSheet(timestampStyle);
+    }
+    
     // Force layout update
-    m_bubbleContainer->update();
-    m_contentEdit->update();
-    this->update();
+    m_bubbleContainer->adjustSize();
+    update();
 }
 
 void MessageWidget::enterEvent(QEnterEvent *event)
