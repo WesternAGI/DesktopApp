@@ -377,13 +377,87 @@ void MessageThreadWidget::connectSignals()
 
 void MessageThreadWidget::updateOfflineNotice()
 {
-    bool haveProvider = m_providerManager && m_providerManager->activeProvider();
     if (!m_offlineLabel) return;
+    
+    bool haveProvider = m_providerManager && m_providerManager->activeProvider();
+    auto *app = Application::instance();
+    auto *themeManager = app->themeManager();
+    const auto &tokens = themeManager->tokens();
+    
     if (!haveProvider) {
-        m_offlineLabel->setText("Offline echo mode: No model/provider configured. Your messages will just be repeated locally.");
+        m_offlineLabel->setText("⚠️ No provider available - Check your connection settings");
+        
+        // Error state styling (red/orange theme)
+        m_offlineLabel->setStyleSheet(QString(R"(
+            QLabel { 
+                background: #FEF2F2; 
+                color: #991B1B; 
+                border: 1px solid #FCA5A5; 
+                border-radius: %1px; 
+                padding: 12px 16px; 
+                margin: 8px 16px; 
+                font-size: 13px;
+                font-weight: 500;
+            })")
+            .arg(tokens.radiusMedium));
         m_offlineLabel->show();
     } else {
-        m_offlineLabel->hide();
+        auto *provider = m_providerManager->activeProvider();
+        auto status = provider->status();
+        
+        switch (status) {
+            case AIProvider::Status::Disconnected:
+                m_offlineLabel->setText("🔌 Disconnected - Trying to reconnect...");
+                m_offlineLabel->setStyleSheet(QString(R"(
+                    QLabel { 
+                        background: #FEF2F2; 
+                        color: #991B1B; 
+                        border: 1px solid #FCA5A5; 
+                        border-radius: %1px; 
+                        padding: 12px 16px; 
+                        margin: 8px 16px; 
+                        font-size: 13px;
+                        font-weight: 500;
+                    })")
+                    .arg(tokens.radiusMedium));
+                m_offlineLabel->show();
+                break;
+            case AIProvider::Status::Connecting:
+                m_offlineLabel->setText("⏳ Connecting to provider...");
+                m_offlineLabel->setStyleSheet(QString(R"(
+                    QLabel { 
+                        background: #FFFBEB; 
+                        color: #92400E; 
+                        border: 1px solid #FCD34D; 
+                        border-radius: %1px; 
+                        padding: 12px 16px; 
+                        margin: 8px 16px; 
+                        font-size: 13px;
+                        font-weight: 500;
+                    })")
+                    .arg(tokens.radiusMedium));
+                m_offlineLabel->show();
+                break;
+            case AIProvider::Status::Error:
+                m_offlineLabel->setText("❌ Provider error - Check your configuration");
+                m_offlineLabel->setStyleSheet(QString(R"(
+                    QLabel { 
+                        background: #FEF2F2; 
+                        color: #991B1B; 
+                        border: 1px solid #FCA5A5; 
+                        border-radius: %1px; 
+                        padding: 12px 16px; 
+                        margin: 8px 16px; 
+                        font-size: 13px;
+                        font-weight: 500;
+                    })")
+                    .arg(tokens.radiusMedium));
+                m_offlineLabel->show();
+                break;
+            case AIProvider::Status::Connected:
+                m_offlineLabel->hide();
+                break;
+        }
     }
 }
 
