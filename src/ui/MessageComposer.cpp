@@ -4,6 +4,7 @@
 #include "theme/IconRegistry.h"
 #include "services/FileVault.h"
 #include "services/AudioRecorder.h"
+#include "providers/ProviderManager.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -159,6 +160,16 @@ void MessageComposer::connectSignals()
     connect(m_removeAttachmentAction, &QAction::triggered, this, &MessageComposer::onRemoveAttachment);
     connect(m_retryAttachmentAction, &QAction::triggered, this, &MessageComposer::onRetryAttachment);
 
+    // Provider status changes - update send button when provider availability changes
+    auto *app = Application::instance();
+    auto *providerManager = app->providerManager();
+    if (providerManager) {
+        connect(providerManager, &ProviderManager::activeProviderChanged, 
+                this, [this](const QString &) { updateSendButton(); });
+        connect(providerManager, &ProviderManager::providerStatusChanged, 
+                this, [this](AIProvider::Status, const QString &) { updateSendButton(); });
+    }
+
     // NOTE: Key handling for Ctrl+Enter send would require subclassing QTextEdit; omitted.
 }
 
@@ -271,7 +282,22 @@ void MessageComposer::onRetryAttachment()
 
 void MessageComposer::updateSendButton()
 {
-    m_sendButton->setEnabled(hasContent());
+    auto *app = Application::instance();
+    auto *providerManager = app->providerManager();
+    
+    bool hasText = hasContent();
+    bool hasProvider = providerManager && providerManager->activeProvider();
+    
+    // Enable send button only if we have content AND (have a provider OR in offline mode)
+    // In offline mode, the echo provider should be available
+    m_sendButton->setEnabled(hasText && hasProvider);
+    
+    // Update tooltip to indicate connection state
+    if (!hasProvider) {
+        m_sendButton->setToolTip("No provider available - check connection");
+    } else {
+        m_sendButton->setToolTip("Send message");
+    }
 }
 
 void MessageComposer::addAttachment(const QString &filePath)
