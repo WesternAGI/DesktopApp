@@ -115,15 +115,17 @@ void MessageThreadWidget::setupUI()
     m_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     
-    // Messages container
+    // Messages container - properly sized for vertical stacking
     m_messagesContainer = new QWidget();
+    m_messagesContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
+    
     m_messagesLayout = new QVBoxLayout(m_messagesContainer);
     
-    // Proper spacing for vertical stacking
-    m_messagesLayout->setContentsMargins(0, 8, 0, 8);
-    m_messagesLayout->setSpacing(12); // Good spacing between messages
-    m_messagesLayout->setAlignment(Qt::AlignTop); // Align messages to top
-    m_messagesLayout->addStretch(); // Push messages to bottom initially
+    // Clean vertical stacking layout
+    m_messagesLayout->setContentsMargins(16, 16, 16, 16);
+    m_messagesLayout->setSpacing(8); // Tighter spacing between messages
+    m_messagesLayout->setAlignment(Qt::AlignTop); // Stack from top
+    // Remove the stretch - messages should stack naturally from top
 
     m_scrollArea->setWidget(m_messagesContainer);
     
@@ -602,9 +604,8 @@ void MessageThreadWidget::addMessageWidget(const Message &message)
 {
     auto *messageWidget = new MessageWidget(message, this);
     
-    // Insert before the stretch
-    int insertIndex = m_messagesLayout->count() - 1;
-    m_messagesLayout->insertWidget(insertIndex, messageWidget);
+    // Add messages at the end - they'll stack top to bottom naturally
+    m_messagesLayout->addWidget(messageWidget);
     
     // Connect message actions
     connect(messageWidget, &MessageWidget::copyRequested,
@@ -779,8 +780,7 @@ void MessageThreadWidget::generateResponse(const QString &userMessage)
     
     // Show loading dots immediately
     m_loadingDotsWidget = new LoadingDotsWidget(this);
-    int insertIndex = m_messagesLayout->count() - 1;
-    m_messagesLayout->insertWidget(insertIndex, m_loadingDotsWidget);
+    m_messagesLayout->addWidget(m_loadingDotsWidget);
     m_loadingDotsWidget->startAnimation();
     scrollToBottom();
     
