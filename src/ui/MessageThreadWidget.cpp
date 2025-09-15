@@ -40,6 +40,7 @@ MessageThreadWidget::MessageThreadWidget(QWidget *parent)
     , m_emptyLabel(nullptr)
     , m_streamingMessageWidget(nullptr)
     , m_loadingDotsWidget(nullptr)
+    , m_liveRegion(nullptr)
     , m_streamingTimer(new QTimer(this))
     , m_streamingPosition(0)
     , m_providerManager(nullptr)
@@ -114,6 +115,9 @@ void MessageThreadWidget::setupUI()
     m_scrollArea->setFrameStyle(QFrame::NoFrame);
     m_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    m_scrollArea->setFocusPolicy(Qt::StrongFocus);
+    m_scrollArea->setAccessibleName("Message conversation");
+    m_scrollArea->setAccessibleDescription("Scrollable conversation messages");
     
     // Messages container - properly sized for vertical stacking
     m_messagesContainer = new QWidget();
@@ -132,6 +136,15 @@ void MessageThreadWidget::setupUI()
     // Apply initial theme-aware styling
     updateChatAreaStyling();
     m_mainLayout->addWidget(m_scrollArea);
+
+    // ARIA live region for announcing new messages to screen readers
+    m_liveRegion = new QLabel();
+    m_liveRegion->setObjectName("liveRegion");
+    m_liveRegion->setAttribute(Qt::WA_TransparentForMouseEvents);
+    m_liveRegion->setStyleSheet("QLabel { position: absolute; left: -10000px; }"); // Screen reader only
+    m_liveRegion->setAccessibleName("Message announcements");
+    m_liveRegion->setAccessibleDescription("Live region for announcing new messages");
+    m_mainLayout->addWidget(m_liveRegion);
 
     // Offline notice label (hidden by default) - using theme tokens
     m_offlineLabel = new QLabel();
@@ -693,6 +706,20 @@ void MessageThreadWidget::addMessageWidget(const Message &message)
     // Auto-scroll to show new message
     QTimer::singleShot(50, this, &MessageThreadWidget::scrollToBottom);
     
+    // Announce new message to screen readers
+    if (m_liveRegion) {
+        QString roleText = (message.role == MessageRole::User) ? "You" : "Assistant";
+        QString announcement = QString("New message from %1: %2")
+            .arg(roleText)
+            .arg(message.text.left(100)); // Limit to first 100 chars
+        m_liveRegion->setText(announcement);
+        
+        // Clear the announcement after a delay so it doesn't get read again
+        QTimer::singleShot(3000, this, [this]() {
+            if (m_liveRegion) m_liveRegion->clear();
+        });
+    }
+    
     // Connect message actions
     connect(messageWidget, &MessageWidget::copyRequested,
             [](const QString &text) {
@@ -1123,6 +1150,7 @@ void MessageWidget::setupUI()
 {
     setFrameStyle(QFrame::NoFrame);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    setFocusPolicy(Qt::StrongFocus); // Allow keyboard focus for navigation
     
     // Make the widget background transparent so bubbles show
     setStyleSheet("MessageWidget { background: transparent; }");
@@ -1728,6 +1756,33 @@ void MessageWidget::onEditCancel()
 void MessageWidget::onStopGeneration()
 {
     emit stopGenerationRequested();
+}
+
+void MessageWidget::keyPressEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+        // Announce message content to screen reader when activated
+        if (parentWidget()) {
+            if (MessageThreadWidget* threadWidget = qobject_cast<MessageThreadWidget*>(parentWidget()->parentWidget())) {
+                if (threadWidget->m_liveRegion) {
+                    QString announcement = QString("%1 message: %2").arg(
+                        (m_message.role == MessageRole::User) ? "User" : "Assistant",
+                        m_message.content.left(200)
+                    );
+                    threadWidget->m_liveRegion->setText(announcement);
+                    
+                    // Clear announcement after delay
+                    QTimer::singleShot(3000, [threadWidget]() {
+                        if (threadWidget->m_liveRegion) {
+                            threadWidget->m_liveRegion->clear();
+                        }
+                    });
+                }
+            }
+        }
+    } else {
+        QFrame::keyPressEvent(event);
+    }
 }
 
 void MessageThreadWidget::resizeEvent(QResizeEvent *event)

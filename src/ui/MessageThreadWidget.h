@@ -130,6 +130,7 @@ private:
     QWidget *m_topFade;
     QWidget *m_bottomFade;
     QLabel *m_offlineLabel {nullptr};
+    QLabel *m_liveRegion; // ARIA live region for screen readers
     
     // State
     QString m_currentConversationId;
