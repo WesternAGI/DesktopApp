@@ -74,6 +74,11 @@ public:
      */
     QString currentConversationId() const { return m_currentConversationId; }
 
+    /**
+     * @brief Scroll to bottom of messages
+     */
+    void scrollToBottom();
+
 signals:
     void conversationUpdated(const QString &conversationId);
     void messageAdded(const QString &messageId);
@@ -96,7 +101,6 @@ private:
     void connectSignals();
     void populateMessages(const MessageList &messages);
     void addMessageWidget(const Message &message);
-    void scrollToBottom();
     void showEmptyState();
     void hideEmptyState();
     void generateResponse(const QString &userMessage);

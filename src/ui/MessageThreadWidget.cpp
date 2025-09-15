@@ -607,6 +607,9 @@ void MessageThreadWidget::addMessageWidget(const Message &message)
     // Add messages at the end - they'll stack top to bottom naturally
     m_messagesLayout->addWidget(messageWidget);
     
+    // Auto-scroll to show new message
+    QTimer::singleShot(50, this, &MessageThreadWidget::scrollToBottom);
+    
     // Connect message actions
     connect(messageWidget, &MessageWidget::copyRequested,
             [](const QString &text) {
@@ -721,13 +724,21 @@ void MessageThreadWidget::hideMessagesAfter(const QString &messageId)
 
 void MessageThreadWidget::scrollToBottom()
 {
-    m_scrollTimer->start();
+    // Use delayed scroll to allow layout to update properly
+    QTimer::singleShot(10, this, &MessageThreadWidget::onScrollToBottom);
 }
 
 void MessageThreadWidget::onScrollToBottom()
 {
     QScrollBar *scrollBar = m_scrollArea->verticalScrollBar();
+    
+    // Ensure we scroll to the actual bottom after layout updates
     scrollBar->setValue(scrollBar->maximum());
+    
+    // Force an additional scroll if needed (for dynamic content)
+    QTimer::singleShot(20, [scrollBar]() {
+        scrollBar->setValue(scrollBar->maximum());
+    });
 }
 
 void MessageThreadWidget::showEmptyState()
@@ -1339,6 +1350,11 @@ void MessageWidget::updateContent(const QString &content)
 {
     m_contentEdit->setPlainText(content);
     m_message.text = content;
+    
+    // Trigger auto-scroll in parent when content changes (for streaming)
+    if (auto *threadWidget = qobject_cast<MessageThreadWidget*>(parent())) {
+        threadWidget->scrollToBottom();
+    }
 }
 
 void MessageWidget::setStreaming(bool streaming)
