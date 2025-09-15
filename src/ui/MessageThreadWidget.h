@@ -130,12 +130,16 @@ private:
     QWidget *m_topFade;
     QWidget *m_bottomFade;
     QLabel *m_offlineLabel {nullptr};
-    QLabel *m_liveRegion; // ARIA live region for screen readers
     
     // State
     QString m_currentConversationId;
     QString m_currentAssistantMessageId;
     MessageWidget *m_streamingMessageWidget;
+
+public:
+    QLabel *m_liveRegion; // ARIA live region for screen readers - public for MessageWidget access
+
+private:
     LoadingDotsWidget *m_loadingDotsWidget;
     
     // Streaming animation state
@@ -212,6 +216,7 @@ private slots:
 protected:
     void enterEvent(QEnterEvent *event) override;
     void leaveEvent(QEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
     void setupUI();

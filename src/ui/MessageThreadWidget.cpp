@@ -1767,7 +1767,7 @@ void MessageWidget::keyPressEvent(QKeyEvent* event)
                 if (threadWidget->m_liveRegion) {
                     QString announcement = QString("%1 message: %2").arg(
                         (m_message.role == MessageRole::User) ? "User" : "Assistant",
-                        m_message.content.left(200)
+                        m_message.text.left(200)
                     );
                     threadWidget->m_liveRegion->setText(announcement);
                     
