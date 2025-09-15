@@ -205,7 +205,22 @@ void MessageComposer::onSendClicked()
 {
     QString text = m_textEdit->toPlainText().trimmed();
     
+    // Don't send if empty
     if (text.isEmpty() && m_attachments.isEmpty()) {
+        return;
+    }
+    
+    // Check provider availability before sending
+    auto *app = Application::instance();
+    auto *providerManager = app->providerManager();
+    
+    if (!providerManager || !providerManager->activeProvider()) {
+        qWarning() << "Cannot send message: no provider available";
+        return;
+    }
+    
+    if (providerManager->activeProvider()->status() != AIProvider::Status::Connected) {
+        qWarning() << "Cannot send message: provider not ready";
         return;
     }
 
@@ -285,19 +300,32 @@ void MessageComposer::updateSendButton()
     auto *app = Application::instance();
     auto *providerManager = app->providerManager();
     
-    bool hasText = hasContent();
+    bool hasContent = this->hasContent();
     bool hasProvider = providerManager && providerManager->activeProvider();
+    bool isProviderOnline = hasProvider && 
+        (providerManager->activeProvider()->status() == AIProvider::Status::Connected);
     
-    // Enable send button only if we have content AND (have a provider OR in offline mode)
-    // In offline mode, the echo provider should be available
-    m_sendButton->setEnabled(hasText && hasProvider);
+    // Enable send button only if we have content AND have a provider that's ready
+    m_sendButton->setEnabled(hasContent && isProviderOnline);
     
-    // Update tooltip to indicate connection state
-    if (!hasProvider) {
+    // Update tooltip and visual state based on connection status
+    if (!hasContent) {
+        m_sendButton->setToolTip("Type a message to send");
+        m_sendButton->setProperty("state", "disabled");
+    } else if (!hasProvider) {
         m_sendButton->setToolTip("No provider available - check connection");
+        m_sendButton->setProperty("state", "offline");
+    } else if (!isProviderOnline) {
+        m_sendButton->setToolTip("Provider offline - trying to reconnect");
+        m_sendButton->setProperty("state", "connecting");
     } else {
-        m_sendButton->setToolTip("Send message");
+        m_sendButton->setToolTip("Send message (Enter)");
+        m_sendButton->setProperty("state", "ready");
     }
+    
+    // Trigger style update for state-based styling
+    m_sendButton->style()->unpolish(m_sendButton);
+    m_sendButton->style()->polish(m_sendButton);
 }
 
 void MessageComposer::addAttachment(const QString &filePath)
@@ -408,10 +436,14 @@ bool MessageComposer::eventFilter(QObject *obj, QEvent *event)
         if (keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter) {
             bool shift = keyEvent->modifiers().testFlag(Qt::ShiftModifier);
             bool ctrl = keyEvent->modifiers().testFlag(Qt::ControlModifier) || keyEvent->modifiers().testFlag(Qt::MetaModifier);
+            
             // Rule: Enter sends if no Shift; Shift+Enter inserts newline. Ctrl+Enter always sends.
             if (!shift || ctrl) {
-                onSendClicked();
-                return true; // consume
+                // Only send if button is enabled (which checks provider status)
+                if (m_sendButton->isEnabled()) {
+                    onSendClicked();
+                }
+                return true; // consume the event either way
             }
         }
     }
