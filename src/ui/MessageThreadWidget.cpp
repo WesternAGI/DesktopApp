@@ -1049,18 +1049,19 @@ void MessageWidget::setupUI()
 
 void MessageWidget::setupBubbleLayout()
 {
-    // Create bubble container with proper sizing
+    // Create bubble container with proper auto-sizing
     m_bubbleContainer = new QWidget();
     m_bubbleContainer->setObjectName("bubbleContainer");
-    m_bubbleContainer->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Minimum);
+    m_bubbleContainer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     
-    // Set max width in characters (65ch ≈ 520px at 14px font)
-    m_bubbleContainer->setMaximumWidth(520);
+    // Set responsive max width based on parent (typically 60-70% of chat area)
+    m_bubbleContainer->setMaximumWidth(600);
+    m_bubbleContainer->setMinimumWidth(120);
     
-    // Bubble layout with proper padding
+    // Bubble layout with proper padding for modern chat feel
     m_bubbleLayout = new QVBoxLayout(m_bubbleContainer);
     m_bubbleLayout->setContentsMargins(16, 12, 16, 12);
-    m_bubbleLayout->setSpacing(8);
+    m_bubbleLayout->setSpacing(6);
     
     // Role and timestamp header
     QWidget *headerWidget = new QWidget();
@@ -1075,23 +1076,10 @@ void MessageWidget::setupBubbleLayout()
     } else {
         m_roleLabel->setText("Assistant");
     }
-    m_roleLabel->setStyleSheet(R"(
-        QLabel {
-            font-size: 11px;
-            font-weight: 600;
-            color: rgba(255,255,255,0.8);
-        }
-    )");
     
     // Timestamp label
     m_timestampLabel = new QLabel();
     m_timestampLabel->setText(m_message.createdAt.toString("h:mm AP"));
-    m_timestampLabel->setStyleSheet(R"(
-        QLabel {
-            font-size: 11px;
-            color: rgba(255,255,255,0.6);
-        }
-    )");
     
     headerLayout->addWidget(m_roleLabel);
     headerLayout->addStretch();
@@ -1099,7 +1087,7 @@ void MessageWidget::setupBubbleLayout()
     
     m_bubbleLayout->addWidget(headerWidget);
     
-    // Content area with proper text wrapping
+    // Content area with optimal text wrapping and auto-sizing
     m_contentEdit = new QTextEdit();
     m_contentEdit->setObjectName("messageContent");
     m_contentEdit->setReadOnly(true);
@@ -1109,25 +1097,32 @@ void MessageWidget::setupBubbleLayout()
     m_contentEdit->setStyleSheet("QTextEdit { background: transparent; border: none; padding: 0; margin: 0; }");
     m_contentEdit->document()->setDocumentMargin(0);
     m_contentEdit->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+    m_contentEdit->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     
     // Set accessibility properties for the content
     QString roleText = (m_message.role == MessageRole::User) ? "User" : "Assistant";
     m_contentEdit->setAccessibleName(QString("%1 message").arg(roleText));
     m_contentEdit->setAccessibleDescription(QString("Message from %1 at %2").arg(roleText, m_message.createdAt.toString("h:mm AP")));
     
-    // Set content text and auto-resize
+    // Set content text and auto-resize - improved sizing logic
     m_contentEdit->setPlainText(m_message.text);
     
-    // Auto-resize content to fit text
+    // Improved auto-resize that considers bubble container width constraints
     connect(m_contentEdit->document(), &QTextDocument::contentsChanged, [this]() {
+        // Set the document width to match bubble container minus padding
+        int availableWidth = m_bubbleContainer->maximumWidth() - 32; // Account for bubble padding
+        m_contentEdit->document()->setTextWidth(availableWidth);
+        
         QSize size = m_contentEdit->document()->size().toSize();
-        int height = qMax(24, size.height());
+        int height = qMax(20, size.height() + 4); // Min height with small buffer
         m_contentEdit->setFixedHeight(height);
     });
     
-    // Trigger initial resize
+    // Trigger initial resize with proper text width
+    int availableWidth = m_bubbleContainer->maximumWidth() - 32;
+    m_contentEdit->document()->setTextWidth(availableWidth);
     QSize initialSize = m_contentEdit->document()->size().toSize();
-    m_contentEdit->setFixedHeight(qMax(24, initialSize.height()));
+    m_contentEdit->setFixedHeight(qMax(20, initialSize.height() + 4));
     
     m_bubbleLayout->addWidget(m_contentEdit);
     
