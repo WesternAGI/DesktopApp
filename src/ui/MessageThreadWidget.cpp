@@ -1121,9 +1121,9 @@ void MessageWidget::setupBubbleLayout()
     m_bubbleContainer->setObjectName("bubbleContainer");
     m_bubbleContainer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     
-    // Set responsive max width based on parent (typically 60-70% of chat area)
-    m_bubbleContainer->setMaximumWidth(600);
-    m_bubbleContainer->setMinimumWidth(120);
+    // Set responsive max width for mobile-style chat bubbles
+    m_bubbleContainer->setMaximumWidth(400);
+    m_bubbleContainer->setMinimumWidth(80);
     
     // Bubble layout with minimal padding for WhatsApp-style appearance
     m_bubbleLayout = new QVBoxLayout(m_bubbleContainer);
@@ -1491,12 +1491,12 @@ void MessageWidget::updateStyling()
     QString timestampStyle;
     
     if (m_message.role == MessageRole::User) {
-        // User messages: clean blue bubble, right-aligned
+        // User messages: WhatsApp-style blue bubble
         bubbleStyle = R"(
             QWidget#bubbleContainer {
-                background-color: #0084FF;
+                background-color: #007AFF;
                 border: none;
-                border-radius: 18px;
+                border-radius: 16px;
                 margin: 0px;
             }
         )";
@@ -1540,12 +1540,12 @@ void MessageWidget::updateStyling()
             }
         )";
     } else {
-        // AI messages: light gray bubble, left-aligned  
+        // AI messages: WhatsApp-style light gray bubble
         bubbleStyle = R"(
             QWidget#bubbleContainer {
-                background-color: #F0F0F0;
+                background-color: #E5E5EA;
                 border: none;
-                border-radius: 18px;
+                border-radius: 16px;
                 margin: 0px;
             }
         )";
@@ -1554,14 +1554,14 @@ void MessageWidget::updateStyling()
         textStyle = R"(
             QTextEdit#messageContent {
                 background-color: transparent;
-                color: #1f2937;
+                color: #000000;
                 font-size: 14px;
                 font-weight: 400;
                 border: none;
                 padding: 4px 8px;
                 margin: 0;
                 line-height: 1.4;
-                selection-background-color: rgba(31,41,55,0.2);
+                selection-background-color: rgba(0,0,0,0.2);
             }
             QTextEdit#messageContent QScrollBar:vertical {
                 width: 0px;
