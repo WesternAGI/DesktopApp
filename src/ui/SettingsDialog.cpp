@@ -324,9 +324,8 @@ void ProviderSettingsWidget::onProviderSelectionChanged()
     if (m_providerManager->activeProviderId() == providerId) {
         if (auto *app = Application::instance()) {
             QWidget *configWidget = m_configWidgets.value(providerId, nullptr);
-            if (auto *echoConfig = qobject_cast<EchoProviderConfigWidget*>(configWidget)) {
-                app->settingsStore()->setValue(QString("providers/%1/config").arg(providerId), echoConfig->getConfig());
-            }
+            // Config widget handling removed for minimal implementation
+            Q_UNUSED(configWidget)
         }
     }
 }
@@ -401,17 +400,8 @@ void ProviderSettingsWidget::onProviderConfigChanged()
     if (!m_currentProviderId.isEmpty() && m_providerManager->activeProviderId() == m_currentProviderId) {
         QWidget *configWidget = m_configWidgets.value(m_currentProviderId, nullptr);
         if (configWidget) {
-            // Current known config widget type
-            if (auto *echoConfig = qobject_cast<EchoProviderConfigWidget*>(configWidget)) {
-                QJsonObject cfg = echoConfig->getConfig();
-                if (auto *prov = m_providerManager->activeProvider()) {
-                    prov->connect(cfg);
-                    if (auto *app = Application::instance()) {
-                        app->settingsStore()->setValue(QString("providers/%1/config").arg(m_currentProviderId), cfg);
-                    }
-                    updateProviderConfig();
-                }
-            }
+            // Config widget handling removed for minimal implementation
+            Q_UNUSED(configWidget)
         }
     }
 }

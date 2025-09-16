@@ -93,24 +93,4 @@ private:
     QList<Attachment> m_pendingAttachments;
 };
 
-/**
- * @brief Configuration widget for EchoProvider
- */
-class EchoProviderConfigWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    explicit EchoProviderConfigWidget(QWidget *parent = nullptr);
-    
-    QJsonObject getConfig() const;
-    void setConfig(const QJsonObject &config);
-
-private:
-    class QSpinBox *m_responseDelaySpinBox;
-    class QSpinBox *m_typingSpeedSpinBox;
-    class QCheckBox *m_enableTypingCheckBox;
-    class QCheckBox *m_enableMarkdownCheckBox;
-};
-
 } // namespace DesktopApp

@@ -61,12 +61,6 @@ void EchoProvider::connect(const QJsonObject &config)
 {
     m_config = config;
     
-    // Apply configuration
-    m_responseDelay = config.value("responseDelay").toInt(1000);
-    m_typingSpeed = config.value("typingSpeed").toInt(50);
-    m_enableTyping = config.value("enableTyping").toBool(true);
-    m_enableMarkdown = config.value("enableMarkdown").toBool(true);
-    
     // Simulate connection delay
     m_status = Status::Connecting;
     m_statusMessage = "Connecting to Echo Provider...";
@@ -114,7 +108,7 @@ bool EchoProvider::validateConfig(const QJsonObject &config) const
 
 QWidget *EchoProvider::createConfigWidget(QWidget *parent)
 {
-    return new EchoProviderConfigWidget(parent);
+    return nullptr;
 }
 
 void EchoProvider::sendMessage(
@@ -169,13 +163,11 @@ void EchoProvider::stopGeneration(const QString &conversationId)
     }
     
     m_responseTimer->stop();
-    m_typingTimer->stop();
     
     m_isGenerating = false;
     m_currentConversationId.clear();
     m_currentMessageId.clear();
     m_currentResponse.clear();
-    m_typingPosition = 0;
     
     qDebug() << "Echo provider: Generation stopped for conversation" << conversationId;
 }
@@ -185,21 +177,6 @@ void EchoProvider::setModel(const QString &model)
     if (supportedModels().contains(model)) {
         m_currentModel = model;
         emit modelChanged(model);
-        
-        // Adjust behavior based on model
-        if (model == "echo-fast") {
-            m_responseDelay = 500;
-            m_typingSpeed = 30;
-        } else if (model == "echo-creative") {
-            m_responseDelay = 1500;
-            m_typingSpeed = 80;
-        } else if (model == "echo-analytical") {
-            m_responseDelay = 2000;
-            m_typingSpeed = 40;
-        } else {
-            m_responseDelay = 1000;
-            m_typingSpeed = 50;
-        }
     }
 }
 
@@ -228,85 +205,15 @@ void EchoProvider::onResponseTimer()
     m_currentMessageId.clear();
     m_currentResponse.clear();
 }
-}
 
 QString EchoProvider::generateEchoResponse(
     const QString &userMessage,
-    const QList<Attachment> &attachments) const
+    const QList<DesktopApp::Attachment> &attachments) const
 {
     Q_UNUSED(attachments)
     
     // Strict echo behavior: return exactly what the user typed
     return userMessage;
-}
-
-// EchoProviderConfigWidget implementation
-EchoProviderConfigWidget::EchoProviderConfigWidget(QWidget *parent)
-    : QWidget(parent)
-{
-    auto *layout = new QVBoxLayout(this);
-    
-    // Timing settings
-    auto *timingGroup = new QGroupBox("Timing Settings");
-    auto *timingLayout = new QFormLayout(timingGroup);
-    
-    m_responseDelaySpinBox = new QSpinBox();
-    m_responseDelaySpinBox->setRange(100, 10000);
-    m_responseDelaySpinBox->setSuffix(" ms");
-    m_responseDelaySpinBox->setValue(1000);
-    timingLayout->addRow("Response Delay:", m_responseDelaySpinBox);
-    
-    m_typingSpeedSpinBox = new QSpinBox();
-    m_typingSpeedSpinBox->setRange(10, 500);
-    m_typingSpeedSpinBox->setSuffix(" ms");
-    m_typingSpeedSpinBox->setValue(50);
-    timingLayout->addRow("Typing Speed:", m_typingSpeedSpinBox);
-    
-    layout->addWidget(timingGroup);
-    
-    // Behavior settings
-    auto *behaviorGroup = new QGroupBox("Behavior Settings");
-    auto *behaviorLayout = new QVBoxLayout(behaviorGroup);
-    
-    m_enableTypingCheckBox = new QCheckBox("Enable typing simulation");
-    m_enableTypingCheckBox->setChecked(true);
-    behaviorLayout->addWidget(m_enableTypingCheckBox);
-    
-    m_enableMarkdownCheckBox = new QCheckBox("Enable markdown formatting");
-    m_enableMarkdownCheckBox->setChecked(true);
-    behaviorLayout->addWidget(m_enableMarkdownCheckBox);
-    
-    layout->addWidget(behaviorGroup);
-    
-    // Info
-    auto *infoLabel = new QLabel(
-        "The Echo Provider is a demonstration provider that echoes your messages "
-        "with simulated AI behavior. It's useful for testing the application "
-        "without requiring an external AI service."
-    );
-    infoLabel->setWordWrap(true);
-    infoLabel->setStyleSheet("color: #6B7280; font-size: 12px; padding: 8px;");
-    layout->addWidget(infoLabel);
-    
-    layout->addStretch();
-}
-
-QJsonObject EchoProviderConfigWidget::getConfig() const
-{
-    return QJsonObject{
-        {"responseDelay", m_responseDelaySpinBox->value()},
-        {"typingSpeed", m_typingSpeedSpinBox->value()},
-        {"enableTyping", m_enableTypingCheckBox->isChecked()},
-        {"enableMarkdown", m_enableMarkdownCheckBox->isChecked()}
-    };
-}
-
-void EchoProviderConfigWidget::setConfig(const QJsonObject &config)
-{
-    m_responseDelaySpinBox->setValue(config.value("responseDelay").toInt(1000));
-    m_typingSpeedSpinBox->setValue(config.value("typingSpeed").toInt(50));
-    m_enableTypingCheckBox->setChecked(config.value("enableTyping").toBool(true));
-    m_enableMarkdownCheckBox->setChecked(config.value("enableMarkdown").toBool(true));
 }
 
 } // namespace DesktopApp
