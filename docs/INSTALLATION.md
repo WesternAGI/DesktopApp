@@ -105,32 +105,73 @@ cmake --build build -j$(nproc)
 ./build/DesktopApp
 ```
 
+### Development Mode
+To skip authentication during development:
+```bash
+./build/DesktopApp --skip-auth
+```
+
 ## Troubleshooting
 
-### Common Issues
+### Common Build Issues
 
-**"Qt not found" error**
-- Windows: Set Qt path: `-DCMAKE_PREFIX_PATH="C:\Qt\6.5.0\msvc2019_64"`
-- macOS: Ensure Homebrew Qt is in PATH: `export PATH=$(brew --prefix qt)/bin:$PATH`
-- Linux: Install qt6-dev packages: `sudo apt install qt6-base-dev`
+**Qt not found error**
+- **Windows**: Set Qt path: `-DCMAKE_PREFIX_PATH="C:\Qt\6.5.0\msvc2019_64"`
+- **macOS**: Ensure Homebrew Qt is in PATH: `export PATH=$(brew --prefix qt)/bin:$PATH`
+- **Linux**: Install development packages: `sudo apt install qt6-base-dev`
 
 **Missing DLL files (Windows)**
-- Add Qt bin directory to PATH: `C:\Qt\6.5.0\msvc2019_64\bin`
-- Or copy required DLLs to build directory
+- Add Qt bin directory to system PATH: `C:\Qt\6.5.0\msvc2019_64\bin`
+- Or copy required DLLs to the build directory
 
-**Build fails**
-- Delete build directory and retry: `rm -rf build`
-- Verify all dependencies are installed
-- Check CMake and compiler versions
+**Build fails with compiler errors**
+- Delete build directory and retry: `rm -rf build` (Linux/macOS) or `rmdir /s build` (Windows)
+- Verify all dependencies are installed correctly
+- Check that CMake and compiler versions meet requirements
 
-**App crashes after login**
-- Try skip-auth mode: `./build/DesktopApp --skip-auth`
-- Delete settings: Windows: `%APPDATA%\DesktopApp Project\`, macOS/Linux: `~/.config/DesktopApp Project/`
+### Runtime Issues
+
+**Application crashes on startup**
+- Try development mode: `./build/DesktopApp --skip-auth`
+- Check Qt installation and runtime libraries
+- Verify all required DLLs are available (Windows)
+
+**Login fails**
+- Use demo credentials: username `demo`, password `demo123`
+- Try skipping authentication with `--skip-auth` flag
+- Check internet connection if using online authentication
+
+**Settings not saved**
+- Ensure application has write permissions to settings directory
+- Delete settings to reset: 
+  - Windows: `%APPDATA%\DesktopApp Project\`
+  - macOS/Linux: `~/.config/DesktopApp Project/`
 
 ## Development Build
 
-For development with debug symbols:
+For development with debug symbols and verbose output:
 ```bash
 cmake -S . -B build-debug -DCMAKE_BUILD_TYPE=Debug
 cmake --build build-debug
 ```
+
+## Platform-Specific Notes
+
+### Windows
+- Requires Visual Studio 2019+ or MinGW-w64
+- Qt DLLs must be in PATH or copied to build directory
+- May need to run as administrator for first installation
+
+### macOS
+- Requires Xcode Command Line Tools
+- Homebrew is recommended for dependency management
+- Application bundle will be created in the build directory
+
+### Linux
+- Package names vary between distributions
+- Some distributions may require additional Qt modules
+- Desktop integration works with most modern desktop environments
+
+---
+
+For additional help, see the [User Guide](USER_GUIDE.md) and [Project Status](PROJECT_STATUS.md).
