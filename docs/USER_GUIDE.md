@@ -1,10 +1,11 @@
 # DesktopApp User Guide
 
-Quick guide to using DesktopApp desktop chat application.
+Complete guide to using DesktopApp desktop chat application.
 
 ## Getting Started
 
 ### First Login
+
 **Demo Account:**
 - Username: `demo`
 - Password: `demo123`
@@ -14,174 +15,111 @@ Quick guide to using DesktopApp desktop chat application.
 ./DesktopApp --skip-auth
 ```
 
-## Main Interface
+### Main Interface Layout
 
-### Layout
-- **Left Panel:** Conversation list
-- **Center:** Chat messages
-- **Bottom:** Message input box
+- **Left Panel**: Conversation list
+- **Center**: Chat messages area
+- **Bottom**: Message input box and send button
 
-### Basic Usage
-1. Click conversations to switch between them
+## Basic Usage
+
+### Starting a Conversation
+1. Click on existing conversations in the left panel to switch between them
 2. Type messages in the bottom input box
-3. Press Enter to send (echo responses only)
-4. Use menu for settings and themes
+3. Press Enter or click the send button
+4. Receive echo responses for testing
 
-### Keyboard Shortcuts
+### Navigation
+- Use the conversation list to switch between chats
+- Access settings via the menu or keyboard shortcuts
+- Toggle themes using the theme button or settings
+
+## Keyboard Shortcuts
+
 - `Ctrl+Q` - Quit application
 - `Ctrl+N` - New conversation
-- `Ctrl+,` - Open settings
+- `Ctrl+,` - Open settings (Windows/Linux)
+- `Cmd+,` - Open settings (macOS)
+- `Enter` - Send message
+- `Tab` - Navigate between interface elements
+- `Escape` - Close dialogs
 
 ## Features
 
 ### Themes
-- Switch between light and dark modes
-- Access via menu or theme button
+- **Light Theme**: Bright, clean appearance
+- **Dark Theme**: Dark background for low-light environments
+- Access via settings menu or theme toggle button
+- Settings are remembered between sessions
 
 ### Settings
-- Basic preferences and configuration
-- Authentication settings
+Currently available in the settings window:
 - Theme selection
+- Basic preferences
+- Application information
 
 ## Troubleshooting
 
 ### Common Issues
-- **App won't start:** Check Qt installation
-- **Login fails:** Use exact demo credentials
-- **UI issues:** Try different theme or restart
 
-### Getting Help
-- Check README.md for build issues
-- Verify Qt6 installation and paths
-- Review PROJECT_STATUS.md for known limitations
+**Application won't start**
+- Verify Qt6 is properly installed
+- Check that all required libraries are available
+- Run from terminal to see error messages
 
-## Current Features
+**Login fails**
+- Use exact demo credentials: `demo` / `demo123`
+- Try development mode with `--skip-auth` flag
 
-## Settings
+**Interface problems**
+- Try switching themes in settings
+- Resize the window if elements appear broken
+- Restart the application
 
-### Accessing Settings
-- **Menu**: File → Preferences
-- **Keyboard**: `Ctrl+,` (Windows/Linux) or `Cmd+,` (macOS)
+### Debug Information
 
-### Available Settings
-Currently the settings window is basic and includes:
-- Theme selection (light/dark)
-- Basic preferences
-- About information
-
-*Note: Most advanced settings are not implemented yet.*
-
-## Themes
-
-### Switching Themes
-1. Go to settings or use the theme toggle button
-2. Choose between:
-   - **Light Theme**: Bright, clean appearance
-   - **Dark Theme**: Dark background, easier on eyes
-   - **System Theme**: Matches your operating system
-
-### Theme Features
-- Icons automatically adjust to theme
-- All windows use consistent theming
-- Settings are remembered between sessions
-
-## Troubleshooting
-
-### Common Problems
-
-**Problem: App won't start**
-- Check that Qt6 is properly installed
-- Try running from terminal to see error messages
-- Make sure all required DLL files are available (Windows)
-
-**Problem: Login doesn't work**
-- Make sure you're using the exact demo account details
-- Use `--skip-auth` to bypass login for testing
-
-**Problem: Window appears blank or broken**
-- Try resizing the window
-- Switch themes in settings
-
-### Getting Debug Information
-
-**On Windows (PowerShell):**
+**Windows (PowerShell):**
 ```powershell
 .\DesktopApp.exe
-# Check the terminal output for error messages
 ```
 
-**On macOS/Linux:**
+**macOS/Linux:**
 ```bash
 ./DesktopApp
-# Error messages will appear in the terminal
 ```
 
-### Reporting Issues
+Check terminal output for error messages and diagnostic information.
 
-If you find bugs or problems:
-1. Note your operating system and version
-2. Record the exact steps that cause the problem
-3. Copy any error messages from the terminal
-4. Include your Qt version (`qmake --version`)
+### System Requirements
+- Qt6 (6.2 or newer)
+- Windows 10+, macOS 12+, or Linux with recent desktop environment
+- At least 100MB free disk space
+- Internet connection (for authentication, unless using --skip-auth)
 
-## Tips and Tricks
+## Current Limitations
 
-### For General Use
-- The app is currently a prototype - many features are placeholders
-- Demo accounts are reset each time you restart
-- Try both light and dark themes to see which you prefer
-- The conversation list will be empty when you first start
-
-### For Developers
-- Use `--skip-auth` to bypass login during development
-- Check the console output for debugging information
-- The app uses Qt's standard keyboard shortcuts
-- All settings are stored in your system's standard location
-
-### Keyboard Navigation
-- `Tab`: Move between interface elements
-- `Enter`: Activate buttons and confirm actions
-- `Escape`: Close dialogs and cancel operations
-- `Ctrl+Q`: Quit the application
-
-## What's Coming Next
-
-### Planned Features (Not Yet Available)
-- **Real AI Chat**: Connect to ChatGPT, Claude, or other AI services
-- **Message History**: Save and load previous conversations
-- **File Sharing**: Send and receive images and documents
-- **Search**: Find messages in your conversation history
-- **Voice Messages**: Record and play audio messages
-- **Better Settings**: More customization options
-
-### Current Limitations
-This is a prototype version, so:
-- Only demo authentication works
+This is a prototype version with the following limitations:
+- Echo responses only (no real AI integration)
 - Messages don't persist between sessions
-- No real AI integration yet
+- No file attachments or media sharing
+- No search functionality
 - Limited customization options
-- Some UI elements are placeholders
 
-## Support
+## Tips for Developers
 
-## What's Coming Next
+- Use `--skip-auth` flag to bypass login during development
+- Monitor console output for debugging information
+- Settings are stored in standard system locations
+- The application uses Qt's standard behavior for most interactions
 
-### Planned Features (Not Yet Available)
-- **Real AI Chat**: Connect to ChatGPT, Claude, or other AI services
-- **Message History**: Save and load previous conversations
-- **File Sharing**: Send and receive images and documents
-- **Search**: Find messages in your conversation history
-- **Voice Messages**: Record and play audio messages
-- **Better Settings**: More customization options
+## Getting Help
 
-### Current Limitations
-This is a prototype version, so:
-- Only demo authentication works
-- Messages don't persist between sessions
-- No real AI integration yet
-- Limited customization options
-- Some UI elements are placeholders
+If you encounter issues:
+1. Check the terminal output for error messages
+2. Verify your Qt installation with `qmake --version`
+3. Review the [Installation Guide](INSTALLATION.md) for setup help
+4. Check [Project Status](PROJECT_STATUS.md) for known limitations
 
 ---
 
-**Remember**: DesktopApp is currently a prototype. Many features shown in the interface are not fully implemented yet.
+**Note**: DesktopApp is currently a working prototype. Many advanced features are planned but not yet implemented.
