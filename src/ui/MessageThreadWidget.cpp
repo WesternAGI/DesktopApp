@@ -1125,10 +1125,10 @@ void MessageWidget::setupBubbleLayout()
     m_bubbleContainer->setMaximumWidth(600);
     m_bubbleContainer->setMinimumWidth(120);
     
-    // Bubble layout with proper padding for modern chat feel
+    // Bubble layout with minimal padding for WhatsApp-style appearance
     m_bubbleLayout = new QVBoxLayout(m_bubbleContainer);
-    m_bubbleLayout->setContentsMargins(16, 12, 16, 12);
-    m_bubbleLayout->setSpacing(6);
+    m_bubbleLayout->setContentsMargins(12, 8, 12, 8);
+    m_bubbleLayout->setSpacing(4);
     
     // Role and timestamp header
     QWidget *headerWidget = new QWidget();
@@ -1501,7 +1501,7 @@ void MessageWidget::updateStyling()
             }
         )";
         
-        // White text for user messages
+        // White text for user messages with proper padding
         textStyle = R"(
             QTextEdit#messageContent {
                 background-color: transparent;
@@ -1509,7 +1509,7 @@ void MessageWidget::updateStyling()
                 font-size: 14px;
                 font-weight: 400;
                 border: none;
-                padding: 0;
+                padding: 4px 8px;
                 margin: 0;
                 line-height: 1.4;
                 selection-background-color: rgba(255,255,255,0.3);
@@ -1550,7 +1550,7 @@ void MessageWidget::updateStyling()
             }
         )";
            
-        // Dark text for AI messages
+        // Dark text for AI messages with proper padding
         textStyle = R"(
             QTextEdit#messageContent {
                 background-color: transparent;
@@ -1558,7 +1558,7 @@ void MessageWidget::updateStyling()
                 font-size: 14px;
                 font-weight: 400;
                 border: none;
-                padding: 0;
+                padding: 4px 8px;
                 margin: 0;
                 line-height: 1.4;
                 selection-background-color: rgba(31,41,55,0.2);
