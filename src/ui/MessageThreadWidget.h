@@ -205,7 +205,7 @@ private:
     QHBoxLayout *m_mainLayout;
     QWidget *m_bubbleContainer;
     QVBoxLayout *m_bubbleLayout;
-    QTextEdit *m_contentEdit;
+    QLabel *m_contentLabel;
     QLineEdit *m_editLineEdit; // For inline editing
     QWidget *m_editControls;   // Cancel/Save buttons for editing
     QLabel *m_timestampLabel;  // Message timestamp

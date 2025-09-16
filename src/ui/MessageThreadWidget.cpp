@@ -1015,7 +1015,7 @@ MessageWidget::MessageWidget(const Message &message, QWidget *parent)
     , m_mainLayout(nullptr)
     , m_bubbleContainer(nullptr)
     , m_bubbleLayout(nullptr)
-    , m_contentEdit(nullptr)
+    , m_contentLabel(nullptr)
     , m_editLineEdit(nullptr)
     , m_editControls(nullptr)
     , m_timestampLabel(nullptr)
@@ -1111,46 +1111,24 @@ void MessageWidget::setupBubbleLayout()
     
     m_bubbleLayout->addWidget(headerWidget);
     
-    // Content area with optimal text wrapping and auto-sizing
-    m_contentEdit = new QTextEdit();
-    m_contentEdit->setObjectName("messageContent");
-    m_contentEdit->setReadOnly(true);
-    m_contentEdit->setFrameStyle(QFrame::NoFrame);
-    m_contentEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_contentEdit->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    // Disable any internal scrolling mechanism
-    m_contentEdit->setLineWrapMode(QTextEdit::WidgetWidth);
-    // Note: Styling will be applied in updateStyling() method
-    m_contentEdit->document()->setDocumentMargin(0);
-    m_contentEdit->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
-    m_contentEdit->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+    // Content area with proper text wrapping - use QLabel instead of QTextEdit
+    m_contentLabel = new QLabel();
+    m_contentLabel->setObjectName("messageContent");
+    m_contentLabel->setFrameStyle(QFrame::NoFrame);
+    m_contentLabel->setWordWrap(true);
+    m_contentLabel->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+    m_contentLabel->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
+    m_contentLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     
     // Set accessibility properties for the content
     QString roleText = (m_message.role == MessageRole::User) ? "User" : "Assistant";
-    m_contentEdit->setAccessibleName(QString("%1 message").arg(roleText));
-    m_contentEdit->setAccessibleDescription(QString("Message from %1 at %2").arg(roleText, m_message.createdAt.toString("h:mm AP")));
+    m_contentLabel->setAccessibleName(QString("%1 message").arg(roleText));
+    m_contentLabel->setAccessibleDescription(QString("Message from %1 at %2").arg(roleText, m_message.createdAt.toString("h:mm AP")));
     
-    // Set content text and auto-resize - improved sizing logic
-    m_contentEdit->setPlainText(m_message.text);
+    // Set content text
+    m_contentLabel->setText(m_message.text);
     
-    // Improved auto-resize that considers bubble container width constraints
-    connect(m_contentEdit->document(), &QTextDocument::contentsChanged, [this]() {
-        // Set the document width to match bubble container minus padding
-        int availableWidth = m_bubbleContainer->maximumWidth() - 32; // Account for bubble padding
-        m_contentEdit->document()->setTextWidth(availableWidth);
-        
-        QSize size = m_contentEdit->document()->size().toSize();
-        int height = qMax(20, size.height() + 4); // Min height with small buffer
-        m_contentEdit->setFixedHeight(height);
-    });
-    
-    // Trigger initial resize with proper text width
-    int availableWidth = m_bubbleContainer->maximumWidth() - 32;
-    m_contentEdit->document()->setTextWidth(availableWidth);
-    QSize initialSize = m_contentEdit->document()->size().toSize();
-    m_contentEdit->setFixedHeight(qMax(20, initialSize.height() + 4));
-    
-    m_bubbleLayout->addWidget(m_contentEdit);
+    m_bubbleLayout->addWidget(m_contentLabel);
     
     // Edit line input (hidden by default)
     m_editLineEdit = new QLineEdit();
@@ -1363,7 +1341,7 @@ void MessageWidget::updateBubbleAlignment()
 
 void MessageWidget::updateContent(const QString &content)
 {
-    m_contentEdit->setPlainText(content);
+    m_contentLabel->setText(content);
     m_message.text = content;
     
     // Trigger auto-scroll in parent when content changes (for streaming)
@@ -1442,24 +1420,15 @@ void MessageWidget::updateStyling()
         
         // White text for user messages with proper padding
         textStyle = R"(
-            QTextEdit#messageContent {
+            QLabel#messageContent {
                 background-color: transparent;
                 color: white;
                 font-size: 14px;
                 font-weight: 400;
                 border: none;
-                padding: 4px 8px;
+                padding: 8px 12px;
                 margin: 0;
                 line-height: 1.4;
-                selection-background-color: rgba(255,255,255,0.3);
-            }
-            QTextEdit#messageContent QScrollBar:vertical {
-                width: 0px;
-                background: transparent;
-            }
-            QTextEdit#messageContent QScrollBar:horizontal {
-                height: 0px;
-                background: transparent;
             }
         )";
         
@@ -1491,24 +1460,15 @@ void MessageWidget::updateStyling()
            
         // Dark text for AI messages with proper padding
         textStyle = R"(
-            QTextEdit#messageContent {
+            QLabel#messageContent {
                 background-color: transparent;
                 color: #000000;
                 font-size: 14px;
                 font-weight: 400;
                 border: none;
-                padding: 4px 8px;
+                padding: 8px 12px;
                 margin: 0;
                 line-height: 1.4;
-                selection-background-color: rgba(0,0,0,0.2);
-            }
-            QTextEdit#messageContent QScrollBar:vertical {
-                width: 0px;
-                background: transparent;
-            }
-            QTextEdit#messageContent QScrollBar:horizontal {
-                height: 0px;
-                background: transparent;
             }
         )";
         
@@ -1530,7 +1490,7 @@ void MessageWidget::updateStyling()
     }
     
     m_bubbleContainer->setStyleSheet(bubbleStyle);
-    m_contentEdit->setStyleSheet(textStyle);
+    m_contentLabel->setStyleSheet(textStyle);
     
     // Update header labels if they exist
     if (m_roleLabel) {
@@ -1595,7 +1555,7 @@ void MessageWidget::enterEditMode()
     m_originalContent = m_message.text;
     
     // Hide content, show edit input
-    m_contentEdit->hide();
+    m_contentLabel->hide();
     m_editLineEdit->setText(m_message.text);
     m_editLineEdit->show();
     m_editControls->show();
@@ -1616,19 +1576,19 @@ void MessageWidget::exitEditMode(bool save)
         QString newText = m_editLineEdit->text().trimmed();
         if (!newText.isEmpty() && newText != m_originalContent) {
             m_message.text = newText;
-            m_contentEdit->setPlainText(newText);
+            m_contentLabel->setText(newText);
             emit editCompleted(m_message.id, newText);
         }
     } else {
         // Restore original content
-        m_contentEdit->setPlainText(m_originalContent);
+        m_contentLabel->setText(m_originalContent);
         emit editCancelled(m_message.id);
     }
     
     // Show content, hide edit controls
     m_editLineEdit->hide();
     m_editControls->hide();
-    m_contentEdit->show();
+    m_contentLabel->show();
     
     hideHoverActions();
 }
