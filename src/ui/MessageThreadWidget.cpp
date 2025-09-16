@@ -1119,6 +1119,9 @@ void MessageWidget::setupBubbleLayout()
     m_contentLabel->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     m_contentLabel->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
     m_contentLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+    // Ensure text is contained within bubble constraints
+    m_contentLabel->setMaximumWidth(360); // Slightly less than bubble max width for padding
+    m_contentLabel->setMinimumWidth(40);  // Ensure minimum readability
     
     // Set accessibility properties for the content
     QString roleText = (m_message.role == MessageRole::User) ? "User" : "Assistant";
@@ -1426,7 +1429,7 @@ void MessageWidget::updateStyling()
                 font-size: 14px;
                 font-weight: 400;
                 border: none;
-                padding: 8px 12px;
+                padding: 10px 14px;
                 margin: 0;
                 line-height: 1.4;
             }
@@ -1466,7 +1469,7 @@ void MessageWidget::updateStyling()
                 font-size: 14px;
                 font-weight: 400;
                 border: none;
-                padding: 8px 12px;
+                padding: 10px 14px;
                 margin: 0;
                 line-height: 1.4;
             }
