@@ -1,10 +1,10 @@
-# Architecture Guide
+# DesktopApp Architecture Guide
 
-Complete technical overview of DesktopApp's design, workflow, and codebase structure.
+Technical overview of DesktopApp's design, components, and system architecture.
 
-## System Overview
+## Overview
 
-DesktopApp is a modular desktop chat application built with C++17/Qt6. The architecture follows a layered approach with clear separation of concerns.
+DesktopApp is a modular desktop chat application built with C++17 and Qt6. The architecture follows a layered design with clear separation of concerns.
 
 ### Design Principles
 - **Modular:** Independent components with well-defined interfaces
@@ -12,9 +12,9 @@ DesktopApp is a modular desktop chat application built with C++17/Qt6. The archi
 - **Extensible:** Plugin architecture for AI providers
 - **Cross-Platform:** Single codebase for Windows, macOS, Linux
 
-## Application Workflow
+## Application Flow
 
-### 1. Startup Sequence
+### Startup Sequence
 ```
 main.cpp → Application.init() → Services startup → UI initialization
 ```
@@ -25,17 +25,17 @@ main.cpp → Application.init() → Services startup → UI initialization
 4. **MainWindow** loads after successful login
 5. **Event loop** begins processing user interactions
 
-### 2. Authentication Flow
+### Authentication Flow
 ```
-LoginWindow → AuthenticationService → Network/Local validation → Session creation
+LoginWindow → AuthenticationService → Validation → Session creation
 ```
 
 1. User enters credentials in **LoginWindow**
-2. **AuthenticationService** validates against remote API or local demo
+2. **AuthenticationService** validates against demo accounts
 3. Success creates session token and user profile
 4. **MainWindow** is displayed with authenticated context
 
-### 3. Chat Message Flow
+### Chat Message Flow
 ```
 User input → MainWindow → Provider selection → AI processing → Response display
 ```
@@ -62,7 +62,7 @@ DesktopApp/
 └── CMakeLists.txt         # Build configuration
 ```
 
-## Core Components
+## Components
 
 ### Application Core (`src/core/`)
 
@@ -84,7 +84,7 @@ DesktopApp/
 - Authentication interface with login/registration forms
 - Handles username/password input and validation
 - Connects to AuthenticationService for credential verification
-- Online authentication (can be bypassed with `--skip-auth`)
+- Demo authentication for development
 
 **MainWindow.h/.cpp**
 - Primary chat interface with conversation management
@@ -93,16 +93,11 @@ DesktopApp/
 - Bottom section: message input and send controls
 - Menu bar: settings, themes, and application controls
 
-**Dialogs/** (various dialog classes)
-- Settings configuration dialog
-- About application information
-- Error and confirmation dialogs
-
 ### Services Layer (`src/services/`)
 
 **AuthenticationService.h/.cpp**
 - User authentication and session management
-- Remote API communication for login/registration
+- Demo account verification
 - Session token management and automatic refresh
 - Password hashing and security utilities
 
@@ -112,7 +107,7 @@ DesktopApp/
 - Cross-platform settings storage using Qt
 - Settings validation and migration
 
-**AudioRecording.h/.cpp** (planned)
+**AudioRecorder.h/.cpp**
 - Voice message recording capabilities
 - Audio format conversion and compression
 - Microphone access and permission handling
@@ -154,12 +149,12 @@ DesktopApp/
 - JSON serialization/deserialization
 - Data validation and type safety
 
-**Storage.h/.cpp** (planned)
-- Local database for conversation history
+**ConversationStore.h/.cpp**
+- Local storage for conversation history
 - Message persistence and retrieval
-- Data encryption for sensitive information
+- JSON-based file storage
 
-## Key Architectural Patterns
+## Architectural Patterns
 
 ### Qt Signals/Slots
 - **Loose Coupling:** Components communicate via signals without direct references
@@ -237,82 +232,9 @@ connect(authService, &AuthenticationService::authenticationFinished,
 - **Icon Caching:** SVG icons rendered once and cached
 - **Theme Updates:** Minimal repainting on theme changes
 
-**main.cpp** - Program entry point
-- Creates the Qt application
-- Shows the login window
-- Launches the main window after successful login
+## Data Models
 
-### 2. User Interface Layer
-
-**LoginWindow** - Authentication interface
-- Simple phone number + password form
-- Online authentication only
-- Session management integration
-
-**MainWindow** - Main chat interface
-- Three-panel layout (conversations, messages, input)
-- Menu system and keyboard shortcuts
-- Theme switching and settings access
-
-**UI Design Philosophy:**
-- Clean, modern interface similar to popular chat apps
-- Responsive layout that works on different screen sizes
-- Consistent styling using Qt's theme system
-
-### 3. Services Layer
-
-Services handle the business logic and data management:
-
-**AuthenticationService**
-- Manages user login/logout
-- Online authentication only
-- Session persistence
-- Remote authentication with backend server
-
-**SettingsStore**
-- App preferences and configuration
-- Theme settings
-- User preferences
-- Cross-platform settings storage using Qt
-
-**Other Services** (basic implementations)
-- AudioRecorder: Voice message recording
-- SearchEngine: Find messages in conversations
-- FileVault: Secure file storage
-
-### 4. AI Provider System
-
-**Provider Architecture:**
-- Abstract interface that all AI providers implement
-- Pluggable design - easy to add new AI services
-- Consistent API regardless of which AI service is used
-
-**EchoProvider** (demo implementation)
-- Responds with test messages
-- Used for development and testing
-- Shows how real providers would work
-
-**Future Providers** (not implemented yet)
-- OpenAI/ChatGPT integration
-- Anthropic Claude integration
-- Local AI model support
-
-### 5. Theme System
-
-**ThemeManager**
-- Light and dark theme support
-- System theme detection
-- Consistent styling across all windows
-- Icon color adaptation
-
-**IconRegistry**
-- SVG icon management
-- Theme-aware icon coloring
-- Efficient icon caching
-
-### 6. Data Layer
-
-**Models.h** - Data structures
+### Core Structures
 ```cpp
 struct Conversation {
     QString id;
@@ -330,108 +252,42 @@ struct Message {
 };
 ```
 
-**Storage** (basic implementation)
-- JSON-based local storage
-- No database dependency (keeps things simple)
-- Easy backup and portability
+### Storage Strategy
+- **JSON-based:** Simple, portable, human-readable
+- **Local Files:** No database dependency
+- **Backup Friendly:** Easy to backup and restore
 
-## Key Design Patterns
+## Dependencies
 
-### 1. Service Locator Pattern
-The Application class acts as a central registry for all services:
+### Required
+- **Qt6:** Core, Widgets, Network, Multimedia
+- **C++17:** Modern C++ features and standard library
+- **CMake 3.21+:** Build system
 
-```cpp
-class Application {
-public:
-    AuthenticationService* auth() const;
-    SettingsStore* settings() const;
-    ThemeManager* theme() const;
-    // ... other services
-};
-```
+### Platform Support
+- **Windows:** Windows 10 and later
+- **macOS:** macOS 10.15 and later
+- **Linux:** Modern distributions with Qt6 support
 
-### 2. Signal-Slot Communication
-Uses Qt's built-in signal-slot system for communication between components:
+## Future Enhancements
 
-```cpp
-// Authentication service signals login success
-connect(authService, &AuthenticationService::loginSuccessful,
-        this, &MainWindow::onLoginSuccess);
-```
+### Short Term
+- Complete AI provider implementations
+- Improve data persistence
+- Add comprehensive error handling
+- Implement proper logging
 
-### 3. Provider Interface Pattern
-All AI providers implement the same interface:
+### Medium Term
+- Plugin architecture for extensions
+- Cloud synchronization support
+- Advanced security features
+- Performance optimizations
 
-```cpp
-class AIProvider {
-public:
-    virtual void sendMessage(const QString& message) = 0;
-    virtual bool isAvailable() const = 0;
-    // ... other common methods
-};
-```
-
-## Data Flow
-
-### 1. Application Startup
-1. `main.cpp` creates Qt application
-2. Application class initializes all services
-3. LoginWindow appears
-4. User authenticates with demo account
-5. MainWindow launches and connects to services
-
-### 2. Sending a Message
-1. User types in message input field
-2. MainWindow receives text and calls AI provider
-3. Provider processes message (or echoes for demo)
-4. Response comes back via signals
-5. UI updates to show the conversation
-
-### 3. Theme Switching
-1. User clicks theme toggle or changes setting
-2. ThemeManager updates all stylesheets
-3. IconRegistry reloads icons with new colors
-4. All windows refresh their appearance
-
-## Security Considerations
-
-### Current Security Features
-- Settings stored securely using Qt's platform-specific storage
-- No plaintext password storage
-- Local-only data (no cloud sync risks)
-
-### Future Security (not implemented yet)
-- Message encryption
-- Secure credential storage
-- File attachment security
-- Privacy controls
-
-## Performance Design
-
-### Efficient Patterns Used
-- Lazy loading of conversations
-- Efficient Qt data structures
-- Minimal memory copying
-- Smart pointer usage for automatic memory management
-
-### Scalability Considerations
-- Services can be easily swapped or upgraded
-- Provider system allows multiple AI backends
-- Theme system supports unlimited themes
-- Data models designed for large conversation histories
-
-## Testing Strategy
-
-### Current Testing (basic)
-- Demo providers for isolated testing
-- Manual testing of UI components
-- Build verification on multiple platforms
-
-### Future Testing (planned)
-- Unit tests for all services
-- Integration tests for AI providers
-- UI automation testing
-- Performance benchmarks
+### Long Term
+- Multi-platform mobile apps
+- Web interface
+- Enterprise features
+- Advanced AI integrations
 
 ## Extension Points
 
@@ -453,53 +309,6 @@ public:
 3. Register theme in the theme system
 4. Test across all UI components
 
-## Build System
-
-### CMake Configuration
-- Cross-platform build support
-- Automatic Qt6 detection
-- Proper dependency management
-- Debug and release configurations
-
-### Dependencies
-- **Qt6**: Core, Widgets, Network, Multimedia
-- **C++17**: Modern C++ features and standard library
-- **CMake 3.21+**: Build system
-- **Platform**: Windows, macOS, Linux support
-
-## Deployment
-
-### Current Deployment
-- Local build and run
-- Development-friendly setup
-- All dependencies bundled with Qt
-
-### Future Deployment (planned)
-- Installer packages for each platform
-- Automatic updates
-- Code signing for security
-- Distribution through package managers
-
-## Future Architecture Plans
-
-### Short Term
-- Complete AI provider implementations
-- Improve data persistence
-- Add comprehensive error handling
-- Implement proper logging
-
-### Medium Term
-- Plugin architecture for extensions
-- Cloud synchronization support
-- Advanced security features
-- Performance optimizations
-
-### Long Term
-- Multi-platform mobile apps
-- Web interface
-- Enterprise features
-- Advanced AI integrations
-
 ---
 
-This architecture is designed to be simple enough to understand quickly, but flexible enough to grow into a full-featured application. The modular design means you can work on one part without affecting others, and new developers can quickly understand how everything fits together.
+This architecture is designed to be simple to understand but flexible enough to grow into a full-featured application. The modular design allows working on individual components without affecting others.
