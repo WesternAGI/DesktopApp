@@ -1,13 +1,13 @@
 # DesktopApp
 
-A desktop chat application built with C++17 and Qt6.
+A modern desktop chat application built with C++17 and Qt6, featuring a clean WhatsApp-style interface.
 
 ## Features
 - ✅ Login system with online authentication
-- ✅ Chat interface with conversation list
+- ✅ Minimal chat interface with proper message containment
 - ✅ Light/dark theme support
 - ✅ Cross-platform (Windows, macOS, Linux)
-- ❌ AI providers (demo only)
+- ✅ Echo provider for testing and demonstration
 - ❌ File attachments
 - ❌ Message search
 
