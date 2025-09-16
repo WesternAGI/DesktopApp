@@ -24,20 +24,13 @@ namespace DesktopApp {
 EchoProvider::EchoProvider(QObject *parent)
     : AIProvider(parent)
     , m_responseTimer(new QTimer(this))
-    , m_typingTimer(new QTimer(this))
-    , m_typingPosition(0)
     , m_isGenerating(false)
-    , m_responseDelay(1000)
-    , m_typingSpeed(50)
-    , m_enableTyping(true)
-    , m_enableMarkdown(true)
 {
     m_currentModel = defaultModel();
     
     // Setup timers
     m_responseTimer->setSingleShot(true);
     QObject::connect(m_responseTimer, &QTimer::timeout, this, &EchoProvider::onResponseTimer);
-    QObject::connect(m_typingTimer, &QTimer::timeout, this, &EchoProvider::onTypingTimer);
 }
 
 QIcon EchoProvider::icon() const
@@ -148,12 +141,12 @@ void EchoProvider::sendMessage(
     
     emit messageStarted(conversationId, m_currentMessageId);
     
-    // Simulate response delay
-    m_responseTimer->start(m_responseDelay);
-    
     // Store the message and attachments for processing
     m_pendingMessage = message;
     m_pendingAttachments = attachments;
+    
+    // Trigger immediate response (no delay for strict echo behavior)
+    m_responseTimer->start(1); // 1ms minimal delay for async processing
 }
 
 void EchoProvider::regenerateResponse(const QString &conversationId, const QString &messageId)
@@ -216,13 +209,10 @@ void EchoProvider::onResponseTimer()
         return;
     }
     
-    // Generate echo response
+    // Generate strict echo response (exactly what user typed)
     m_currentResponse = generateEchoResponse(m_pendingMessage, m_pendingAttachments);
     
-    if (m_enableTyping) {
-        startTypingSimulation(m_currentConversationId, m_currentMessageId, m_currentResponse);
-    } else {
-        // Send complete response immediately
+    // Send complete response immediately without typing simulation
     Message responseMessage;
     responseMessage.id = m_currentMessageId;
     responseMessage.conversationId = m_currentConversationId;
@@ -231,150 +221,23 @@ void EchoProvider::onResponseTimer()
     responseMessage.createdAt = QDateTime::currentDateTime();
     responseMessage.metadata.insert("model", m_currentModel);
     emit messageCompleted(m_currentConversationId, m_currentMessageId, responseMessage);
-        
-        m_isGenerating = false;
-        m_currentConversationId.clear();
-        m_currentMessageId.clear();
-        m_currentResponse.clear();
-    }
+    
+    // Reset state
+    m_isGenerating = false;
+    m_currentConversationId.clear();
+    m_currentMessageId.clear();
+    m_currentResponse.clear();
 }
-
-void EchoProvider::onTypingTimer()
-{
-    if (!m_isGenerating || m_currentResponse.isEmpty()) {
-        return;
-    }
-    
-    // Send next character(s)
-    int charsToSend = 1;
-    
-    // Send words for faster typing on spaces
-    if (m_typingPosition < m_currentResponse.length() && 
-        m_currentResponse[m_typingPosition].isSpace()) {
-        charsToSend = 1;
-    }
-    
-    QString chunk = m_currentResponse.mid(m_typingPosition, charsToSend);
-    m_typingPosition += charsToSend;
-    
-    emit messageChunk(m_currentConversationId, m_currentMessageId, chunk);
-    
-    // Check if we've sent the entire response
-    if (m_typingPosition >= m_currentResponse.length()) {
-        // Complete the message
-    Message responseMessage;
-    responseMessage.id = m_currentMessageId;
-    responseMessage.conversationId = m_currentConversationId;
-    responseMessage.role = MessageRole::Assistant;
-    responseMessage.text = m_currentResponse;
-    responseMessage.createdAt = QDateTime::currentDateTime();
-    responseMessage.metadata.insert("model", m_currentModel);
-    emit messageCompleted(m_currentConversationId, m_currentMessageId, responseMessage);
-        
-        // Reset state
-        m_isGenerating = false;
-        m_currentConversationId.clear();
-        m_currentMessageId.clear();
-        m_currentResponse.clear();
-        m_typingPosition = 0;
-        m_typingTimer->stop();
-    }
 }
 
 QString EchoProvider::generateEchoResponse(
     const QString &userMessage,
     const QList<Attachment> &attachments) const
 {
-    QStringList responses;
+    Q_UNUSED(attachments)
     
-    // Add model-specific personality
-    QString personality;
-    if (m_currentModel == "echo-creative") {
-        personality = "I'm feeling quite creative today! ";
-    } else if (m_currentModel == "echo-analytical") {
-        personality = "Let me analyze that thoughtfully: ";
-    } else if (m_currentModel == "echo-fast") {
-        personality = "Quick response: ";
-    }
-    
-    if (!personality.isEmpty()) {
-        responses << personality;
-    }
-    
-    // Echo the message with various formats
-    if (m_enableMarkdown) {
-        responses << QString("You said: **\"%1\"**").arg(userMessage);
-    } else {
-        responses << QString("You said: \"%1\"").arg(userMessage);
-    }
-    
-    // Handle attachments
-    if (!attachments.isEmpty()) {
-        responses << QString("\nI see you've attached %1 file(s):").arg(attachments.size());
-        for (const auto &attachment : attachments) {
-            QString typeStr;
-            switch (attachment.type) {
-            case AttachmentType::Image:
-                typeStr = "🖼️ Image";
-                break;
-            case AttachmentType::Audio:
-                typeStr = "🎵 Audio";
-                break;
-            case AttachmentType::Text:
-                typeStr = "📄 Text";
-                break;
-            default:
-                typeStr = "📎 File";
-                break;
-            }
-            responses << QString("- %1: %2").arg(typeStr, attachment.fileName);
-        }
-    }
-    
-    // Add some randomized responses
-    QStringList echoVariations = {
-        "That's interesting! Here's what I understood from your message:",
-        "I hear you loud and clear! You mentioned:",
-        "Thanks for sharing that with me. To confirm, you said:",
-        "I'm processing your input. You communicated:",
-        "Your message has been received. The content was:"
-    };
-    
-    if (m_enableMarkdown) {
-        echoVariations.append({
-            "*Thoughtfully reflecting on your words...*",
-            "**Processing complete!** Your message contained:",
-            "~~Thinking~~ Done thinking! You expressed:",
-            "> Your message resonates with me. You said:"
-        });
-    }
-    
-    int randomIndex = QRandomGenerator::global()->bounded(echoVariations.size());
-    responses << "\n" + echoVariations[randomIndex];
-    responses << QString("\"%1\"").arg(userMessage);
-    
-    // Add message statistics
-    responses << QString("\n📊 **Message Statistics:**");
-    responses << QString("- Characters: %1").arg(userMessage.length());
-    responses << QString("- Words: %1").arg(userMessage.split(' ', Qt::SkipEmptyParts).size());
-    responses << QString("- Attachments: %1").arg(attachments.size());
-    responses << QString("- Model: %1").arg(m_currentModel);
-    responses << QString("- Timestamp: %1").arg(QDateTime::currentDateTime().toString());
-    
-    return responses.join("\n");
-}
-
-void EchoProvider::startTypingSimulation(
-    const QString &conversationId,
-    const QString &messageId,
-    const QString &fullResponse)
-{
-    m_currentConversationId = conversationId;
-    m_currentMessageId = messageId;
-    m_currentResponse = fullResponse;
-    m_typingPosition = 0;
-    
-    m_typingTimer->start(m_typingSpeed);
+    // Strict echo behavior: return exactly what the user typed
+    return userMessage;
 }
 
 // EchoProviderConfigWidget implementation

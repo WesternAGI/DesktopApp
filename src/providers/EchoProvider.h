@@ -66,7 +66,6 @@ public:
 
 private slots:
     void onResponseTimer();
-    void onTypingTimer();
 
 private:
     void simulateResponse(
@@ -79,29 +78,15 @@ private:
         const QString &userMessage,
         const QList<Attachment> &attachments
     ) const;
-    
-    void startTypingSimulation(
-        const QString &conversationId,
-        const QString &messageId,
-        const QString &fullResponse
-    );
 
     // Response simulation
     QTimer *m_responseTimer;
-    QTimer *m_typingTimer;
     
     // Current generation state
     QString m_currentConversationId;
     QString m_currentMessageId;
     QString m_currentResponse;
-    int m_typingPosition;
     bool m_isGenerating;
-    
-    // Configuration
-    int m_responseDelay;     // ms before starting response
-    int m_typingSpeed;       // ms between characters
-    bool m_enableTyping;     // simulate typing effect
-    bool m_enableMarkdown;   // format responses with markdown
 
     // Pending message storage
     QString m_pendingMessage;
