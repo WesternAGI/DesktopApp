@@ -24,27 +24,6 @@ class MessageWidget;
 class ProviderManager;
 
 /**
- * @brief Animated loading dots widget showing (...) -> (..) -> (.) cycle
- */
-class LoadingDotsWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    explicit LoadingDotsWidget(QWidget *parent = nullptr);
-    void startAnimation();
-    void stopAnimation();
-
-private slots:
-    void updateDots();
-
-private:
-    QLabel *m_dotsLabel;
-    QTimer *m_animationTimer;
-    int m_currentState; // 0=(...), 1=(..), 2=(.)
-};
-
-/**
  * @brief Widget displaying the conversation messages thread
  */
 class MessageThreadWidget : public QWidget
@@ -133,7 +112,6 @@ private:
     QString m_currentConversationId;
     QString m_currentAssistantMessageId;
     MessageWidget *m_streamingMessageWidget;
-    LoadingDotsWidget *m_loadingDotsWidget;
 
 public:
     QLabel *m_liveRegion; // ARIA live region for screen readers - public for MessageWidget access

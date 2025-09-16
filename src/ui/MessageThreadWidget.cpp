@@ -39,7 +39,6 @@ MessageThreadWidget::MessageThreadWidget(QWidget *parent)
     , m_messagesLayout(nullptr)
     , m_emptyLabel(nullptr)
     , m_streamingMessageWidget(nullptr)
-    , m_loadingDotsWidget(nullptr)
     , m_liveRegion(nullptr)
     , m_providerManager(nullptr)
 {
@@ -47,57 +46,6 @@ MessageThreadWidget::MessageThreadWidget(QWidget *parent)
     connectSignals();
     showEmptyState();
     updateOfflineNotice();
-}
-
-// LoadingDotsWidget implementation
-LoadingDotsWidget::LoadingDotsWidget(QWidget *parent)
-    : QWidget(parent)
-    , m_dotsLabel(new QLabel(this))
-    , m_animationTimer(new QTimer(this))
-    , m_currentState(0)
-{
-    auto layout = new QHBoxLayout(this);
-    layout->setContentsMargins(16, 8, 16, 8);
-    layout->addStretch(); // Push dots to left
-    layout->addWidget(m_dotsLabel);
-    layout->addStretch(); // Add stretch after dots too for centering in bubble
-    
-    m_dotsLabel->setText("●●●");
-    m_dotsLabel->setStyleSheet(R"(
-        QLabel {
-            color: #999999;
-            font-size: 16px;
-            background-color: #F0F0F0;
-            border-radius: 20px;
-            padding: 12px 16px;
-            margin: 2px;
-        }
-    )");
-    
-    m_animationTimer->setInterval(600); // Change dots every 600ms
-    connect(m_animationTimer, &QTimer::timeout, this, &LoadingDotsWidget::updateDots);
-}
-
-void LoadingDotsWidget::startAnimation()
-{
-    // Disabled loading dots animation - show static text
-    m_currentState = 0;
-    updateDots();
-}
-
-void LoadingDotsWidget::stopAnimation()
-{
-    m_animationTimer->stop();
-}
-
-void LoadingDotsWidget::updateDots()
-{
-    switch (m_currentState) {
-        case 0: m_dotsLabel->setText("●●●"); break;
-        case 1: m_dotsLabel->setText("●●"); break;
-        case 2: m_dotsLabel->setText("●"); break;
-    }
-    m_currentState = (m_currentState + 1) % 3;
 }
 
 void MessageThreadWidget::setupUI()
@@ -1464,22 +1412,13 @@ void MessageWidget::setDeliveryState(MessageDeliveryState state)
 void MessageWidget::setStreaming(bool streaming)
 {
     m_isStreaming = streaming;
-    // Could add typing cursor animation here
+    // Removed streaming animation indicators for minimal interface
 }
 
 void MessageWidget::setGenerating(bool generating)
 {
     m_isGenerating = generating;
-    
-    if (m_regenerateButton && m_stopButton) {
-        if (generating) {
-            m_regenerateButton->hide();
-            m_stopButton->show();
-        } else {
-            m_stopButton->hide();
-            m_regenerateButton->show();
-        }
-    }
+    // Removed loading state UI changes for minimal interface
 }
 
 void MessageWidget::updateStyling()
