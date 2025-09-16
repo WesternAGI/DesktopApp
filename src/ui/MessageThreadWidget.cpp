@@ -41,8 +41,6 @@ MessageThreadWidget::MessageThreadWidget(QWidget *parent)
     , m_streamingMessageWidget(nullptr)
     , m_loadingDotsWidget(nullptr)
     , m_liveRegion(nullptr)
-    , m_streamingTimer(new QTimer(this))
-    , m_streamingPosition(0)
     , m_providerManager(nullptr)
 {
     setupUI();
@@ -82,9 +80,9 @@ LoadingDotsWidget::LoadingDotsWidget(QWidget *parent)
 
 void LoadingDotsWidget::startAnimation()
 {
+    // Disabled loading dots animation - show static text
     m_currentState = 0;
     updateDots();
-    m_animationTimer->start();
 }
 
 void LoadingDotsWidget::stopAnimation()
@@ -169,9 +167,6 @@ void MessageThreadWidget::setupUI()
 
 void MessageThreadWidget::connectSignals()
 {
-    // Connect streaming timer
-    connect(m_streamingTimer, &QTimer::timeout, this, &MessageThreadWidget::onStreamingTimerTick);
-    
     // Acquire provider manager from application and connect signals
     auto *app = Application::instance();
     m_providerManager = app->providerManager();
@@ -181,7 +176,8 @@ void MessageThreadWidget::connectSignals()
                 this, [this](const QString &convId, const QString &msgId, const QString &chunk) {
                     Q_UNUSED(msgId)
                     if (convId == m_currentConversationId && m_streamingMessageWidget) {
-                        QString current = m_streamingMessageWidget->message().text + chunk; // simplistic append
+                        // Update content immediately without animation - accumulate chunks
+                        QString current = m_streamingMessageWidget->message().text + chunk;
                         m_streamingMessageWidget->updateContent(current);
                     }
                 });
@@ -786,9 +782,6 @@ void MessageThreadWidget::addMessageWidget(const Message &message)
     connect(messageWidget, &MessageWidget::stopGenerationRequested,
             this, [this]() {
                 // Stop current generation
-                if (m_streamingTimer->isActive()) {
-                    m_streamingTimer->stop();
-                }
                 if (m_streamingMessageWidget) {
                     m_streamingMessageWidget->setStreaming(false);
                     m_streamingMessageWidget->setGenerating(false);
@@ -1024,75 +1017,6 @@ void MessageThreadWidget::refineAutoTitle()
     // For now, do nothing; hook after assistant first full reply
 }
 
-void MessageThreadWidget::startStreamingAnimation(const QString &fullText)
-{
-    m_fullResponseText = fullText;
-    m_streamingPosition = 0;
-    
-    // Configure timer for more natural word-by-word typing effect
-    m_streamingTimer->setInterval(80); // 80ms between chunks for realistic typing speed
-    m_streamingTimer->start();
-}
-
-void MessageThreadWidget::onStreamingTimerTick()
-{
-    if (!m_streamingMessageWidget || m_streamingPosition >= m_fullResponseText.length()) {
-        // Animation complete
-        if (m_streamingMessageWidget) {
-            m_streamingMessageWidget->setStreaming(false);
-            m_streamingMessageWidget->setGenerating(false);
-            
-            // Update the message in the store with final content
-            auto *app = Application::instance();
-            auto *store = app->conversationStore();
-            if (!m_currentAssistantMessageId.isEmpty()) {
-                Message msg = store->getMessage(m_currentAssistantMessageId);
-                msg.text = m_fullResponseText;
-                msg.isStreaming = false;
-                store->updateMessage(msg);
-                emit conversationUpdated(m_currentConversationId);
-            }
-            
-            m_streamingMessageWidget = nullptr;
-            m_currentAssistantMessageId.clear();
-        }
-        m_streamingTimer->stop();
-        return;
-    }
-    
-    // Find next good stopping point (word boundary or punctuation)
-    int nextStop = m_streamingPosition;
-    int textLength = m_fullResponseText.length();
-    
-    // Advance by 1-3 characters for more natural flow
-    int chunkSize = QRandomGenerator::global()->bounded(1, 4); // Random 1-3 characters
-    nextStop = qMin(m_streamingPosition + chunkSize, textLength);
-    
-    // If we hit a space, advance to include the next word for smoother flow
-    if (nextStop < textLength && m_fullResponseText[nextStop] == ' ') {
-        while (nextStop < textLength && m_fullResponseText[nextStop] == ' ') {
-            nextStop++;
-        }
-        // Include next word
-        while (nextStop < textLength && m_fullResponseText[nextStop] != ' ' && 
-               m_fullResponseText[nextStop] != '.' && m_fullResponseText[nextStop] != ',' &&
-               m_fullResponseText[nextStop] != '!' && m_fullResponseText[nextStop] != '?') {
-            nextStop++;
-        }
-    }
-    
-    QString partialText = m_fullResponseText.left(nextStop);
-    
-    // Update the streaming message widget
-    m_streamingMessageWidget->updateContent(partialText);
-    
-    // Advance position
-    m_streamingPosition = nextStop;
-    
-    // Auto-scroll to bottom as text appears
-    scrollToBottom();
-}
-
 void MessageThreadWidget::updateChatAreaStyling()
 {
     auto *app = Application::instance();
@@ -1246,6 +1170,8 @@ void MessageWidget::setupBubbleLayout()
     m_contentEdit->setFrameStyle(QFrame::NoFrame);
     m_contentEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_contentEdit->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    // Disable any internal scrolling mechanism
+    m_contentEdit->setLineWrapMode(QTextEdit::WidgetWidth);
     // Note: Styling will be applied in updateStyling() method
     m_contentEdit->document()->setDocumentMargin(0);
     m_contentEdit->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
@@ -1588,6 +1514,14 @@ void MessageWidget::updateStyling()
                 line-height: 1.4;
                 selection-background-color: rgba(255,255,255,0.3);
             }
+            QTextEdit#messageContent QScrollBar:vertical {
+                width: 0px;
+                background: transparent;
+            }
+            QTextEdit#messageContent QScrollBar:horizontal {
+                height: 0px;
+                background: transparent;
+            }
         )";
         
         // Header labels for user messages
@@ -1628,6 +1562,14 @@ void MessageWidget::updateStyling()
                 margin: 0;
                 line-height: 1.4;
                 selection-background-color: rgba(31,41,55,0.2);
+            }
+            QTextEdit#messageContent QScrollBar:vertical {
+                width: 0px;
+                background: transparent;
+            }
+            QTextEdit#messageContent QScrollBar:horizontal {
+                height: 0px;
+                background: transparent;
             }
         )";
         

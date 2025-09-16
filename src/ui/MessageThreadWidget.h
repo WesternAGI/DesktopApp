@@ -112,8 +112,6 @@ private:
     void deleteMessage(const QString &messageId);
     void updateOfflineNotice();
     void adjustSuggestionsLayout(); // Adjust suggestion cards layout based on window size
-    void startStreamingAnimation(const QString &fullText);
-    void onStreamingTimerTick();
     void hideMessagesAfter(const QString &messageId); // Hide messages after the given message ID
     void updateChatAreaStyling(); // Update chat area colors based on theme
 
@@ -135,17 +133,12 @@ private:
     QString m_currentConversationId;
     QString m_currentAssistantMessageId;
     MessageWidget *m_streamingMessageWidget;
+    LoadingDotsWidget *m_loadingDotsWidget;
 
 public:
     QLabel *m_liveRegion; // ARIA live region for screen readers - public for MessageWidget access
 
 private:
-    LoadingDotsWidget *m_loadingDotsWidget;
-    
-    // Streaming animation state
-    QTimer *m_streamingTimer;
-    QString m_fullResponseText;
-    int m_streamingPosition;
     
     // Services
     ProviderManager *m_providerManager;
