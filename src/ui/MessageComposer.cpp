@@ -51,12 +51,36 @@ MessageComposer::MessageComposer(QWidget *parent)
 
 void MessageComposer::setupUI()
 {
-    setFixedHeight(120);
+    setMinimumHeight(80);
+    setMaximumHeight(300);
     
     // Main layout
     m_mainLayout = new QVBoxLayout(this);
     m_mainLayout->setContentsMargins(16, 8, 16, 8);
     m_mainLayout->setSpacing(8);
+
+    // Top bar with model selection and settings
+    QWidget *topBarWidget = new QWidget();
+    QHBoxLayout *topBarLayout = new QHBoxLayout(topBarWidget);
+    topBarLayout->setContentsMargins(0, 0, 0, 0);
+    topBarLayout->setSpacing(8);
+    
+    // Model selection dropdown
+    QLabel *modelLabel = new QLabel("Model:");
+    modelLabel->setObjectName("modelLabel");
+    
+    QComboBox *modelCombo = new QComboBox();
+    modelCombo->addItem("🤖 EchoProvider", "echo");
+    modelCombo->addItem("💬 ChatGPT (coming soon)", "chatgpt");
+    modelCombo->addItem("🧠 Claude (coming soon)", "claude");
+    modelCombo->setMinimumWidth(180);
+    modelCombo->setObjectName("modelSelector");
+    
+    topBarLayout->addWidget(modelLabel);
+    topBarLayout->addWidget(modelCombo);
+    topBarLayout->addStretch();
+    
+    m_mainLayout->addWidget(topBarWidget);
 
     // Attachments area (initially hidden)
     m_attachmentsWidget = new QWidget();
@@ -67,88 +91,112 @@ void MessageComposer::setupUI()
     m_attachmentsWidget->hide();
     m_mainLayout->addWidget(m_attachmentsWidget);
 
-    // Input area
+    // Input area with enhanced styling
     QWidget *inputWidget = new QWidget();
+    inputWidget->setObjectName("inputContainer");
     m_inputLayout = new QHBoxLayout(inputWidget);
-    m_inputLayout->setContentsMargins(0, 0, 0, 0);
+    m_inputLayout->setContentsMargins(12, 8, 12, 8);
     m_inputLayout->setSpacing(8);
 
-    // Text input
+    // Enhanced text input with auto-resize
     m_textEdit = new QTextEdit();
-    m_textEdit->setPlaceholderText("Type your message...");
-    m_textEdit->setMaximumHeight(80);
-    m_textEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_textEdit->setPlaceholderText("Type your message... (Shift+Enter for new line, Enter to send)");
+    m_textEdit->setMinimumHeight(40);
+    m_textEdit->setMaximumHeight(200);
+    m_textEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    m_textEdit->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_textEdit->setAcceptRichText(false);
+    m_textEdit->setLineWrapMode(QTextEdit::WidgetWidth);
+    m_textEdit->setObjectName("messageInput");
+    
+    // Auto-resize text edit
+    connect(m_textEdit, &QTextEdit::textChanged, [this]() {
+        // Auto-resize the text edit based on content
+        QTextDocument *doc = m_textEdit->document();
+        doc->setTextWidth(m_textEdit->width());
+        int height = doc->size().height() + 16; // Add padding
+        height = qBound(40, height, 200); // Clamp between min and max
+        m_textEdit->setFixedHeight(height);
+        
+        // Update parent height
+        adjustSize();
+    });
+    
     m_inputLayout->addWidget(m_textEdit, 1);
 
     auto *app = Application::instance();
     auto *iconRegistry = app->iconRegistry();
 
-    // Attach button
+    // Attach button with better styling
     m_attachButton = new QToolButton();
     m_attachButton->setIcon(iconRegistry->icon("attach"));
-    m_attachButton->setToolTip("Attach files");
-    m_attachButton->setFixedSize(36, 36);
+    m_attachButton->setToolTip("Attach files (Ctrl+Shift+A)");
+    m_attachButton->setFixedSize(40, 40);
+    m_attachButton->setObjectName("composerAction");
     m_inputLayout->addWidget(m_attachButton);
 
     // Voice button
     m_voiceButton = new QToolButton();
     m_voiceButton->setIcon(iconRegistry->icon("microphone"));
-    m_voiceButton->setToolTip("Record voice message");
-    m_voiceButton->setFixedSize(36, 36);
+    m_voiceButton->setToolTip("Record voice message (Ctrl+Shift+V)");
+    m_voiceButton->setFixedSize(40, 40);
     m_voiceButton->setCheckable(true);
+    m_voiceButton->setObjectName("composerAction");
     m_inputLayout->addWidget(m_voiceButton);
 
-    // Send button
+    // Send button with enhanced styling
     m_sendButton = new QPushButton();
     m_sendButton->setIcon(iconRegistry->icon("send"));
-    m_sendButton->setToolTip("Send message");
-    m_sendButton->setFixedSize(36, 36);
-    m_sendButton->setProperty("class", "primary");
+    m_sendButton->setToolTip("Send message (Enter)");
+    m_sendButton->setFixedSize(40, 40);
+    m_sendButton->setObjectName("sendButton");
     m_sendButton->setEnabled(false);
     m_inputLayout->addWidget(m_sendButton);
 
     m_mainLayout->addWidget(inputWidget);
 
-    // Status area
+    // Status area with enhanced information
     QWidget *statusWidget = new QWidget();
     m_statusLayout = new QHBoxLayout(statusWidget);
     m_statusLayout->setContentsMargins(0, 0, 0, 0);
     m_statusLayout->setSpacing(16);
 
-    // Word count
-    m_wordCountLabel = new QLabel("0 / 4000");
-    m_wordCountLabel->setStyleSheet("color: #6B7280; font-size: 12px;");
+    // Character/word count with better formatting
+    m_wordCountLabel = new QLabel("0 characters");
+    m_wordCountLabel->setObjectName("characterCount");
     m_statusLayout->addWidget(m_wordCountLabel);
 
-    // Prompt selector
-    m_promptCombo = new QComboBox();
-    m_promptCombo->addItem("No prompt selected");
-    m_promptCombo->setMinimumWidth(150);
-    m_statusLayout->addWidget(m_promptCombo);
+    // Shortcut hints
+    QLabel *shortcutHint = new QLabel("💡 Use / for commands, @ for models");
+    shortcutHint->setObjectName("shortcutHint");
+    m_statusLayout->addWidget(shortcutHint);
 
     m_statusLayout->addStretch();
 
-    // Progress bar (hidden by default)
+    // Progress bar for uploads/processing
     m_progressBar = new QProgressBar();
     m_progressBar->setMaximumHeight(4);
     m_progressBar->setTextVisible(false);
+    m_progressBar->setObjectName("progressBar");
     m_progressBar->hide();
     m_statusLayout->addWidget(m_progressBar);
 
     m_mainLayout->addWidget(statusWidget);
 
-    // Setup attachment context menu
+    // Setup attachment context menu (same as before)
     m_attachmentMenu = new QMenu(this);
     m_removeAttachmentAction = m_attachmentMenu->addAction(iconRegistry->icon("delete"), "Remove");
     m_retryAttachmentAction = m_attachmentMenu->addAction(iconRegistry->icon("send"), "Retry");
+    
+    // Apply initial styling
+    updateStyling();
 }
 
 void MessageComposer::connectSignals()
 {
-    // Text input
+    // Text input with enhanced handling
     connect(m_textEdit, &QTextEdit::textChanged, this, &MessageComposer::onTextChanged);
-    // Install event filter for Enter-to-send
+    // Install event filter for enhanced keyboard handling
     m_textEdit->installEventFilter(this);
 
     // Buttons
@@ -160,7 +208,7 @@ void MessageComposer::connectSignals()
     connect(m_removeAttachmentAction, &QAction::triggered, this, &MessageComposer::onRemoveAttachment);
     connect(m_retryAttachmentAction, &QAction::triggered, this, &MessageComposer::onRetryAttachment);
 
-    // Provider status changes - update send button when provider availability changes
+    // Provider status changes
     auto *app = Application::instance();
     auto *providerManager = app->providerManager();
     if (providerManager) {
@@ -169,8 +217,131 @@ void MessageComposer::connectSignals()
         connect(providerManager, &ProviderManager::providerStatusChanged, 
                 this, [this](AIProvider::Status, const QString &) { updateSendButton(); });
     }
+    
+    // Theme changes
+    auto *themeManager = app->themeManager();
+    connect(themeManager, &ThemeManager::themeChanged, this, &MessageComposer::updateStyling);
+}
 
-    // NOTE: Key handling for Ctrl+Enter send would require subclassing QTextEdit; omitted.
+void MessageComposer::updateStyling()
+{
+    auto *themeManager = Application::instance()->themeManager();
+    const auto &tokens = themeManager->tokens();
+    
+    // Input container styling
+    QString inputContainerStyle = QString(R"(
+        QWidget#inputContainer {
+            background: %1;
+            border: 2px solid %2;
+            border-radius: %3px;
+        }
+        QWidget#inputContainer:focus-within {
+            border-color: %4;
+        }
+    )").arg(tokens.surface.name())
+       .arg(tokens.border.name())
+       .arg(tokens.radiusLarge)
+       .arg(tokens.primary.name());
+    
+    findChild<QWidget*>("inputContainer")->setStyleSheet(inputContainerStyle);
+    
+    // Text input styling
+    QString textInputStyle = QString(R"(
+        QTextEdit#messageInput {
+            background: transparent;
+            border: none;
+            font-size: %1px;
+            line-height: %2;
+            color: %3;
+            font-family: %4;
+            padding: 0px;
+        }
+        QTextEdit#messageInput:focus {
+            outline: none;
+        }
+    )").arg(tokens.fontSizeNormal)
+       .arg(tokens.lineHeightNormal)
+       .arg(tokens.text.name())
+       .arg(tokens.fontFamily.family());
+    
+    m_textEdit->setStyleSheet(textInputStyle);
+    
+    // Action buttons styling
+    QString actionButtonStyle = QString(R"(
+        QToolButton#composerAction {
+            background: transparent;
+            border: none;
+            border-radius: %1px;
+            color: %2;
+            padding: 8px;
+        }
+        QToolButton#composerAction:hover {
+            background: %3;
+        }
+        QToolButton#composerAction:pressed {
+            background: %4;
+        }
+    )").arg(tokens.radiusMedium)
+       .arg(tokens.textSecondary.name())
+       .arg(tokens.surfaceHover.name())
+       .arg(tokens.border.name());
+    
+    for (auto *button : findChildren<QToolButton*>()) {
+        if (button->objectName() == "composerAction") {
+            button->setStyleSheet(actionButtonStyle);
+        }
+    }
+    
+    // Send button styling (primary)
+    QString sendButtonStyle = QString(R"(
+        QPushButton#sendButton {
+            background: %1;
+            border: none;
+            border-radius: %2px;
+            color: white;
+            font-weight: 600;
+            padding: 8px;
+        }
+        QPushButton#sendButton:hover:enabled {
+            background: %3;
+        }
+        QPushButton#sendButton:pressed:enabled {
+            background: %4;
+        }
+        QPushButton#sendButton:disabled {
+            background: %5;
+            color: %6;
+        }
+    )").arg(tokens.primary.name())
+       .arg(tokens.radiusMedium)
+       .arg(tokens.primaryHover.name())
+       .arg(tokens.primary.name())
+       .arg(tokens.border.name())
+       .arg(tokens.textMuted.name());
+    
+    m_sendButton->setStyleSheet(sendButtonStyle);
+    
+    // Status labels styling
+    QString statusStyle = QString(R"(
+        QLabel#characterCount {
+            color: %1;
+            font-size: %2px;
+        }
+        QLabel#shortcutHint {
+            color: %3;
+            font-size: %4px;
+            font-style: italic;
+        }
+    )").arg(tokens.textMuted.name())
+       .arg(tokens.fontSizeSmall)
+       .arg(tokens.textMuted.name())
+       .arg(tokens.fontSizeXs);
+    
+    for (auto *label : findChildren<QLabel*>()) {
+        if (label->objectName() == "characterCount" || label->objectName() == "shortcutHint") {
+            label->setStyleSheet(statusStyle);
+        }
+    }
 }
 
 void MessageComposer::setFocus()
@@ -266,7 +437,7 @@ void MessageComposer::onTextChanged()
 {
     updateSendButton();
     updateWordCount();
-    resizeTextEdit();
+    // Auto-resize is now handled in setupUI lambda
 }
 
 void MessageComposer::onAttachmentContextMenu(const QPoint &pos)
@@ -404,17 +575,28 @@ void MessageComposer::updateWordCount()
 {
     QString text = m_textEdit->toPlainText();
     int charCount = text.length();
+    int wordCount = text.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts).length();
     
-    m_wordCountLabel->setText(QString("%1 / %2").arg(charCount).arg(MAX_CHARS));
-    
-    // Change color based on usage
-    if (charCount > MAX_CHARS * 0.9) {
-        m_wordCountLabel->setStyleSheet("color: #EF4444; font-size: 12px;"); // Red
-    } else if (charCount > MAX_CHARS * 0.7) {
-        m_wordCountLabel->setStyleSheet("color: #F59E0B; font-size: 12px;"); // Orange
+    // Show both character and word count
+    if (wordCount == 0) {
+        m_wordCountLabel->setText("0 characters");
     } else {
-        m_wordCountLabel->setStyleSheet("color: #6B7280; font-size: 12px;"); // Gray
+        m_wordCountLabel->setText(QString("%1 characters • %2 words").arg(charCount).arg(wordCount));
     }
+    
+    // Apply theme-aware coloring based on usage
+    auto *themeManager = Application::instance()->themeManager();
+    const auto &tokens = themeManager->tokens();
+    
+    QString color = tokens.textMuted.name();
+    if (charCount > 3000) {
+        color = tokens.error.name(); // Red for very long messages
+    } else if (charCount > 2000) {
+        color = tokens.warning.name(); // Orange for long messages
+    }
+    
+    m_wordCountLabel->setStyleSheet(QString("color: %1; font-size: %2px;")
+                                   .arg(color).arg(tokens.fontSizeSmall));
 }
 
 void MessageComposer::resizeTextEdit()

@@ -63,6 +63,7 @@ private slots:
 private:
     void setupUI();
     void connectSignals();
+    void updateStyling();
     void updateSendButton();
     void addAttachment(const QString &filePath);
     void removeAttachment(const QString &attachmentId);

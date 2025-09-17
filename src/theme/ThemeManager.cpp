@@ -68,8 +68,8 @@ void ThemeManager::applyToApplication()
 void ThemeManager::loadLightTheme()
 {
     // ChatGPT-like light theme colors
-    m_tokens.primary = QColor("#19C37D");        // ChatGPT green
-    m_tokens.primaryHover = QColor("#16A568");   // Darker green
+    m_tokens.primary = QColor("#10A37F");        // ChatGPT green
+    m_tokens.primaryHover = QColor("#0F8A6B");   // Darker green
     m_tokens.secondary = QColor("#8E8EA0");      // Subtle gray
     m_tokens.background = QColor("#FFFFFF");     // Pure white
     m_tokens.surface = QColor("#F7F7F8");        // Very light gray (ChatGPT background)
@@ -78,16 +78,33 @@ void ThemeManager::loadLightTheme()
     m_tokens.text = QColor("#0D0D0D");           // Near black text
     m_tokens.textSecondary = QColor("#676767");  // Medium gray text
     m_tokens.textMuted = QColor("#8E8EA0");      // Muted text
-    m_tokens.success = QColor("#19C37D");        // Success green
+    m_tokens.success = QColor("#10A37F");        // Success green
     m_tokens.warning = QColor("#FF8C00");        // Warning orange
-    m_tokens.error = QColor("#FF4444");
+    m_tokens.error = QColor("#EF4444");          // Error red
+
+    // Message-specific colors
+    m_tokens.userMessage = QColor("#F7F7F8");    // Light gray for user messages
+    m_tokens.assistantMessage = QColor("#FFFFFF"); // White for assistant messages
+    m_tokens.systemMessage = QColor("#FEF3C7");  // Light yellow for system messages
+    m_tokens.codeBackground = QColor("#F4F4F4"); // Light gray for code blocks
+    m_tokens.codeBorder = QColor("#E5E7EB");     // Subtle border for code
+    m_tokens.linkColor = QColor("#2563EB");      // Blue for links
+    m_tokens.linkHover = QColor("#1D4ED8");      // Darker blue for link hover
 
     // Typography
-    m_tokens.fontFamily = QFont("Segoe UI", 10);
-    m_tokens.fontSizeSmall = 11;
-    m_tokens.fontSizeNormal = 13;
-    m_tokens.fontSizeLarge = 15;
-    m_tokens.fontSizeHeading = 18;
+    m_tokens.fontFamily = QFont("Söhne", 10);    // ChatGPT's font family (fallback to system)
+    m_tokens.fontFamilyMono = QFont("SF Mono", 10); // Monospace for code
+    m_tokens.fontSizeXs = 11;
+    m_tokens.fontSizeSmall = 12;
+    m_tokens.fontSizeNormal = 14;
+    m_tokens.fontSizeLarge = 16;
+    m_tokens.fontSizeHeading = 20;
+    m_tokens.fontSizeTitle = 24;
+
+    // Line heights
+    m_tokens.lineHeightTight = 1.2;
+    m_tokens.lineHeightNormal = 1.5;
+    m_tokens.lineHeightLoose = 1.7;
 
     // Spacing (in pixels)
     m_tokens.spacingXs = 4;
@@ -95,11 +112,13 @@ void ThemeManager::loadLightTheme()
     m_tokens.spacingM = 16;
     m_tokens.spacingL = 24;
     m_tokens.spacingXl = 32;
+    m_tokens.spacingXxl = 48;
 
     // Radii
-    m_tokens.radiusSmall = 4;
+    m_tokens.radiusSmall = 6;
     m_tokens.radiusMedium = 8;
     m_tokens.radiusLarge = 12;
+    m_tokens.radiusXl = 16;
 
     // Shadows
     m_tokens.shadowLight = "0 1px 3px rgba(0, 0, 0, 0.1)";
@@ -118,8 +137,8 @@ void ThemeManager::loadLightTheme()
 void ThemeManager::loadDarkTheme()
 {
     // ChatGPT-like dark theme colors
-    m_tokens.primary = QColor("#19C37D");        // ChatGPT green
-    m_tokens.primaryHover = QColor("#16A568");   // Darker green
+    m_tokens.primary = QColor("#10A37F");        // ChatGPT green
+    m_tokens.primaryHover = QColor("#0F8A6B");   // Darker green
     m_tokens.secondary = QColor("#9CA3AF");      // Light gray
     m_tokens.background = QColor("#212121");     // ChatGPT dark background
     m_tokens.surface = QColor("#2F2F2F");        // Darker surface
@@ -128,16 +147,33 @@ void ThemeManager::loadDarkTheme()
     m_tokens.text = QColor("#ECECEC");           // Light text
     m_tokens.textSecondary = QColor("#C5C5D2");  // Secondary text
     m_tokens.textMuted = QColor("#9CA3AF");      // Muted text
-    m_tokens.success = QColor("#19C37D");        // Success green
+    m_tokens.success = QColor("#10A37F");        // Success green
     m_tokens.warning = QColor("#FFA726");        // Warning orange
-    m_tokens.error = QColor("#FF5252");
+    m_tokens.error = QColor("#FF5252");          // Error red
 
-    // Typography (same as light)
-    m_tokens.fontFamily = QFont("Segoe UI", 10);
-    m_tokens.fontSizeSmall = 11;
-    m_tokens.fontSizeNormal = 13;
-    m_tokens.fontSizeLarge = 15;
-    m_tokens.fontSizeHeading = 18;
+    // Message-specific colors
+    m_tokens.userMessage = QColor("#2F2F2F");    // Dark gray for user messages
+    m_tokens.assistantMessage = QColor("#212121"); // Darker for assistant messages
+    m_tokens.systemMessage = QColor("#3F3F00");  // Dark yellow for system messages
+    m_tokens.codeBackground = QColor("#1A1A1A"); // Very dark for code blocks
+    m_tokens.codeBorder = QColor("#404040");     // Subtle border for code
+    m_tokens.linkColor = QColor("#60A5FA");      // Light blue for links
+    m_tokens.linkHover = QColor("#3B82F6");      // Slightly darker blue for link hover
+
+    // Typography (same structure as light)
+    m_tokens.fontFamily = QFont("Söhne", 10);
+    m_tokens.fontFamilyMono = QFont("SF Mono", 10);
+    m_tokens.fontSizeXs = 11;
+    m_tokens.fontSizeSmall = 12;
+    m_tokens.fontSizeNormal = 14;
+    m_tokens.fontSizeLarge = 16;
+    m_tokens.fontSizeHeading = 20;
+    m_tokens.fontSizeTitle = 24;
+
+    // Line heights (same as light)
+    m_tokens.lineHeightTight = 1.2;
+    m_tokens.lineHeightNormal = 1.5;
+    m_tokens.lineHeightLoose = 1.7;
 
     // Spacing (same as light)
     m_tokens.spacingXs = 4;
@@ -145,9 +181,13 @@ void ThemeManager::loadDarkTheme()
     m_tokens.spacingM = 16;
     m_tokens.spacingL = 24;
     m_tokens.spacingXl = 32;
+    m_tokens.spacingXxl = 48;
 
     // Radii (same as light)
-    m_tokens.radiusSmall = 4;
+    m_tokens.radiusSmall = 6;
+    m_tokens.radiusMedium = 8;
+    m_tokens.radiusLarge = 12;
+    m_tokens.radiusXl = 16;
     m_tokens.radiusMedium = 8;
     m_tokens.radiusLarge = 12;
 

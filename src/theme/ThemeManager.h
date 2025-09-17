@@ -27,24 +27,43 @@ struct DesignTokens {
     QColor warning;
     QColor error;
     
+    // Message-specific colors
+    QColor userMessage;
+    QColor assistantMessage;
+    QColor systemMessage;
+    QColor codeBackground;
+    QColor codeBorder;
+    QColor linkColor;
+    QColor linkHover;
+    
     // Typography
     QFont fontFamily;
-    int fontSizeSmall;
-    int fontSizeNormal;
-    int fontSizeLarge;
-    int fontSizeHeading;
+    QFont fontFamilyMono;
+    int fontSizeXs;       // 11px
+    int fontSizeSmall;    // 12px
+    int fontSizeNormal;   // 14px
+    int fontSizeLarge;    // 16px
+    int fontSizeHeading;  // 20px
+    int fontSizeTitle;    // 24px
+    
+    // Line heights
+    double lineHeightTight;   // 1.2
+    double lineHeightNormal;  // 1.5
+    double lineHeightLoose;   // 1.7
     
     // Spacing
-    int spacingXs;
-    int spacingS;
-    int spacingM;
-    int spacingL;
-    int spacingXl;
+    int spacingXs;   // 4px
+    int spacingS;    // 8px
+    int spacingM;    // 16px
+    int spacingL;    // 24px
+    int spacingXl;   // 32px
+    int spacingXxl;  // 48px
     
     // Radii
-    int radiusSmall;
-    int radiusMedium;
-    int radiusLarge;
+    int radiusSmall;   // 6px
+    int radiusMedium;  // 8px
+    int radiusLarge;   // 12px
+    int radiusXl;      // 16px
     
     // Shadows
     QString shadowLight;
