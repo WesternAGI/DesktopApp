@@ -108,6 +108,7 @@ bool EchoProvider::validateConfig(const QJsonObject &config) const
 
 QWidget *EchoProvider::createConfigWidget(QWidget *parent)
 {
+    Q_UNUSED(parent)
     return nullptr;
 }
 

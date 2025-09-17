@@ -322,7 +322,7 @@ void ProviderSettingsWidget::onProviderSelectionChanged()
 
     // Persist current active provider config if active and widget present
     if (m_providerManager->activeProviderId() == providerId) {
-        if (auto *app = Application::instance()) {
+        if (Application::instance()) {
             QWidget *configWidget = m_configWidgets.value(providerId, nullptr);
             // Config widget handling removed for minimal implementation
             Q_UNUSED(configWidget)
