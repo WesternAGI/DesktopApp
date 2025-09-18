@@ -44,6 +44,11 @@ public:
      */
     bool hasContent() const;
 
+    /**
+     * @brief Set the current provider selection
+     */
+    void setCurrentProvider(const QString &providerId);
+
 signals:
     void messageSent(const QString &text, const AttachmentList &attachments);
     void attachmentAdded(const QString &filePath);

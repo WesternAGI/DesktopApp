@@ -230,6 +230,16 @@ void MainWindow::connectSignals()
         }
     });
 
+    // Set initial provider selection in composer
+    auto *providerManager = app->providerManager();
+    if (providerManager) {
+        m_messageComposer->setCurrentProvider(providerManager->activeProviderId());
+        
+        // Update composer when provider changes externally
+        connect(providerManager, &ProviderManager::activeProviderChanged,
+                m_messageComposer, &MessageComposer::setCurrentProvider);
+    }
+
     // Connect message thread responses back to conversation list
     connect(m_messageThread, &MessageThreadWidget::conversationUpdated,
             m_conversationList, &ConversationListWidget::refreshConversations);

@@ -20,7 +20,7 @@
 
 namespace DesktopApp {
 
-class MessageWidget;
+class EnhancedMessageWidget;
 class ProviderManager;
 
 /**
@@ -111,7 +111,7 @@ private:
     // State
     QString m_currentConversationId;
     QString m_currentAssistantMessageId;
-    MessageWidget *m_streamingMessageWidget;
+    EnhancedMessageWidget *m_streamingMessageWidget;
 
 public:
     QLabel *m_liveRegion; // ARIA live region for screen readers - public for MessageWidget access

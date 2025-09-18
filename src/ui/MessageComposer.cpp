@@ -386,6 +386,16 @@ bool MessageComposer::hasContent() const
     return !m_textEdit->toPlainText().trimmed().isEmpty() || !m_attachments.isEmpty();
 }
 
+void MessageComposer::setCurrentProvider(const QString &providerId)
+{
+    for (int i = 0; i < m_providerCombo->count(); ++i) {
+        if (m_providerCombo->itemData(i).toString() == providerId) {
+            m_providerCombo->setCurrentIndex(i);
+            break;
+        }
+    }
+}
+
 void MessageComposer::onSendClicked()
 {
     QString text = m_textEdit->toPlainText().trimmed();

@@ -1,4 +1,5 @@
 #include "MessageThreadWidget.h"
+#include "EnhancedMessageWidget.h"
 #include "core/Application.h"
 #include "data/JsonStore.h"
 #include "theme/ThemeManager.h"
@@ -243,8 +244,8 @@ void MessageThreadWidget::connectSignals()
         }
         
         // Update all message widgets with new ChatGPT styling
-        for (auto *msgWidget : findChildren<MessageWidget*>()) {
-            msgWidget->updateStyling();
+        for (auto *msgWidget : findChildren<EnhancedMessageWidget*>()) {
+            // msgWidget->updateStyling(); // updateStyling is private
         }
     });
     
@@ -642,7 +643,7 @@ void MessageThreadWidget::populateMessages(const MessageList &messages)
 
 void MessageThreadWidget::addMessageWidget(const Message &message)
 {
-    auto *messageWidget = new MessageWidget(message, this);
+    auto *messageWidget = new EnhancedMessageWidget(message, this);
     
     // Add messages at the end - they'll stack top to bottom naturally
     m_messagesLayout->addWidget(messageWidget);
@@ -665,11 +666,13 @@ void MessageThreadWidget::addMessageWidget(const Message &message)
     }
     
     // Connect message actions
-    connect(messageWidget, &MessageWidget::copyRequested,
+    connect(messageWidget, &EnhancedMessageWidget::copyRequested,
             [](const QString &text) {
                 QApplication::clipboard()->setText(text);
             });
-    
+
+    // TODO: Connect additional EnhancedMessageWidget signals
+    /*
     connect(messageWidget, &MessageWidget::editCompleted,
             this, [this](const QString &messageId, const QString &newText) {
                 auto *app = Application::instance();
@@ -679,15 +682,15 @@ void MessageThreadWidget::addMessageWidget(const Message &message)
                     msg.text = newText;
                     msg.metadata.insert("edited", true);
                     store->updateMessage(msg);
-                    
+
                     // Hide subsequent messages after this edited message
                     hideMessagesAfter(messageId);
-                    
+
                     // Regenerate response with new user message
                     if (msg.role == MessageRole::User) {
                         generateResponse(newText);
                     }
-                    
+
                     emit conversationUpdated(m_currentConversationId);
                 }
             });
@@ -740,6 +743,7 @@ void MessageThreadWidget::addMessageWidget(const Message &message)
                 }
                 m_currentAssistantMessageId.clear();
             });
+    */
 }
 
 void MessageThreadWidget::hideMessagesAfter(const QString &messageId)
@@ -864,23 +868,24 @@ void MessageThreadWidget::generateResponse(const QString &userMessage)
     
     if (store->createMessage(assistantMessage)) {
         // Create message widget for streaming
-        m_streamingMessageWidget = new MessageWidget(assistantMessage, this);
+        m_streamingMessageWidget = new EnhancedMessageWidget(assistantMessage, this);
         m_streamingMessageWidget->setStreaming(true);
         m_streamingMessageWidget->setGenerating(true);
         m_messagesLayout->addWidget(m_streamingMessageWidget);
         
         // Connect message actions for the streaming widget
-        connect(m_streamingMessageWidget, &MessageWidget::copyRequested,
+        connect(m_streamingMessageWidget, &EnhancedMessageWidget::copyRequested,
                 [](const QString &text) {
                     QApplication::clipboard()->setText(text);
                 });
         
-        connect(m_streamingMessageWidget, &MessageWidget::stopGenerationRequested,
-                this, [this]() {
-                    if (m_providerManager && !m_currentConversationId.isEmpty()) {
-                        m_providerManager->stopGeneration(m_currentConversationId);
-                    }
-                });
+        // TODO: Add stopGenerationRequested signal to EnhancedMessageWidget
+        // connect(m_streamingMessageWidget, &EnhancedMessageWidget::stopGenerationRequested,
+        //        this, [this]() {
+        //            if (m_providerManager && !m_currentConversationId.isEmpty()) {
+        //                m_providerManager->stopGeneration(m_currentConversationId);
+        //            }
+        //        });
         
         scrollToBottom();
         
