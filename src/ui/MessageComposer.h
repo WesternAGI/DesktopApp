@@ -50,6 +50,7 @@ signals:
     void attachmentRemoved(const QString &attachmentId);
     void voiceRecordingStarted();
     void voiceRecordingStopped(const QString &audioPath);
+    void providerChanged(const QString &providerId);
 
 private slots:
     void onSendClicked();
@@ -90,6 +91,7 @@ private:
     QHBoxLayout *m_statusLayout;
     QLabel *m_wordCountLabel;
     QComboBox *m_promptCombo;
+    QComboBox *m_providerCombo;
     QProgressBar *m_progressBar;
     
     // Context menu for attachments

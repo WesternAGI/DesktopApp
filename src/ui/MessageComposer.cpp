@@ -173,6 +173,14 @@ void MessageComposer::setupUI()
 
     m_statusLayout->addStretch();
 
+    // Provider selector 
+    m_providerCombo = new QComboBox();
+    m_providerCombo->setToolTip("Select AI provider");
+    m_providerCombo->setObjectName("providerSelector");
+    m_providerCombo->addItem("Echo Provider", "echo");
+    m_providerCombo->addItem("Backend AI", "backend_ai");
+    m_statusLayout->addWidget(m_providerCombo);
+
     // Progress bar for uploads/processing
     m_progressBar = new QProgressBar();
     m_progressBar->setMaximumHeight(4);
@@ -207,6 +215,12 @@ void MessageComposer::connectSignals()
     // Context menu actions
     connect(m_removeAttachmentAction, &QAction::triggered, this, &MessageComposer::onRemoveAttachment);
     connect(m_retryAttachmentAction, &QAction::triggered, this, &MessageComposer::onRetryAttachment);
+
+    // Provider selection
+    connect(m_providerCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int index) {
+        QString providerId = m_providerCombo->itemData(index).toString();
+        emit providerChanged(providerId);
+    });
 
     // Provider status changes
     auto *app = Application::instance();
