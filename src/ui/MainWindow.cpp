@@ -23,6 +23,7 @@
 #include <QCloseEvent>
 #include <QMessageBox>
 #include <QLabel>
+#include <QComboBox>
 #include <QDebug>
 #include <QToolBar>
 #include <QPropertyAnimation>
@@ -85,7 +86,7 @@ void MainWindow::setupUI()
     // Create right side widget for top bar + message thread and composer
     QWidget *rightWidget = new QWidget();
     QVBoxLayout *rightLayout = new QVBoxLayout(rightWidget);
-    rightLayout->setContentsMargins(0, 0, 0, 0);
+    rightLayout->setContentsMargins(0, 0, 0, 25); // Add bottom margin to avoid statusbar overlap
     rightLayout->setSpacing(0);
 
     // Top bar with sidebar + theme toggle
@@ -102,6 +103,16 @@ void MainWindow::setupUI()
     // Initial style will be set by applyThemeStyles() after theme manager is ready
     connect(m_sidebarToggleButton, &QPushButton::clicked, this, &MainWindow::onToggleSidebar);
     topBarLayout->addWidget(m_sidebarToggleButton);
+    
+    // Add provider selection dropdown
+    m_providerCombo = new QComboBox(m_topBar);
+    m_providerCombo->addItem("Echo Provider", "echo");
+    m_providerCombo->addItem("Backend AI", "backend_ai");
+    m_providerCombo->setCurrentText("Backend AI"); // Set default to Backend AI
+    m_providerCombo->setMinimumWidth(120);
+    m_providerCombo->setToolTip("Select AI Provider");
+    topBarLayout->addWidget(m_providerCombo);
+    
     topBarLayout->addStretch();
     m_themeToggleButton = new QPushButton(m_topBar);
     m_themeToggleButton->setFixedSize(40,32);
@@ -229,15 +240,46 @@ void MainWindow::connectSignals()
             providerManager->setActiveProvider(providerId);
         }
     });
+    
+    // Connect top bar provider combo to provider manager
+    connect(m_providerCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, app](int index) {
+        QString providerId = m_providerCombo->itemData(index).toString();
+        auto *providerManager = app->providerManager();
+        if (providerManager) {
+            providerManager->setActiveProvider(providerId);
+        }
+    });
 
-    // Set initial provider selection in composer
+    // Set initial provider selection in both combos
     auto *providerManager = app->providerManager();
     if (providerManager) {
-        m_messageComposer->setCurrentProvider(providerManager->activeProviderId());
+        QString activeProviderId = providerManager->activeProviderId();
+        m_messageComposer->setCurrentProvider(activeProviderId);
         
-        // Update composer when provider changes externally
+        // Set top bar combo to match active provider
+        for (int i = 0; i < m_providerCombo->count(); ++i) {
+            if (m_providerCombo->itemData(i).toString() == activeProviderId) {
+                m_providerCombo->setCurrentIndex(i);
+                break;
+            }
+        }
+        
+        // Update both combos when provider changes externally
         connect(providerManager, &ProviderManager::activeProviderChanged,
-                m_messageComposer, &MessageComposer::setCurrentProvider);
+                this, [this](const QString &providerId) {
+                    // Update message composer combo
+                    m_messageComposer->setCurrentProvider(providerId);
+                    
+                    // Update top bar combo
+                    for (int i = 0; i < m_providerCombo->count(); ++i) {
+                        if (m_providerCombo->itemData(i).toString() == providerId) {
+                            m_providerCombo->blockSignals(true); // Prevent recursion
+                            m_providerCombo->setCurrentIndex(i);
+                            m_providerCombo->blockSignals(false);
+                            break;
+                        }
+                    }
+                });
     }
 
     // Connect message thread responses back to conversation list

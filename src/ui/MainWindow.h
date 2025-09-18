@@ -10,6 +10,7 @@
 #include <memory>
 #include <QPropertyAnimation>
 #include <QPushButton>
+#include <QComboBox>
 #include <QGraphicsOpacityEffect>
 #include <QParallelAnimationGroup>
 
@@ -78,6 +79,7 @@ private:
     QPushButton *m_sidebarToggleButton {nullptr};
     QPushButton *m_themeToggleButton {nullptr};
     QWidget *m_topBar {nullptr}; // Added top bar pointer
+    QComboBox *m_providerCombo {nullptr}; // Provider selection dropdown
 
     // Sidebar animation state
     int m_sidebarWidth {300};
