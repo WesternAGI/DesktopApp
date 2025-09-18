@@ -151,7 +151,7 @@ void BackendAIProvider::sendMessage(
     request.setRawHeader("Authorization", QString("Bearer %1").arg(m_authToken).toUtf8());
 
     QJsonObject payload;
-    payload["message"] = message;
+    payload["query"] = message;
 
     QJsonDocument doc(payload);
     

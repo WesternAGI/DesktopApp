@@ -110,7 +110,8 @@ void Application::initializeServices()
     m_providerManager = std::make_unique<ProviderManager>(this);
     m_providerManager->registry()->registerProvider("echo", [](){ return new EchoProvider(); });
     m_providerManager->registry()->registerProvider("backend_ai", [](){ return new BackendAIProvider(); });
-    // Determine config (persisted or default)
+    
+    // Configure echo provider
     QJsonObject echoCfg;
     QVariant stored = m_settingsStore->value("providers/echo/config");
     if (stored.isValid()) {
@@ -122,13 +123,29 @@ void Application::initializeServices()
             if (pe.error == QJsonParseError::NoError && doc.isObject()) echoCfg = doc.object();
         }
     }
-    m_providerManager->setActiveProvider("echo");
+    
+    // Configure backend AI provider with default token
+    QJsonObject backendCfg;
+    QVariant backendStored = m_settingsStore->value("providers/backend_ai/config");
+    if (backendStored.isValid()) {
+        int id = backendStored.metaType().id();
+        if (id == QMetaType::QVariantMap) {
+            backendCfg = QJsonObject::fromVariantMap(backendStored.toMap());
+        } else if (id == QMetaType::QString) {
+            QJsonParseError pe; auto doc = QJsonDocument::fromJson(backendStored.toString().toUtf8(), &pe);
+            if (pe.error == QJsonParseError::NoError && doc.isObject()) backendCfg = doc.object();
+        }
+    }
+    if (backendCfg.isEmpty()) {
+        backendCfg["token"] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmQ4NDZjZDJkNGI0OTE3ZmJmYzU3MGEiLCJpYXQiOjE3MjY0Njk1NzR9.j4GZ0LI5TGFMw-SrKd9dQCbJkCKLhnmI1pBkFe9I2is";
+    }
+    
+    // Set backend_ai as default active provider instead of echo
+    m_providerManager->setActiveProvider("backend_ai", backendCfg);
     if (auto *prov = m_providerManager->activeProvider()) {
-        if (echoCfg.isEmpty()) echoCfg = prov->defaultConfig();
-        prov->connect(echoCfg);
         // Persist on future status/config changes
         connect(prov, &AIProvider::statusChanged, this, [this, prov]() {
-            m_settingsStore->setValue("providers/echo/config", prov->currentConfig());
+            m_settingsStore->setValue("providers/backend_ai/config", prov->currentConfig());
         });
     }
 
