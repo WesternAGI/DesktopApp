@@ -267,7 +267,7 @@ void MessageComposer::updateStyling()
             font-size: %1px;
             line-height: %2;
             color: %3;
-            font-family: %4;
+            font-family: "%4";
             padding: 0px;
         }
         QTextEdit#messageInput:focus {

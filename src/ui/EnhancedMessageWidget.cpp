@@ -336,7 +336,7 @@ void EnhancedMessageWidget::updateStyling()
             font-size: %1px;
             line-height: %2;
             color: %3;
-            font-family: %4;
+            font-family: "%4";
             selection-background-color: %5;
         }
     )").arg(tokens.fontSizeNormal)
