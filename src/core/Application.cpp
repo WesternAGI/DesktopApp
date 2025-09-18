@@ -10,6 +10,7 @@
 #include "providers/ProviderSDK.h"
 #include "providers/ProviderManager.h"
 #include "providers/EchoProvider.h"
+#include "providers/AIProvider.h"
 #include "services/AudioRecorder.h"
 
 #include <QStandardPaths>
@@ -108,6 +109,7 @@ void Application::initializeServices()
     // Initialize provider manager and register built-in providers
     m_providerManager = std::make_unique<ProviderManager>(this);
     m_providerManager->registry()->registerProvider("echo", [](){ return new EchoProvider(); });
+    m_providerManager->registry()->registerProvider("backend_ai", [](){ return new BackendAIProvider(); });
     // Determine config (persisted or default)
     QJsonObject echoCfg;
     QVariant stored = m_settingsStore->value("providers/echo/config");

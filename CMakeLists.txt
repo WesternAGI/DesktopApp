@@ -53,6 +53,7 @@ set(SOURCES
     src/providers/ProviderSDK.cpp
     src/providers/ProviderManager.cpp
     src/providers/EchoProvider.cpp
+    src/providers/AIProvider.cpp
     src/services/FileVault.cpp
     src/services/AudioRecorder.cpp
     src/services/SettingsStore.cpp
