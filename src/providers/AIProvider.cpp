@@ -8,6 +8,7 @@
 #include <QWidget>
 #include <QDebug>
 #include <QIcon>
+#include <QUuid>
 
 namespace DesktopApp {
 
@@ -15,8 +16,10 @@ BackendAIProvider::BackendAIProvider(QObject *parent)
     : AIProvider(parent)
     , m_networkManager(new QNetworkAccessManager(this))
     , m_baseUrl("https://web-production-d7d37.up.railway.app/query")
-    , m_status(Status::Disconnected)
     , m_currentReply(nullptr)
+    , m_currentModel("default")
+    , m_status(Status::Disconnected)
+    , m_statusMessage("Disconnected")
 {
 }
 
@@ -25,12 +28,39 @@ QIcon BackendAIProvider::icon() const
     return QIcon(":/icons/ai"); // Fallback icon
 }
 
-bool BackendAIProvider::isAvailable() const
+AIProvider::Capabilities BackendAIProvider::capabilities() const
 {
-    return !m_authToken.isEmpty() && m_status != Status::Error;
+    return Capability::TextGeneration | Capability::Streaming;
 }
 
-QWidget* BackendAIProvider::configWidget(QWidget *parent)
+QStringList BackendAIProvider::supportedModels() const
+{
+    return {"default", "gpt-4", "gpt-3.5-turbo"};
+}
+
+QString BackendAIProvider::defaultModel() const
+{
+    return "default";
+}
+
+QString BackendAIProvider::statusMessage() const
+{
+    return m_statusMessage;
+}
+
+QJsonObject BackendAIProvider::defaultConfig() const
+{
+    QJsonObject config;
+    config["token"] = "";
+    return config;
+}
+
+bool BackendAIProvider::validateConfig(const QJsonObject &config) const
+{
+    return config.contains("token") && !config["token"].toString().isEmpty();
+}
+
+QWidget* BackendAIProvider::createConfigWidget(QWidget *parent)
 {
     auto widget = new QWidget(parent);
     auto layout = new QVBoxLayout(widget);
@@ -45,16 +75,11 @@ QWidget* BackendAIProvider::configWidget(QWidget *parent)
     layout->addWidget(new QLabel("Token:", widget));
     layout->addWidget(tokenEdit);
     
-    connect(tokenEdit, &QLineEdit::textChanged, this, [this](const QString &text) {
+    QObject::connect(tokenEdit, &QLineEdit::textChanged, this, [this](const QString &text) {
         setAuthToken(text);
     });
     
     return widget;
-}
-
-bool BackendAIProvider::validateConfig(const QJsonObject &config) const
-{
-    return config.contains("token") && !config["token"].toString().isEmpty();
 }
 
 void BackendAIProvider::connect(const QJsonObject &config)
@@ -62,10 +87,12 @@ void BackendAIProvider::connect(const QJsonObject &config)
     if (config.contains("token")) {
         setAuthToken(config["token"].toString());
         m_status = Status::Connected;
+        m_statusMessage = "Connected to Backend AI";
     } else {
         m_status = Status::Error;
+        m_statusMessage = "Missing authentication token";
     }
-    emit statusChanged(m_status, "Connected to Backend AI");
+    emit statusChanged(m_status, m_statusMessage);
 }
 
 void BackendAIProvider::disconnect()
@@ -76,27 +103,34 @@ void BackendAIProvider::disconnect()
         m_currentReply = nullptr;
     }
     m_status = Status::Disconnected;
-    emit statusChanged(m_status, "Disconnected");
+    m_statusMessage = "Disconnected";
+    emit statusChanged(m_status, m_statusMessage);
 }
 
 void BackendAIProvider::setAuthToken(const QString &token)
 {
     m_authToken = token;
-    m_status = token.isEmpty() ? Status::Disconnected : Status::Connected;
-    emit statusChanged(m_status, token.isEmpty() ? "No token" : "Token configured");
+    if (token.isEmpty()) {
+        m_status = Status::Disconnected;
+        m_statusMessage = "No authentication token";
+    } else {
+        m_status = Status::Connected;
+        m_statusMessage = "Token configured";
+    }
+    emit statusChanged(m_status, m_statusMessage);
 }
 
-void BackendAIProvider::sendMessage(const QString &conversationId, 
-                                  const QString &messageId, 
-                                  const QString &text,
-                                  const QList<Attachment> &attachments,
-                                  const QJsonObject &options)
+void BackendAIProvider::sendMessage(
+    const QString &conversationId,
+    const QString &message,
+    const QList<Attachment> &attachments,
+    const QJsonObject &options)
 {
     Q_UNUSED(attachments)
     Q_UNUSED(options)
     
     if (m_authToken.isEmpty()) {
-        emit messageFailed(conversationId, messageId, "No authentication token configured");
+        emit messageFailed(conversationId, "", "No authentication token configured");
         return;
     }
 
@@ -106,25 +140,58 @@ void BackendAIProvider::sendMessage(const QString &conversationId,
     }
 
     m_currentConversationId = conversationId;
-    m_currentMessageId = messageId;
+    m_currentMessageId = QUuid::createUuid().toString();
     m_status = Status::Connecting;
-    emit statusChanged(m_status, "Sending message...");
-    emit messageStarted(conversationId, messageId);
+    m_statusMessage = "Sending message...";
+    emit statusChanged(m_status, m_statusMessage);
+    emit messageStarted(conversationId, m_currentMessageId);
 
-    QNetworkRequest request(QUrl(m_baseUrl));
+    QNetworkRequest request{QUrl(m_baseUrl)};
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("Authorization", QString("Bearer %1").arg(m_authToken).toUtf8());
 
     QJsonObject payload;
-    payload["message"] = text;
+    payload["message"] = message;
 
     QJsonDocument doc(payload);
     
     m_currentReply = m_networkManager->post(request, doc.toJson());
     
-    connect(m_currentReply, &QNetworkReply::finished, this, &BackendAIProvider::onReplyFinished);
-    connect(m_currentReply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::error),
+    QObject::connect(m_currentReply, &QNetworkReply::finished, this, &BackendAIProvider::onReplyFinished);
+    QObject::connect(m_currentReply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::errorOccurred),
             this, &BackendAIProvider::onError);
+}
+
+void BackendAIProvider::regenerateResponse(const QString &conversationId, const QString &messageId)
+{
+    // For now, just retry the last message
+    Q_UNUSED(messageId)
+    // Implementation would need to store the last user message to regenerate
+    qDebug() << "Regenerate response requested for conversation:" << conversationId;
+}
+
+void BackendAIProvider::stopGeneration(const QString &conversationId)
+{
+    Q_UNUSED(conversationId)
+    if (m_currentReply) {
+        m_currentReply->abort();
+        m_currentReply->deleteLater();
+        m_currentReply = nullptr;
+        m_status = Status::Connected;
+        m_statusMessage = "Generation stopped";
+        emit statusChanged(m_status, m_statusMessage);
+    }
+}
+
+void BackendAIProvider::setModel(const QString &model)
+{
+    m_currentModel = model;
+    emit modelChanged(model);
+}
+
+QString BackendAIProvider::currentModel() const
+{
+    return m_currentModel;
 }
 
 void BackendAIProvider::onReplyFinished()
@@ -148,15 +215,17 @@ void BackendAIProvider::onReplyFinished()
         message.id = m_currentMessageId;
         message.conversationId = m_currentConversationId;
         message.role = MessageRole::Assistant;
-        message.content = responseText;
-        message.timestamp = QDateTime::currentDateTime();
+        message.text = responseText;
+        message.createdAt = QDateTime::currentDateTime();
         
         m_status = Status::Connected;
-        emit statusChanged(m_status, "Response received");
+        m_statusMessage = "Response received";
+        emit statusChanged(m_status, m_statusMessage);
         emit messageCompleted(m_currentConversationId, m_currentMessageId, message);
     } else {
         m_status = Status::Error;
-        emit statusChanged(m_status, reply->errorString());
+        m_statusMessage = reply->errorString();
+        emit statusChanged(m_status, m_statusMessage);
         emit messageFailed(m_currentConversationId, m_currentMessageId, reply->errorString());
     }
     
@@ -170,7 +239,8 @@ void BackendAIProvider::onError(QNetworkReply::NetworkError error)
     if (m_currentReply) {
         QString errorMsg = m_currentReply->errorString();
         m_status = Status::Error;
-        emit statusChanged(m_status, errorMsg);
+        m_statusMessage = errorMsg;
+        emit statusChanged(m_status, m_statusMessage);
         emit messageFailed(m_currentConversationId, m_currentMessageId, errorMsg);
     }
 }

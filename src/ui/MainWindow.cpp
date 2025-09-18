@@ -222,6 +222,14 @@ void MainWindow::connectSignals()
     connect(m_messageComposer, &MessageComposer::messageSent,
             m_messageThread, &MessageThreadWidget::addUserMessage);
 
+    // Connect provider selection to provider manager
+    connect(m_messageComposer, &MessageComposer::providerChanged, this, [app](const QString &providerId) {
+        auto *providerManager = app->providerManager();
+        if (providerManager) {
+            providerManager->setActiveProvider(providerId);
+        }
+    });
+
     // Connect message thread responses back to conversation list
     connect(m_messageThread, &MessageThreadWidget::conversationUpdated,
             m_conversationList, &ConversationListWidget::refreshConversations);
