@@ -406,9 +406,22 @@ void MainWindow::onAbout()
 
 void MainWindow::onThemeChanged()
 {
+    qDebug() << "MainWindow::onThemeChanged() called";
     auto *app = Application::instance();
+    if (!app) {
+        qDebug() << "ERROR: Application instance is null in onThemeChanged!";
+        return;
+    }
+    
     auto *themeManager = app->themeManager();
+    if (!themeManager) {
+        qDebug() << "ERROR: ThemeManager is null in onThemeChanged!";
+        return;
+    }
+    
+    qDebug() << "MainWindow: About to call applyThemeStyles()";
     applyThemeStyles();
+    qDebug() << "MainWindow: applyThemeStyles() completed";
     
     // Force update all widgets to ensure theme is applied
     this->update();
@@ -416,18 +429,40 @@ void MainWindow::onThemeChanged()
     if (m_messageThread) m_messageThread->update();
     if (m_topBar) m_topBar->update();
     
-    m_statusLabel->setText(QString("Theme: %1").arg(themeManager->currentThemeString()));
+    // Only update status label if it exists (status bar was setup)
+    if (m_statusLabel) {
+        m_statusLabel->setText(QString("Theme: %1").arg(themeManager->currentThemeString()));
+    }
     qDebug() << "Applied theme styles:" << themeManager->currentThemeString();
+    qDebug() << "MainWindow::onThemeChanged() completed successfully";
 }
 
 void MainWindow::applyThemeStyles()
 {
+    qDebug() << "MainWindow::applyThemeStyles() called";
     auto *app = Application::instance();
+    if (!app) {
+        qDebug() << "ERROR: Application instance is null in applyThemeStyles!";
+        return;
+    }
+    
     auto *themeManager = app->themeManager();
+    if (!themeManager) {
+        qDebug() << "ERROR: ThemeManager is null in applyThemeStyles!";
+        return;
+    }
+    
     auto *iconRegistry = app->iconRegistry();
+    if (!iconRegistry) {
+        qDebug() << "ERROR: IconRegistry is null in applyThemeStyles!";
+        return;
+    }
+    
     const auto &tokens = themeManager->tokens();
     bool dark = themeManager->currentTheme() == ThemeManager::Dark;
+    qDebug() << "MainWindow: Setting window icon";
     setWindowIcon(iconRegistry->icon("chat"));
+    qDebug() << "MainWindow: Window icon set successfully";
 
     // Apply theme colors consistently using ThemeManager tokens
     if (m_topBar) {
