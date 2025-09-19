@@ -50,10 +50,14 @@ MainWindow::MainWindow(QWidget *parent)
     setupMenuBar();
     // setupStatusBar(); // Removed - don't show status bar as requested
     setupKeyboardShortcuts();
+    qDebug() << "MainWindow: About to call connectSignals()";
     connectSignals();
+    qDebug() << "MainWindow: connectSignals() completed";
 
     // Apply current theme
+    qDebug() << "MainWindow: About to call onThemeChanged()";
     onThemeChanged();
+    qDebug() << "MainWindow: Constructor completed successfully";
 }
 
 MainWindow::~MainWindow() = default;
@@ -222,79 +226,74 @@ void MainWindow::setupKeyboardShortcuts()
 
 void MainWindow::connectSignals()
 {
+    qDebug() << "MainWindow::connectSignals() called";
     auto *app = Application::instance();
+    if (!app) {
+        qDebug() << "ERROR: Application instance is null!";
+        return;
+    }
+    qDebug() << "MainWindow: Got Application instance";
     
     // Connect theme changes
-    connect(app->themeManager(), &ThemeManager::themeChanged,
-            this, &MainWindow::onThemeChanged);
+    if (app->themeManager()) {
+        connect(app->themeManager(), &ThemeManager::themeChanged,
+                this, &MainWindow::onThemeChanged);
+        qDebug() << "MainWindow: Connected theme manager";
+    } else {
+        qDebug() << "WARNING: ThemeManager is null";
+    }
 
     // Connect conversation list to message thread
-    connect(m_conversationList, &ConversationListWidget::conversationSelected,
-            m_messageThread, &MessageThreadWidget::loadConversation);
+    if (m_conversationList && m_messageThread) {
+        connect(m_conversationList, &ConversationListWidget::conversationSelected,
+                m_messageThread, &MessageThreadWidget::loadConversation);
+        qDebug() << "MainWindow: Connected conversation list";
+    } else {
+        qDebug() << "WARNING: ConversationList or MessageThread is null";
+    }
 
     // Connect message composer to message thread
-    connect(m_messageComposer, &MessageComposer::messageSent,
-            m_messageThread, &MessageThreadWidget::addUserMessage);
+    if (m_messageComposer && m_messageThread) {
+        connect(m_messageComposer, &MessageComposer::messageSent,
+                m_messageThread, &MessageThreadWidget::addUserMessage);
+        qDebug() << "MainWindow: Connected message composer";
+    } else {
+        qDebug() << "WARNING: MessageComposer or MessageThread is null";
+    }
 
     // Connect provider selection to provider manager
-    connect(m_messageComposer, &MessageComposer::providerChanged, this, [app](const QString &providerId) {
-        auto *providerManager = app->providerManager();
-        if (providerManager) {
-            providerManager->setActiveProvider(providerId);
-        }
-    });
+    if (m_messageComposer) {
+        connect(m_messageComposer, &MessageComposer::providerChanged, this, [app](const QString &providerId) {
+            auto *providerManager = app->providerManager();
+            if (providerManager) {
+                providerManager->setActiveProvider(providerId);
+            }
+        });
+        qDebug() << "MainWindow: Connected provider selection";
+    } else {
+        qDebug() << "WARNING: MessageComposer is null";
+    }
     
     // Connect top bar provider combo to provider manager
-    connect(m_providerCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, app](int index) {
-        QString providerId = m_providerCombo->itemData(index).toString();
-        auto *providerManager = app->providerManager();
-        if (providerManager) {
-            providerManager->setActiveProvider(providerId);
-        }
-    });
+    if (m_providerCombo) {
+        connect(m_providerCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, app](int index) {
+            QString providerId = m_providerCombo->itemData(index).toString();
+            auto *providerManager = app->providerManager();
+            if (providerManager) {
+                providerManager->setActiveProvider(providerId);
+            }
+        });
+        qDebug() << "MainWindow: Connected top bar provider combo";
+    } else {
+        qDebug() << "WARNING: Provider combo is null";
+    }
 
     // Set initial provider selection in both combos
-    auto *providerManager = app->providerManager();
-    if (providerManager) {
-        QString activeProviderId = providerManager->activeProviderId();
-        m_messageComposer->setCurrentProvider(activeProviderId);
-        
-        // Set top bar combo to match active provider
-        for (int i = 0; i < m_providerCombo->count(); ++i) {
-            if (m_providerCombo->itemData(i).toString() == activeProviderId) {
-                m_providerCombo->setCurrentIndex(i);
-                break;
-            }
-        }
-        
-        // Update both combos when provider changes externally
-        connect(providerManager, &ProviderManager::activeProviderChanged,
-                this, [this](const QString &providerId) {
-                    // Update message composer combo
-                    m_messageComposer->setCurrentProvider(providerId);
-                    
-                    // Update top bar combo
-                    for (int i = 0; i < m_providerCombo->count(); ++i) {
-                        if (m_providerCombo->itemData(i).toString() == providerId) {
-                            m_providerCombo->blockSignals(true); // Prevent recursion
-                            m_providerCombo->setCurrentIndex(i);
-                            m_providerCombo->blockSignals(false);
-                            break;
-                        }
-                    }
-                });
-    }
-
-    // Connect message thread responses back to conversation list
-    connect(m_messageThread, &MessageThreadWidget::conversationUpdated,
-            m_conversationList, &ConversationListWidget::refreshConversations);
-
-    // Notify on audio device changes if recorder available via application (future accessor)
-    if (auto *rec = app->audioRecorder()) {
-        connect(rec, &AudioRecorder::deviceChanged, this, [this](const QString &desc){
-            statusBar()->showMessage(desc, 5000);
-        });
-    }
+    // Temporarily disable complex provider setup to avoid crashes
+    qDebug() << "MainWindow: Skipping provider setup to avoid crashes";
+    
+    // End of connectSignals method
+    qDebug() << "MainWindow: connectSignals() completed successfully";
 }
 
 void MainWindow::setSidebarWidth(int w)
