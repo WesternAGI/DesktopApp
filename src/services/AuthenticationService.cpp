@@ -160,8 +160,6 @@ void AuthenticationService::restoreSession()
     }
 }
 
-void AuthenticationService::onNetworkReplyFinished() {}
-
 // --- New Remote API Helpers ---
 
 QString AuthenticationService::redact(const QString &value) const

@@ -91,7 +91,6 @@ signals:
     void userSignedOut();
 
 private slots:
-    void onNetworkReplyFinished(); // unused legacy slot
     void onTokenRefreshTimer();
 
 private:

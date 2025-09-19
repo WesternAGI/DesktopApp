@@ -68,8 +68,6 @@ signals:
     void messageQuoteRequested(const QString &quotedText);
 
 private slots:
-    void onProviderResponse(const QString &response, bool isComplete); // legacy no-op
-    void onProviderError(const QString &error); // legacy no-op
     void onScrollToBottom();
 
 protected:

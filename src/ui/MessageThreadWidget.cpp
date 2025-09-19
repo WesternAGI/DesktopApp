@@ -5,7 +5,6 @@
 #include "theme/ThemeManager.h"
 #include "theme/IconRegistry.h"
 #include "providers/ProviderManager.h"
-#include "providers/EchoProvider.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -764,9 +763,6 @@ void MessageThreadWidget::generateResponse(const QString &userMessage)
         m_providerManager->sendMessage(m_currentConversationId, userMessage);
     }
 }
-
-void MessageThreadWidget::onProviderResponse(const QString &, bool) {}
-void MessageThreadWidget::onProviderError(const QString &) {}
 
 void MessageThreadWidget::ensureAutoTitle(const QString &firstUserText)
 {
