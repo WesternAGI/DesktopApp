@@ -12,6 +12,7 @@
 #include "providers/EchoProvider.h"
 #include "providers/AIProvider.h"
 #include "services/AudioRecorder.h"
+#include "services/AuthenticationService.h"
 
 #include <QStandardPaths>
 #include <QDir>
@@ -155,6 +156,9 @@ void Application::initializeServices()
 
     // Initialize audio recorder
     m_audioRecorder = std::make_unique<AudioRecorder>(this);
+
+    // Initialize authentication service
+    m_authenticationService = std::make_unique<AuthenticationService>(this);
 
     qDebug() << "All services initialized successfully";
 }

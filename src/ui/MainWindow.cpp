@@ -114,7 +114,7 @@ void MainWindow::setupUI()
     m_providerCombo = new QComboBox(m_topBar);
     m_providerCombo->addItem("Echo Provider", "echo");
     m_providerCombo->addItem("Backend AI", "backend_ai");
-    m_providerCombo->setCurrentText("Backend AI"); // Set default to Backend AI
+    m_providerCombo->setCurrentText("Echo Provider"); // Set default to Echo Provider
     m_providerCombo->setMinimumWidth(120);
     m_providerCombo->setToolTip("Select AI Provider");
     topBarLayout->addWidget(m_providerCombo);

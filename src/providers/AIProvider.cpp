@@ -1,4 +1,6 @@
 #include "AIProvider.h"
+#include "core/Application.h"
+#include "services/AuthenticationService.h"
 #include <QNetworkRequest>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -84,14 +86,29 @@ QWidget* BackendAIProvider::createConfigWidget(QWidget *parent)
 
 void BackendAIProvider::connect(const QJsonObject &config)
 {
-    if (config.contains("token")) {
-        setAuthToken(config["token"].toString());
-        m_status = Status::Connected;
-        m_statusMessage = "Connected to Backend AI";
-    } else {
+    Q_UNUSED(config)
+    
+    // Get the user's authentication token from the login session
+    auto *app = Application::instance();
+    if (!app || !app->authenticationService()) {
         m_status = Status::Error;
-        m_statusMessage = "Missing authentication token";
+        m_statusMessage = "Authentication service not available";
+        emit statusChanged(m_status, m_statusMessage);
+        return;
     }
+    
+    QString userToken = app->authenticationService()->getCurrentToken();
+    if (userToken.isEmpty()) {
+        m_status = Status::Error;
+        m_statusMessage = "User not authenticated - please log in";
+        emit statusChanged(m_status, m_statusMessage);
+        return;
+    }
+    
+    // Use the user's token instead of config token
+    setAuthToken(userToken);
+    m_status = Status::Connected;
+    m_statusMessage = "Connected to Backend AI with user token";
     emit statusChanged(m_status, m_statusMessage);
 }
 

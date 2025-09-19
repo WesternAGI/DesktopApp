@@ -13,6 +13,7 @@ class FileVault;
 class SearchEngine;
 class ProviderManager;
 class AudioRecorder;
+class AuthenticationService;
 
 /**
  * @brief Core application class that manages global services and initialization
@@ -45,6 +46,7 @@ public:
     SearchEngine* searchEngine() const { return m_searchEngine.get(); }
     ProviderManager* providerManager() const { return m_providerManager.get(); }
     AudioRecorder* audioRecorder() const { return m_audioRecorder.get(); }
+    AuthenticationService* authenticationService() const { return m_authenticationService.get(); }
 
     // Directories
     const QString &appDataDir() const { return m_appDataDir; }
@@ -73,6 +75,7 @@ private:
     std::unique_ptr<SearchEngine> m_searchEngine;
     std::unique_ptr<ProviderManager> m_providerManager;
     std::unique_ptr<AudioRecorder> m_audioRecorder;
+    std::unique_ptr<AuthenticationService> m_authenticationService;
 
     // Application directories
     QString m_appDataDir;
