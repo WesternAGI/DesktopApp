@@ -140,12 +140,12 @@ void Application::initializeServices()
         backendCfg["token"] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmQ4NDZjZDJkNGI0OTE3ZmJmYzU3MGEiLCJpYXQiOjE3MjY0Njk1NzR9.j4GZ0LI5TGFMw-SrKd9dQCbJkCKLhnmI1pBkFe9I2is";
     }
     
-    // Set backend_ai as default active provider instead of echo
-    m_providerManager->setActiveProvider("backend_ai", backendCfg);
+    // Set echo as default active provider for simplicity and stability
+    m_providerManager->setActiveProvider("echo", QJsonObject());
     if (auto *prov = m_providerManager->activeProvider()) {
         // Persist on future status/config changes
         connect(prov, &AIProvider::statusChanged, this, [this, prov]() {
-            m_settingsStore->setValue("providers/backend_ai/config", prov->currentConfig());
+            m_settingsStore->setValue("providers/echo/config", prov->currentConfig());
         });
     }
 

@@ -568,48 +568,64 @@ void MessageThreadWidget::loadConversation(const QString &conversationId)
 void MessageThreadWidget::addUserMessage(const QString &text, const AttachmentList &attachments)
 {
     Q_UNUSED(attachments)
+    qDebug() << "MessageThreadWidget::addUserMessage() called with text:" << text;
+    
     if (text.trimmed().isEmpty()) {
+        qDebug() << "Text is empty, returning";
         return; // ignore empty
     }
 
     auto *app = Application::instance();
     auto *store = app->conversationStore();
+    qDebug() << "Got app and store instances";
 
     // If no conversation yet, create one automatically so first message works
     if (m_currentConversationId.isEmpty()) {
+        qDebug() << "Creating new conversation";
         Conversation conv("New Conversation");
         if (store->createConversation(conv)) {
             m_currentConversationId = conv.id;
             hideEmptyState(); // switch from empty panel to thread view
             emit conversationUpdated(conv.id); // refresh list so it appears
+            qDebug() << "Created conversation with ID:" << conv.id;
         } else {
             qWarning() << "Failed to auto-create conversation for first message";
             return;
         }
     }
-
     // Create user message
+    qDebug() << "Creating user message";
     Message userMessage(m_currentConversationId, MessageRole::User, text.trimmed());
     userMessage.deliveryState = MessageDeliveryState::Sending;
     
+    qDebug() << "Saving user message to store";
     if (store->createMessage(userMessage)) {
+        qDebug() << "Message saved successfully";
         // Update delivery state to sent
         userMessage.deliveryState = MessageDeliveryState::Sent;
         store->updateMessage(userMessage);
         
+        qDebug() << "Adding message widget";
         addMessageWidget(userMessage);
+        qDebug() << "Scrolling to bottom";
         scrollToBottom();
+        
         // Auto title on first user message
         if (store->getConversationMessageCount(m_currentConversationId) == 1) {
+            qDebug() << "Ensuring auto title";
             ensureAutoTitle(text.trimmed());
         }
         
+        qDebug() << "About to generate response";
         // Generate AI response
         generateResponse(text.trimmed());
+        qDebug() << "Response generation initiated";
         
         emit messageAdded(userMessage.id);
         emit conversationUpdated(m_currentConversationId);
+        qDebug() << "MessageThreadWidget::addUserMessage() completed successfully";
     } else {
+        qWarning() << "Failed to save user message";
         // Failed to send
         userMessage.deliveryState = MessageDeliveryState::Failed;
         addMessageWidget(userMessage);
@@ -841,7 +857,10 @@ void MessageThreadWidget::hideEmptyState()
 
 void MessageThreadWidget::generateResponse(const QString &userMessage)
 {
+    qDebug() << "MessageThreadWidget::generateResponse() called with:" << userMessage;
+    
     if (!m_providerManager || !m_providerManager->activeProvider()) {
+        qWarning() << "No provider available for response generation";
         // No provider available - show error message
         auto *app = Application::instance();
         auto *store = app->conversationStore();
@@ -858,20 +877,25 @@ void MessageThreadWidget::generateResponse(const QString &userMessage)
         return;
     }
 
+    qDebug() << "Provider available, proceeding with response generation";
     auto *app = Application::instance();
     auto *store = app->conversationStore();
     
     // Create placeholder assistant message for streaming
+    qDebug() << "Creating assistant message placeholder";
     Message assistantMessage(m_currentConversationId, MessageRole::Assistant, "");
     assistantMessage.deliveryState = MessageDeliveryState::Sending;
     m_currentAssistantMessageId = assistantMessage.id;
     
+    qDebug() << "Saving assistant message to store";
     if (store->createMessage(assistantMessage)) {
+        qDebug() << "Creating EnhancedMessageWidget";
         // Create message widget for streaming
         m_streamingMessageWidget = new EnhancedMessageWidget(assistantMessage, this);
         m_streamingMessageWidget->setStreaming(true);
         m_streamingMessageWidget->setGenerating(true);
         m_messagesLayout->addWidget(m_streamingMessageWidget);
+        qDebug() << "EnhancedMessageWidget created and added";
         
         // Connect message actions for the streaming widget
         connect(m_streamingMessageWidget, &EnhancedMessageWidget::copyRequested,

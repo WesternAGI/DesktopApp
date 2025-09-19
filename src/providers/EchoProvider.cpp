@@ -59,18 +59,21 @@ QStringList EchoProvider::supportedModels() const
 
 void EchoProvider::connect(const QJsonObject &config)
 {
+    qDebug() << "EchoProvider::connect() called";
     m_config = config;
     
     // Simulate connection delay
     m_status = Status::Connecting;
     m_statusMessage = "Connecting to Echo Provider...";
     emit statusChanged(m_status, m_statusMessage);
+    qDebug() << "EchoProvider status: Connecting";
     
     QTimer::singleShot(500, this, [this]() {
         m_status = Status::Connected;
         m_statusMessage = "Connected to Echo Provider";
         emit statusChanged(m_status, m_statusMessage);
         emit connected();
+        qDebug() << "EchoProvider status: Connected";
     });
 }
 
