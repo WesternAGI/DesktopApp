@@ -12,7 +12,7 @@ namespace DesktopApp {
 /**
  * @brief Simple message widget for basic chat display
  * 
- * This is a simplified replacement for EnhancedMessageWidget
+ * This is a simplified widget for displaying conversation messages.
  * to avoid crashes while maintaining basic functionality.
  */
 class SimpleMessageWidget : public QWidget

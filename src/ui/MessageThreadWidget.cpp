@@ -822,7 +822,7 @@ void MessageThreadWidget::generateResponse(const QString &userMessage)
     
     qDebug() << "Saving assistant message to store";
     if (store->createMessage(assistantMessage)) {
-        qDebug() << "Creating SimpleMessageWidget (replacing EnhancedMessageWidget)";
+        qDebug() << "Creating SimpleMessageWidget";
         // Create simple message widget for streaming to avoid crashes
         m_streamingMessageWidget = new SimpleMessageWidget(assistantMessage, this);
         m_streamingMessageWidget->setStreaming(true);
@@ -836,8 +836,8 @@ void MessageThreadWidget::generateResponse(const QString &userMessage)
                     QApplication::clipboard()->setText(text);
                 });
         
-        // TODO: Add stopGenerationRequested signal to EnhancedMessageWidget
-        // connect(m_streamingMessageWidget, &EnhancedMessageWidget::stopGenerationRequested,
+        // TODO: Add stopGenerationRequested signal to SimpleMessageWidget
+        // connect(m_streamingMessageWidget, &SimpleMessageWidget::stopGenerationRequested,
         //        this, [this]() {
         //            if (m_providerManager && !m_currentConversationId.isEmpty()) {
         //                m_providerManager->stopGeneration(m_currentConversationId);

@@ -45,7 +45,6 @@ set(SOURCES
     src/ui/SettingsDialog.cpp
     src/ui/SimpleMarkdown.cpp
     src/ui/LoginWindow.cpp
-    src/ui/EnhancedMessageWidget.cpp
     src/ui/SimpleMessageWidget.cpp
     src/theme/ThemeManager.cpp
     src/theme/IconRegistry.cpp
