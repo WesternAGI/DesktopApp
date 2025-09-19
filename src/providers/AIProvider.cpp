@@ -148,12 +148,18 @@ void BackendAIProvider::sendMessage(
 
     QNetworkRequest request{QUrl(m_baseUrl)};
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    request.setRawHeader("Authorization", QString("Bearer %1").arg(m_authToken).toUtf8());
+    QString authHeader = QString("Bearer %1").arg(m_authToken);
+    request.setRawHeader("Authorization", authHeader.toUtf8());
+    
+    qDebug() << "BackendAIProvider: Making request to" << m_baseUrl;
+    qDebug() << "BackendAIProvider: Auth token length:" << m_authToken.length();
+    qDebug() << "BackendAIProvider: Auth header:" << authHeader;
 
     QJsonObject payload;
     payload["query"] = message;
 
     QJsonDocument doc(payload);
+    qDebug() << "BackendAIProvider: Request payload:" << doc.toJson(QJsonDocument::Compact);
     
     m_currentReply = m_networkManager->post(request, doc.toJson());
     
