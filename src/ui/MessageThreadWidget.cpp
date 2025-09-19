@@ -336,6 +336,14 @@ void MessageThreadWidget::connectSignals()
 
 void MessageThreadWidget::updateOfflineNotice()
 {
+    // Disable provider status notifications - user requested removal of yellow highlighted area
+    if (m_offlineLabel) {
+        m_offlineLabel->hide();
+    }
+    return;
+    
+    // [Original code commented out to remove provider status notifications]
+    /*
     if (!m_offlineLabel) return;
     
     bool haveProvider = m_providerManager && m_providerManager->activeProvider();
@@ -418,6 +426,7 @@ void MessageThreadWidget::updateOfflineNotice()
                 break;
         }
     }
+    */
 }
 
 QWidget* MessageThreadWidget::createEmptyPanel() {
