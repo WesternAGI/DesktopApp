@@ -398,29 +398,39 @@ void MessageComposer::setCurrentProvider(const QString &providerId)
 
 void MessageComposer::onSendClicked()
 {
+    qDebug() << "MessageComposer::onSendClicked() called";
     QString text = m_textEdit->toPlainText().trimmed();
+    qDebug() << "Message text:" << text;
     
     // Don't send if empty
     if (text.isEmpty() && m_attachments.isEmpty()) {
+        qDebug() << "Message is empty, returning";
         return;
     }
     
     // Check provider availability before sending
     auto *app = Application::instance();
     auto *providerManager = app->providerManager();
+    qDebug() << "Provider manager:" << providerManager;
     
     if (!providerManager || !providerManager->activeProvider()) {
         qWarning() << "Cannot send message: no provider available";
         return;
     }
     
+    qDebug() << "Active provider:" << providerManager->activeProvider()->id();
+    qDebug() << "Provider status:" << (int)providerManager->activeProvider()->status();
+    
     if (providerManager->activeProvider()->status() != AIProvider::Status::Connected) {
         qWarning() << "Cannot send message: provider not ready";
         return;
     }
 
+    qDebug() << "About to emit messageSent signal";
     emit messageSent(text, m_attachments);
+    qDebug() << "messageSent signal emitted, clearing composer";
     clear();
+    qDebug() << "MessageComposer::onSendClicked() completed";
 }
 
 void MessageComposer::onAttachClicked()

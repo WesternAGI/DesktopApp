@@ -42,7 +42,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_connectionLabel(nullptr)
     , m_modelLabel(nullptr)
 {
-    setWindowTitle("DesktopApp");
+    setWindowTitle("DesktopApp - DEBUG VERSION");
     setMinimumSize(1024, 768);
     resize(1400, 900);
 
