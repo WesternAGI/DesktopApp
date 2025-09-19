@@ -37,13 +37,14 @@ LoginWindow → AuthenticationService → Validation → Session creation
 
 ### Chat Message Flow
 ```
-User input → MainWindow → Provider selection → AI processing → Response display
+User input → MessageThreadWidget → ProviderManager → AI Provider → Response rendering
 ```
 
-1. User types message in **MainWindow** input field
-2. Message routed to selected **AI Provider** (EchoProvider for demo)
-3. Provider processes request and generates response
-4. Response displayed in conversation area
+1. User types message in **MessageComposer** input field
+2. **MessageThreadWidget** handles message creation and storage
+3. **ProviderManager** routes to selected AI Provider (Echo or Backend AI)
+4. Provider processes request and generates response
+5. **SimpleMessageWidget** displays response in conversation thread
 
 ## Project Structure
 
@@ -81,17 +82,38 @@ DesktopApp/
 ### User Interface (`src/ui/`)
 
 **LoginWindow.h/.cpp**
-- Authentication interface with login/registration forms
-- Handles username/password input and validation
-- Connects to AuthenticationService for credential verification
-- Demo authentication for development
+- Modern authentication interface with JWT token support
+- User registration and login forms with validation
+- Integration with remote authentication service
+- Secure credential handling and session management
 
 **MainWindow.h/.cpp**
-- Primary chat interface with conversation management
-- Left panel: conversation list and navigation
-- Center area: message display and chat history
-- Bottom section: message input and send controls
-- Menu bar: settings, themes, and application controls
+- Primary chat interface with ChatGPT-inspired design
+- Top bar with provider selection dropdown
+- Central conversation area with message threading
+- Clean, minimal interface without status notifications
+
+**MessageThreadWidget.h/.cpp**
+- Core conversation display and management
+- Message history loading and real-time updates
+- Integration with multiple AI providers
+- Responsive layout with smooth scrolling
+
+**MessageComposer.h/.cpp**
+- Enhanced message input component
+- Modern styling with send button and text formatting
+- Provider-aware message routing
+
+**SimpleMessageWidget.h/.cpp**
+- Optimized message display component
+- Replaces legacy EnhancedMessageWidget for better performance
+- Consistent styling for user and assistant messages
+- Copy functionality and message actions
+
+**ConversationListWidget.h/.cpp**
+- Sidebar conversation navigation
+- Real-time conversation updates and search
+- Modern list styling with hover effects
 
 ### Services Layer (`src/services/`)
 
@@ -114,33 +136,40 @@ DesktopApp/
 
 ### AI Providers (`src/providers/`)
 
-**Provider.h**
-- Abstract base class for all AI providers
-- Defines standard interface: sendMessage(), getResponse()
-- Plugin architecture for adding new AI services
+**ProviderSDK.h**
+- Abstract base class defining the AI provider interface
+- Standard methods: sendMessage(), connect(), disconnect()
+- Event-driven architecture with Qt signals for responses
+
+**ProviderManager.h/.cpp**
+- Central coordination for all AI providers
+- Provider registration and lifecycle management
+- Message routing and response handling
+- Provider status monitoring and error handling
 
 **EchoProvider.h/.cpp**
-- Demo provider that echoes user messages
-- Simulates AI response timing and behavior
-- Used for testing and development
+- Demo provider that echoes user messages back
+- Simulates AI response timing with realistic delays
+- Used for testing and development workflows
 
-**Future Providers** (planned)
-- **ChatGPTProvider:** OpenAI GPT integration
-- **ClaudeProvider:** Anthropic Claude integration
-- **LocalProvider:** Local AI model support
+**AIProvider.h/.cpp (BackendAIProvider)**
+- Remote AI service integration with user authentication
+- JWT token-based API communication
+- Conversation context management with chat_id
+- Error handling and network resilience
 
 ### Theme System (`src/theme/`)
 
 **ThemeManager.h/.cpp**
-- Light/dark theme switching
-- CSS stylesheet management
-- Theme persistence in user settings
-- Dynamic theme updates without restart
+- Modern ChatGPT-inspired design system
+- Light/dark theme with consistent design tokens
+- Dynamic CSS generation and real-time updates
+- Component-specific styling management
 
 **IconRegistry.h/.cpp**
-- SVG icon loading and caching
-- Theme-aware icon variations
-- Icon scaling for different DPI settings
+- SVG icon library with theme-aware variations
+- Efficient caching and lazy loading
+- High-DPI support and scaling
 
 ### Data Models (`src/data/`)
 
