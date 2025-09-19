@@ -1,14 +1,15 @@
 # Installation Guide
 
-Step-by-step instructions to build and run DesktopApp on Windows, macOS, and Linux.
+Step-by-step instructions to build and run DesktopApp with full AI provider support on Windows, macOS, and Linux.
 
 ## Prerequisites
 
 ### Required Software
-- **Qt6** (version 6.2 or newer)
-- **CMake** (version 3.21 or newer)  
-- **C++17 compatible compiler**
-- **Git** (to clone the repository)
+- **Qt6** (version 6.2 or newer) - Core framework and multimedia support
+- **CMake** (version 3.21 or newer) - Build system
+- **C++17 compatible compiler** - Modern C++ features required
+- **Git** - Repository access and version control
+- **Internet Connection** - For Backend AI provider authentication
 
 ## Step 1: Install Dependencies
 
@@ -105,15 +106,23 @@ cmake --build build -j$(nproc)
 ./build/DesktopApp
 ```
 
-### Development Mode
-To skip authentication during development:
-```bash
-./build/DesktopApp --skip-auth
-```
+## First Time Setup
+
+### User Registration
+1. Launch the application
+2. **Create Account**: Use the registration interface for new users
+3. **Login**: Enter your username and password  
+4. **Provider Selection**: Choose between Echo (testing) or Backend AI (full AI chat)
+
+### Testing the Installation
+1. **Start with Echo Provider**: Select "Echo Provider" from the top dropdown
+2. **Send Test Message**: Type "Hello" and verify you get an echo response
+3. **Try Backend AI**: Switch to "Backend AI" provider for full AI functionality
+4. **Check Authentication**: Ensure your login token is working with Backend AI
 
 ## Troubleshooting
 
-### Common Build Issues
+### Build Issues
 
 **Qt not found error**
 - **Windows**: Set Qt path: `-DCMAKE_PREFIX_PATH="C:\Qt\6.5.0\msvc2019_64"`
@@ -131,21 +140,29 @@ To skip authentication during development:
 
 ### Runtime Issues
 
-**Application crashes on startup**
-- Try development mode: `./build/DesktopApp --skip-auth`
+**Authentication Problems**
+- Verify username and password are correct
+- Check internet connection for Backend AI provider
+- Try Echo provider first to test basic functionality
+- Create new account if existing credentials fail
+
+**Provider Issues**
+- **Echo Provider**: Should work immediately without internet
+- **Backend AI**: Requires successful user login and internet connection
+- Switch providers using dropdown in top bar
+- Check provider status in application logs
+
+**Application Errors**
 - Check Qt installation and runtime libraries
 - Verify all required DLLs are available (Windows)
-
-**Login fails**
-- Use demo credentials: username `demo`, password `demo123`
-- Try skipping authentication with `--skip-auth` flag
-- Check internet connection if using online authentication
-
-**Settings not saved**
-- Ensure application has write permissions to settings directory
-- Delete settings to reset: 
+- Try deleting settings to reset configuration:
   - Windows: `%APPDATA%\DesktopApp Project\`
   - macOS/Linux: `~/.config/DesktopApp Project/`
+
+**UI Display Issues**
+- Try switching between light/dark themes
+- Restart application if provider dropdown becomes unresponsive
+- Ensure window size is adequate (minimum 800x600)
 
 ## Development Build
 
