@@ -48,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     setupUI();
     setupMenuBar();
-    setupStatusBar();
+    // setupStatusBar(); // Removed - don't show status bar as requested
     setupKeyboardShortcuts();
     connectSignals();
 
@@ -86,7 +86,7 @@ void MainWindow::setupUI()
     // Create right side widget for top bar + message thread and composer
     QWidget *rightWidget = new QWidget();
     QVBoxLayout *rightLayout = new QVBoxLayout(rightWidget);
-    rightLayout->setContentsMargins(0, 0, 0, 25); // Add bottom margin to avoid statusbar overlap
+    rightLayout->setContentsMargins(0, 0, 0, 0); // No bottom margin needed without status bar
     rightLayout->setSpacing(0);
 
     // Top bar with sidebar + theme toggle

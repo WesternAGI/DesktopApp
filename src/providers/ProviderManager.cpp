@@ -52,9 +52,8 @@ void ProviderManager::setActiveProvider(const QString &providerId, const QJsonOb
     connect(m_activeProvider, &AIProvider::messageFailed,
             this, &ProviderManager::messageFailed);
 
-    if (!config.isEmpty()) {
-        m_activeProvider->connect(config);
-    }
+    // Always call connect - providers can handle empty configs
+    m_activeProvider->connect(config);
 
     emit activeProviderChanged(providerId);
 }
