@@ -1,5 +1,6 @@
 #include "MessageThreadWidget.h"
 #include "EnhancedMessageWidget.h"
+#include "SimpleMessageWidget.h"
 #include "core/Application.h"
 #include "data/JsonStore.h"
 #include "theme/ThemeManager.h"
@@ -889,16 +890,16 @@ void MessageThreadWidget::generateResponse(const QString &userMessage)
     
     qDebug() << "Saving assistant message to store";
     if (store->createMessage(assistantMessage)) {
-        qDebug() << "Creating EnhancedMessageWidget";
-        // Create message widget for streaming
-        m_streamingMessageWidget = new EnhancedMessageWidget(assistantMessage, this);
+        qDebug() << "Creating SimpleMessageWidget (replacing EnhancedMessageWidget)";
+        // Create simple message widget for streaming to avoid crashes
+        m_streamingMessageWidget = new SimpleMessageWidget(assistantMessage, this);
         m_streamingMessageWidget->setStreaming(true);
         m_streamingMessageWidget->setGenerating(true);
         m_messagesLayout->addWidget(m_streamingMessageWidget);
-        qDebug() << "EnhancedMessageWidget created and added";
+        qDebug() << "SimpleMessageWidget created and added successfully";
         
         // Connect message actions for the streaming widget
-        connect(m_streamingMessageWidget, &EnhancedMessageWidget::copyRequested,
+        connect(m_streamingMessageWidget, &SimpleMessageWidget::copyRequested,
                 [](const QString &text) {
                     QApplication::clipboard()->setText(text);
                 });
