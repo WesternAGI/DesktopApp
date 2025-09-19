@@ -92,6 +92,8 @@ void MainWindow::setupUI()
     // Top bar with sidebar + theme toggle
     m_topBar = new QWidget(rightWidget);
     m_topBar->setObjectName("TopBar");
+    m_topBar->setMinimumHeight(40); // Ensure it's visible
+    m_topBar->setStyleSheet("QWidget#TopBar { background-color: #f0f0f0; border-bottom: 1px solid #ddd; }"); // Temporary debug styling
     // Initial style will be set by applyThemeStyles() after theme manager is ready
     QHBoxLayout *topBarLayout = new QHBoxLayout(m_topBar);
     topBarLayout->setContentsMargins(8,4,8,4);
@@ -112,6 +114,7 @@ void MainWindow::setupUI()
     m_providerCombo->setMinimumWidth(120);
     m_providerCombo->setToolTip("Select AI Provider");
     topBarLayout->addWidget(m_providerCombo);
+    qDebug() << "MainWindow: Created provider combo with" << m_providerCombo->count() << "items";
     
     topBarLayout->addStretch();
     m_themeToggleButton = new QPushButton(m_topBar);
