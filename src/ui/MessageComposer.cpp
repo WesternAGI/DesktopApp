@@ -14,6 +14,7 @@ MessageComposer::MessageComposer(QWidget *parent)
     , m_mainLayout(nullptr)
     , m_textEdit(nullptr)
     , m_sendButton(nullptr)
+    , m_providerCombo(nullptr)
 {
     setupUI();
     connectSignals();
@@ -56,6 +57,12 @@ void MessageComposer::setupUI()
 
     m_mainLayout->addWidget(inputWidget);
 
+    // Create hidden provider combo for compatibility
+    m_providerCombo = new QComboBox();
+    m_providerCombo->addItem("Echo Provider", "echo");
+    m_providerCombo->addItem("Backend AI", "backend_ai");
+    m_providerCombo->hide(); // Hidden since it's in top bar
+
     // Apply improved styling
     updateStyling();
 }
@@ -70,6 +77,12 @@ void MessageComposer::connectSignals()
 
     // Simple send button
     connect(m_sendButton, &QPushButton::clicked, this, &MessageComposer::onSendClicked);
+
+    // Provider selection
+    connect(m_providerCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int index) {
+        QString providerId = m_providerCombo->itemData(index).toString();
+        emit providerChanged(providerId);
+    });
 }
 
 void MessageComposer::updateStyling()
@@ -184,8 +197,12 @@ void MessageComposer::clear()
 
 void MessageComposer::setCurrentProvider(const QString &providerId)
 {
-    // Provider selection removed - this method is now a no-op
-    Q_UNUSED(providerId);
+    for (int i = 0; i < m_providerCombo->count(); ++i) {
+        if (m_providerCombo->itemData(i).toString() == providerId) {
+            m_providerCombo->setCurrentIndex(i);
+            break;
+        }
+    }
 }
 
 void MessageComposer::onSendClicked()

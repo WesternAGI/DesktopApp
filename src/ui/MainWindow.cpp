@@ -117,7 +117,6 @@ void MainWindow::setupUI()
     m_providerCombo->setCurrentText("Backend AI"); // Set default to Backend AI
     m_providerCombo->setMinimumWidth(120);
     m_providerCombo->setToolTip("Select AI Provider");
-    m_providerCombo->hide(); // Hide provider dropdown per user request to remove yellow highlighting
     topBarLayout->addWidget(m_providerCombo);
     qDebug() << "MainWindow: Created provider combo with" << m_providerCombo->count() << "items";
     

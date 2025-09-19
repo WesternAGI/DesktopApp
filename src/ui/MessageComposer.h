@@ -5,6 +5,7 @@
 #include <QHBoxLayout>
 #include <QTextEdit>
 #include <QPushButton>
+#include <QComboBox>
 #include "data/Models.h"
 
 namespace DesktopApp {
@@ -39,6 +40,7 @@ private:
     QVBoxLayout *m_mainLayout;
     QTextEdit *m_textEdit;
     QPushButton *m_sendButton;
+    QComboBox *m_providerCombo;
 };
 
 } // namespace DesktopApp
