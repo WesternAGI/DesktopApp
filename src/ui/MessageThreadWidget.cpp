@@ -1,5 +1,4 @@
 #include "MessageThreadWidget.h"
-#include "EnhancedMessageWidget.h"
 #include "SimpleMessageWidget.h"
 #include "core/Application.h"
 #include "data/JsonStore.h"
@@ -244,10 +243,7 @@ void MessageThreadWidget::connectSignals()
             }
         }
         
-        // Update all message widgets with new ChatGPT styling
-        for (auto *msgWidget : findChildren<EnhancedMessageWidget*>()) {
-            // msgWidget->updateStyling(); // updateStyling is private
-        }
+        // Note: SimpleMessageWidget styling is applied via theme automatically
     });
     
     // Apply initial theme styles
@@ -669,10 +665,17 @@ void MessageThreadWidget::populateMessages(const MessageList &messages)
 
 void MessageThreadWidget::addMessageWidget(const Message &message)
 {
-    auto *messageWidget = new EnhancedMessageWidget(message, this);
+    // Create SimpleMessageWidget for all messages consistently
+    auto *messageWidget = new SimpleMessageWidget(message, this);
     
     // Add messages at the end - they'll stack top to bottom naturally
     m_messagesLayout->addWidget(messageWidget);
+    
+    // Connect message actions
+    connect(messageWidget, &SimpleMessageWidget::copyRequested,
+            [](const QString &text) {
+                QApplication::clipboard()->setText(text);
+            });
     
     // Auto-scroll to show new message
     QTimer::singleShot(50, this, &MessageThreadWidget::scrollToBottom);
@@ -690,86 +693,6 @@ void MessageThreadWidget::addMessageWidget(const Message &message)
             if (m_liveRegion) m_liveRegion->clear();
         });
     }
-    
-    // Connect message actions
-    connect(messageWidget, &EnhancedMessageWidget::copyRequested,
-            [](const QString &text) {
-                QApplication::clipboard()->setText(text);
-            });
-
-    // TODO: Connect additional EnhancedMessageWidget signals
-    /*
-    connect(messageWidget, &MessageWidget::editCompleted,
-            this, [this](const QString &messageId, const QString &newText) {
-                auto *app = Application::instance();
-                auto *store = app->conversationStore();
-                Message msg = store->getMessage(messageId);
-                if (msg.isValid()) {
-                    msg.text = newText;
-                    msg.metadata.insert("edited", true);
-                    store->updateMessage(msg);
-
-                    // Hide subsequent messages after this edited message
-                    hideMessagesAfter(messageId);
-
-                    // Regenerate response with new user message
-                    if (msg.role == MessageRole::User) {
-                        generateResponse(newText);
-                    }
-
-                    emit conversationUpdated(m_currentConversationId);
-                }
-            });
-    
-    connect(messageWidget, &MessageWidget::editCancelled,
-            this, [this](const QString &messageId) {
-                Q_UNUSED(messageId)
-                // Nothing to do on cancel
-            });
-    
-    connect(messageWidget, &MessageWidget::regenerateRequested,
-            this, [this, messageWidget](const QString &messageId) {
-                // Hide this AI message and all subsequent messages
-                hideMessagesAfter(messageId);
-                
-                // Find the user message that triggered this AI response
-                auto *app = Application::instance();
-                auto *store = app->conversationStore();
-                MessageList messages = store->getMessagesForConversation(m_currentConversationId);
-                
-                QString userMessageText;
-                for (int i = messages.size() - 1; i >= 0; --i) {
-                    if (messages[i].id == messageId) {
-                        // Found the AI message, look for previous user message
-                        for (int j = i - 1; j >= 0; --j) {
-                            if (messages[j].role == MessageRole::User) {
-                                userMessageText = messages[j].text;
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                }
-                
-                if (!userMessageText.isEmpty()) {
-                    generateResponse(userMessageText);
-                }
-            });
-    
-    connect(messageWidget, &MessageWidget::stopGenerationRequested,
-            this, [this]() {
-                // Stop current generation
-                if (m_streamingMessageWidget) {
-                    m_streamingMessageWidget->setStreaming(false);
-                    m_streamingMessageWidget->setGenerating(false);
-                    m_streamingMessageWidget = nullptr;
-                }
-                if (m_providerManager) {
-                    // TODO: Add stop method to provider manager
-                }
-                m_currentAssistantMessageId.clear();
-            });
-    */
 }
 
 void MessageThreadWidget::hideMessagesAfter(const QString &messageId)

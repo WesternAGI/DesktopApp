@@ -174,6 +174,7 @@ void BackendAIProvider::sendMessage(
 
     QJsonObject payload;
     payload["query"] = message;
+    payload["chat_id"] = conversationId; // Use the conversation ID as chat_id
 
     QJsonDocument doc(payload);
     qDebug() << "BackendAIProvider: Request payload:" << doc.toJson(QJsonDocument::Compact);
@@ -224,32 +225,112 @@ void BackendAIProvider::onReplyFinished()
     auto reply = m_currentReply;
     m_currentReply = nullptr;
     
-    if (reply->error() == QNetworkReply::NoError) {
-        QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
-        QJsonObject response = doc.object();
-        
-        QString responseText = response["response"].toString();
-        if (responseText.isEmpty()) {
-            responseText = "Empty response from AI";
+    // Read the raw response data
+    QByteArray responseData = reply->readAll();
+    int httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    
+    qDebug() << "BackendAIProvider: Response received";
+    qDebug() << "BackendAIProvider: HTTP Status:" << httpStatus;
+    qDebug() << "BackendAIProvider: Response data length:" << responseData.length();
+    qDebug() << "BackendAIProvider: Response data:" << responseData;
+    qDebug() << "BackendAIProvider: Network error:" << reply->error();
+    qDebug() << "BackendAIProvider: Error string:" << reply->errorString();
+    
+    if (reply->error() == QNetworkReply::NoError && httpStatus == 200) {
+        if (responseData.isEmpty()) {
+            QString errorMsg = "Server returned empty response (HTTP 200 but no content)";
+            qDebug() << "BackendAIProvider:" << errorMsg;
+            
+            Message message;
+            message.id = m_currentMessageId;
+            message.conversationId = m_currentConversationId;
+            message.role = MessageRole::Assistant;
+            message.text = "Error: " + errorMsg;
+            message.createdAt = QDateTime::currentDateTime();
+            
+            m_status = Status::Error;
+            m_statusMessage = errorMsg;
+            emit statusChanged(m_status, m_statusMessage);
+            emit messageCompleted(m_currentConversationId, m_currentMessageId, message);
+        } else {
+            QJsonParseError parseError;
+            QJsonDocument doc = QJsonDocument::fromJson(responseData, &parseError);
+            
+            if (parseError.error != QJsonParseError::NoError) {
+                QString errorMsg = QString("Failed to parse response JSON: %1").arg(parseError.errorString());
+                qDebug() << "BackendAIProvider:" << errorMsg;
+                
+                Message message;
+                message.id = m_currentMessageId;
+                message.conversationId = m_currentConversationId;
+                message.role = MessageRole::Assistant;
+                message.text = "Error: " + errorMsg + "\nRaw response: " + QString::fromUtf8(responseData);
+                message.createdAt = QDateTime::currentDateTime();
+                
+                m_status = Status::Error;
+                m_statusMessage = errorMsg;
+                emit statusChanged(m_status, m_statusMessage);
+                emit messageCompleted(m_currentConversationId, m_currentMessageId, message);
+            } else {
+                QJsonObject response = doc.object();
+                QString responseText = response["response"].toString();
+                
+                if (responseText.isEmpty()) {
+                    // Try other common response field names
+                    responseText = response["answer"].toString();
+                    if (responseText.isEmpty()) {
+                        responseText = response["text"].toString();
+                    }
+                    if (responseText.isEmpty()) {
+                        responseText = response["content"].toString();
+                    }
+                    if (responseText.isEmpty()) {
+                        responseText = QString("Server returned JSON but no recognizable response field. Full response: %1")
+                                         .arg(QString::fromUtf8(responseData));
+                    }
+                }
+                
+                Message message;
+                message.id = m_currentMessageId;
+                message.conversationId = m_currentConversationId;
+                message.role = MessageRole::Assistant;
+                message.text = responseText;
+                message.createdAt = QDateTime::currentDateTime();
+                
+                m_status = Status::Connected;
+                m_statusMessage = "Response received";
+                emit statusChanged(m_status, m_statusMessage);
+                emit messageCompleted(m_currentConversationId, m_currentMessageId, message);
+            }
+        }
+    } else {
+        // Handle HTTP errors or network errors
+        QString errorMsg;
+        if (httpStatus != 200 && httpStatus != 0) {
+            errorMsg = QString("HTTP %1 error").arg(httpStatus);
+            if (!responseData.isEmpty()) {
+                errorMsg += QString(": %1").arg(QString::fromUtf8(responseData));
+            }
+        } else {
+            errorMsg = reply->errorString();
+            if (!responseData.isEmpty()) {
+                errorMsg += QString(" (Response: %1)").arg(QString::fromUtf8(responseData));
+            }
         }
         
-        // Create a message object
+        qDebug() << "BackendAIProvider: Error occurred:" << errorMsg;
+        
         Message message;
         message.id = m_currentMessageId;
         message.conversationId = m_currentConversationId;
         message.role = MessageRole::Assistant;
-        message.text = responseText;
+        message.text = "Error: " + errorMsg;
         message.createdAt = QDateTime::currentDateTime();
         
-        m_status = Status::Connected;
-        m_statusMessage = "Response received";
+        m_status = Status::Error;
+        m_statusMessage = errorMsg;
         emit statusChanged(m_status, m_statusMessage);
         emit messageCompleted(m_currentConversationId, m_currentMessageId, message);
-    } else {
-        m_status = Status::Error;
-        m_statusMessage = reply->errorString();
-        emit statusChanged(m_status, m_statusMessage);
-        emit messageFailed(m_currentConversationId, m_currentMessageId, reply->errorString());
     }
     
     reply->deleteLater();

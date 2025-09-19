@@ -20,7 +20,6 @@
 
 namespace DesktopApp {
 
-class EnhancedMessageWidget;
 class SimpleMessageWidget;
 class ProviderManager;
 
