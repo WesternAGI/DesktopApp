@@ -567,25 +567,19 @@ void MessageThreadWidget::loadConversation(const QString &conversationId)
 
 void MessageThreadWidget::addUserMessage(const QString &text, const AttachmentList &attachments)
 {
-    qDebug() << "MessageThreadWidget::addUserMessage() called with text:" << text;
     Q_UNUSED(attachments)
     if (text.trimmed().isEmpty()) {
-        qDebug() << "Text is empty, returning";
         return; // ignore empty
     }
 
-    qDebug() << "Getting application instance and conversation store";
     auto *app = Application::instance();
     auto *store = app->conversationStore();
-    qDebug() << "Got conversation store:" << store;
 
     // If no conversation yet, create one automatically so first message works
     if (m_currentConversationId.isEmpty()) {
-        qDebug() << "No current conversation, creating new one";
         Conversation conv("New Conversation");
         if (store->createConversation(conv)) {
             m_currentConversationId = conv.id;
-            qDebug() << "Created conversation with ID:" << conv.id;
             hideEmptyState(); // switch from empty panel to thread view
             emit conversationUpdated(conv.id); // refresh list so it appears
         } else {
@@ -595,39 +589,27 @@ void MessageThreadWidget::addUserMessage(const QString &text, const AttachmentLi
     }
 
     // Create user message
-    qDebug() << "Creating user message object";
     Message userMessage(m_currentConversationId, MessageRole::User, text.trimmed());
     userMessage.deliveryState = MessageDeliveryState::Sending;
-    qDebug() << "Created message with ID:" << userMessage.id;
     
-    qDebug() << "Attempting to create message in store";
     if (store->createMessage(userMessage)) {
-        qDebug() << "Message created successfully in store";
         // Update delivery state to sent
         userMessage.deliveryState = MessageDeliveryState::Sent;
         store->updateMessage(userMessage);
-        qDebug() << "Message updated to sent state";
         
-        qDebug() << "Adding message widget";
         addMessageWidget(userMessage);
-        qDebug() << "Scrolling to bottom";
         scrollToBottom();
         // Auto title on first user message
         if (store->getConversationMessageCount(m_currentConversationId) == 1) {
-            qDebug() << "This is first message, ensuring auto title";
             ensureAutoTitle(text.trimmed());
         }
         
         // Generate AI response
-        qDebug() << "About to generate AI response";
         generateResponse(text.trimmed());
-        qDebug() << "generateResponse call completed";
         
         emit messageAdded(userMessage.id);
         emit conversationUpdated(m_currentConversationId);
-        qDebug() << "MessageThreadWidget::addUserMessage() completed successfully";
     } else {
-        qDebug() << "Failed to create message in store";
         // Failed to send
         userMessage.deliveryState = MessageDeliveryState::Failed;
         addMessageWidget(userMessage);
