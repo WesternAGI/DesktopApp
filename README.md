@@ -1,31 +1,25 @@
 # DesktopApp
 
-A modern desktop chat application built with C++17 and Qt6, featuring a clean WhatsApp-style interface.
+A modern desktop chat application built with C++17 and Qt6, featuring a clean ChatGPT-style interface with AI provider support.
 
 ## Features
 
-- Login system with online authentication
-- Minimal chat interface with proper message containment
-- Light/dark theme support
-- Cross-platform (Windows, macOS, Linux)
-- Echo provider for testing and demonstration
-- File attachments (planned)
-- Message search (planned)
+- **User Authentication**: Secure login system with JWT token management
+- **Provider System**: Support for multiple AI providers (Echo, Backend AI)
+- **Modern UI**: Clean ChatGPT-inspired interface with enhanced styling
+- **Message Management**: Robust conversation storage and retrieval
+- **Theme Support**: Light/dark theme with consistent design tokens
+- **Cross-platform**: Windows, macOS, Linux support
+- **Real-time Communication**: Seamless messaging with AI providers
+- **Secure Storage**: Encrypted credential storage
 
 ## Quick Start
 
-### Development Mode
-To skip authentication during development:
-```bash
-./build/DesktopApp --skip-auth  # Linux/macOS
-.\build\DesktopApp.exe --skip-auth  # Windows
-```
-
 ### Requirements
 - Qt6 (6.2 or newer)
-- CMake (3.21 or newer)
+- CMake (3.21 or newer)  
 - C++17 compatible compiler
-- Internet connection for authentication (unless using --skip-auth)
+- Internet connection for Backend AI provider
 
 ### Build and Run
 ```bash
@@ -34,12 +28,14 @@ cd DesktopApp
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 
-# Normal mode (requires authentication)
-./build/DesktopApp  # or .\build\DesktopApp.exe on Windows
-
-# Development mode (skip authentication)
-./build/DesktopApp --skip-auth  # or .\build\DesktopApp.exe --skip-auth on Windows
+# Run the application
+./build/DesktopApp  # Linux/macOS
+.\build\DesktopApp.exe  # Windows
 ```
+
+### Provider Configuration
+- **Echo Provider**: Built-in for testing, echoes your messages
+- **Backend AI**: Connects to remote AI service with user authentication
 
 ## Documentation
 
