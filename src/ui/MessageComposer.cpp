@@ -69,6 +69,7 @@ void MessageComposer::setupUI()
     m_providerCombo->addItem("Echo Provider", "echo");
     m_providerCombo->addItem("Backend AI", "backend_ai");
     m_providerCombo->setCursor(Qt::PointingHandCursor);
+    m_providerCombo->hide(); // Hide provider dropdown per user request to remove yellow highlighting
     statusLayout->addWidget(m_providerCombo);
 
     statusLayout->addStretch();
@@ -153,6 +154,34 @@ void MessageComposer::updateStyling()
         
         QComboBox:hover {
             border: 1px solid #3b82f6;
+        }
+        
+        QComboBox:focus {
+            border: 1px solid #3b82f6;
+            background-color: #ffffff;
+        }
+        
+        QComboBox QAbstractItemView {
+            border: 1px solid #d1d5db;
+            background-color: #ffffff;
+            selection-background-color: #f3f4f6;
+            selection-color: #111827;
+        }
+        
+        QComboBox QAbstractItemView::item {
+            padding: 8px 12px;
+            border: none;
+            background-color: transparent;
+        }
+        
+        QComboBox QAbstractItemView::item:selected {
+            background-color: #f3f4f6;
+            color: #111827;
+        }
+        
+        QComboBox QAbstractItemView::item:hover {
+            background-color: #e5e7eb;
+            color: #111827;
         }
         
         QComboBox::drop-down {
