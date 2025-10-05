@@ -17,12 +17,14 @@ if (-not (Test-Path $exePath)) {
 
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "Smart DLL Deployment for DesktopApp" -ForegroundColor White
-Write-Host "========================================`n" -ForegroundColor Cyan
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host ""
 
 # Step 1: Run windeployqt6
 Write-Host "[Step 1/2] Running windeployqt6..." -ForegroundColor Cyan
 windeployqt6 --force --no-translations "$exePath" 2>&1 | Out-Null
-Write-Host "  ✓ Qt DLLs and plugins deployed`n" -ForegroundColor Green
+Write-Host "  ✓ Qt DLLs and plugins deployed" -ForegroundColor Green
+Write-Host ""
 
 # Step 2: Get list of missing DLLs by analyzing all DLLs in target directory
 Write-Host "[Step 2/2] Analyzing and copying dependencies..." -ForegroundColor Cyan
@@ -56,9 +58,12 @@ foreach ($dll in $knownDependencies) {
 # Count total DLLs
 $totalDlls = (Get-ChildItem "$targetDir\*.dll" -File).Count
 
-Write-Host "`n========================================" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "Summary:" -ForegroundColor White
 Write-Host "  New dependencies copied: $copiedCount" -ForegroundColor Green
 Write-Host "  Total DLLs in build: $totalDlls" -ForegroundColor White
-Write-Host "`n✓ Deployment Complete!" -ForegroundColor Green
-Write-Host "========================================`n" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "✓ Deployment Complete!" -ForegroundColor Green
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host ""
