@@ -34,9 +34,36 @@ Write-Host "Running windeployqt6..." -ForegroundColor Cyan
 $deployCmd = "windeployqt6 $($deployArgs -join ' ') `"$exePath`""
 Invoke-Expression $deployCmd
 
-# Ensure critical MinGW runtime DLLs are present
-Write-Host "`nVerifying MinGW runtime DLLs..." -ForegroundColor Cyan
-$criticalDlls = @("libgcc_s_seh-1.dll", "libstdc++-6.dll", "libwinpthread-1.dll")
+# Ensure critical runtime DLLs and Qt dependencies are present
+Write-Host "`nVerifying runtime DLLs..." -ForegroundColor Cyan
+$criticalDlls = @(
+    # MinGW Runtime
+    "libgcc_s_seh-1.dll", 
+    "libstdc++-6.dll", 
+    "libwinpthread-1.dll",
+    
+    # Qt GUI Dependencies
+    "libfreetype-6.dll",
+    "libmd4c.dll",
+    "libharfbuzz-0.dll",
+    "libpng16-16.dll",
+    "libbz2-1.dll",
+    "libgraphite2.dll",
+    "zlib1.dll",
+    
+    # Qt Core Dependencies
+    "libglib-2.0-0.dll",
+    "libintl-8.dll",
+    "libiconv-2.dll",
+    "libpcre2-16-0.dll",
+    "libdouble-conversion.dll",
+    "libzstd.dll",
+    "libb2-1.dll",
+    
+    # Compression Libraries
+    "libbrotlidec.dll",
+    "libbrotlicommon.dll"
+)
 $msys64Bin = "C:\msys64\ucrt64\bin"
 
 foreach ($dll in $criticalDlls) {
@@ -50,7 +77,7 @@ foreach ($dll in $criticalDlls) {
             Write-Host "  ✗ Warning: $dll not found in MSYS2" -ForegroundColor Yellow
         }
     } else {
-        Write-Host "  ✓ Present: $dll" -ForegroundColor Green
+        Write-Host "  ✓ Present: $dll" -ForegroundColor Gray
     }
 }
 
