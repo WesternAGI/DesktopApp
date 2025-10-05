@@ -19,6 +19,7 @@
 #include <QScrollArea>
 #include <QPixmap>
 #include <QMovie>
+#include <QSettings>
 
 namespace DesktopApp {
 
@@ -49,6 +50,9 @@ public:
         Success,
         Error
     };
+
+    // Access to authentication service for checking login state
+    AuthenticationService* getAuthenticationService() const { return m_authService; }
 
 public slots:
     void showSignInPage();
@@ -184,6 +188,7 @@ private:
     
     // Services
     AuthenticationService *m_authService;
+    QSettings *m_settings;
     
     // Styling
     QString m_primaryColor;

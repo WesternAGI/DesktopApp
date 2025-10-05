@@ -21,7 +21,9 @@ AuthenticationService::AuthenticationService(QObject *parent)
                               "DesktopApp", "authentication", this))
     , m_tokenRefreshTimer(new QTimer(this))
     , m_isAuthenticated(false)
+    , m_rememberMe(false)
 {
+    qDebug() << "AuthenticationService: Settings file path:" << m_settings->fileName();
     connect(m_tokenRefreshTimer, &QTimer::timeout, this, &AuthenticationService::onTokenRefreshTimer);
     
     // Try to restore previous session
@@ -30,8 +32,9 @@ AuthenticationService::AuthenticationService(QObject *parent)
 
 void AuthenticationService::signIn(const QString &usernameOrPhone, const QString &password, bool rememberMe)
 {
-    Q_UNUSED(rememberMe)
-    qDebug() << "AuthenticationService: Sign in for" << usernameOrPhone;
+    m_rememberMe = rememberMe;
+    m_loginUsername = usernameOrPhone; // Store for potential fallback
+    qDebug() << "AuthenticationService: Sign in for" << usernameOrPhone << "RememberMe:" << rememberMe;
     QJsonObject payload;
     payload["username"] = usernameOrPhone;
     payload["password"] = password;
@@ -63,10 +66,15 @@ void AuthenticationService::signOut()
     m_isAuthenticated = false;
     m_session = AuthSession{};
     m_currentUser = UserProfile{};
+    
+    qDebug() << "AuthenticationService: About to clear credentials";
     clearCredentials();
+    qDebug() << "AuthenticationService: Credentials cleared";
+    
     stopTokenRefreshTimer();
     
     emit userSignedOut();
+    qDebug() << "AuthenticationService: Sign out completed";
 }
 
 void AuthenticationService::resetPassword(const QString &phoneNumber)
@@ -147,6 +155,16 @@ void AuthenticationService::restoreSession()
     QString userId = m_settings->value("auth/userId").toString();
     QString username = m_settings->value("auth/username").toString();
     QString role = m_settings->value("auth/role").toString();
+    
+    qDebug() << "AuthenticationService: restoreSession() checking credentials:";
+    qDebug() << "  - accessToken exists:" << !token.isEmpty() << "length:" << token.length();
+    qDebug() << "  - expiresAt:" << expiresAt << "valid:" << expiresAt.isValid();
+    qDebug() << "  - userId:" << userId;
+    qDebug() << "  - username:" << username;
+    qDebug() << "  - role:" << role;
+    qDebug() << "  - current time:" << QDateTime::currentDateTimeUtc();
+    qDebug() << "  - token expired:" << (expiresAt.isValid() && QDateTime::currentDateTimeUtc() >= expiresAt);
+    
     if (!token.isEmpty() && expiresAt.isValid() && QDateTime::currentDateTimeUtc() < expiresAt) {
         m_session.accessToken = token;
         m_session.tokenType = "bearer";
@@ -157,6 +175,8 @@ void AuthenticationService::restoreSession()
         m_isAuthenticated = true;
         scheduleExpiryLogout(QDateTime::currentDateTimeUtc().secsTo(expiresAt));
         qDebug() << "AuthenticationService: Restored session for user" << username;
+    } else {
+        qDebug() << "AuthenticationService: No valid session to restore";
     }
 }
 
@@ -250,10 +270,13 @@ void AuthenticationService::processLoginResponse(int status, const QJsonObject &
         m_session.userId = u.value("id").toString();
         m_session.username = u.value("username").toString();
         m_session.role = u.value("role").toString();
+    } else {
+        // Fallback: use the login username if backend doesn't return user info
+        m_session.username = m_loginUsername;
     }
     m_isAuthenticated = true;
     scheduleExpiryLogout(expiresIn);
-    saveCredentials(m_session.accessToken, QString(), true); // always remember for now
+    saveCredentials(m_session.accessToken, QString(), m_rememberMe);
     
     emit authenticationFinished(true, QStringLiteral("Signed in as %1").arg(m_session.username));
 }
@@ -322,12 +345,26 @@ void AuthenticationService::saveCredentials(const QString &token, const QString 
 
 void AuthenticationService::clearCredentials()
 {
+    qDebug() << "AuthenticationService: clearCredentials() called";
+    qDebug() << "AuthenticationService: Before removal - accessToken exists:" << m_settings->contains("auth/accessToken");
+    
     m_settings->remove("auth/accessToken");
     m_settings->remove("auth/expiresAt");
     m_settings->remove("auth/userId");
     m_settings->remove("auth/username");
     m_settings->remove("auth/role");
+    
+    // Force synchronization to ensure data is written immediately
     m_settings->sync();
+    
+    // Double-check that settings were actually cleared
+    bool tokensCleared = !m_settings->contains("auth/accessToken");
+    qDebug() << "AuthenticationService: After removal - accessToken exists:" << !tokensCleared;
+    qDebug() << "AuthenticationService: QSettings sync completed, tokens cleared:" << tokensCleared;
+    
+    if (!tokensCleared) {
+        qWarning() << "AuthenticationService: WARNING - Failed to clear authentication tokens!";
+    }
 }
 
 QString AuthenticationService::hashPassword(const QString &password, const QString &salt)

@@ -157,6 +157,7 @@ private slots:
     void onClearData();
     void onExportData();
     void onImportData();
+    void onSignOut();
 
 private:
     void setupUI();
@@ -168,6 +169,7 @@ private:
     QPushButton *m_clearDataButton;
     QPushButton *m_exportDataButton;
     QPushButton *m_importDataButton;
+    QPushButton *m_signOutButton;
     QLabel *m_storageUsageLabel;
 };
 

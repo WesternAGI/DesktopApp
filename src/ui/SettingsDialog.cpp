@@ -1,6 +1,7 @@
 #include "SettingsDialog.h"
 #include "core/Application.h"
 #include "services/SettingsStore.h"
+#include "services/AuthenticationService.h"
 #include "providers/ProviderManager.h"
 #include "providers/EchoProvider.h"
 #include "providers/ProviderSDK.h"
@@ -37,6 +38,7 @@
 #include <QUrl>
 #include <QDebug>
 #include <QTimer>
+#include <QThread>
 
 namespace DesktopApp {
 
@@ -657,6 +659,12 @@ void PrivacySettingsWidget::setupUI()
             this, &PrivacySettingsWidget::onImportData);
     buttonLayout->addWidget(m_importDataButton);
     
+    m_signOutButton = new QPushButton("Sign Out");
+    m_signOutButton->setStyleSheet("QPushButton { background-color: #fd7e14; color: white; }");
+    connect(m_signOutButton, &QPushButton::clicked,
+            this, &PrivacySettingsWidget::onSignOut);
+    buttonLayout->addWidget(m_signOutButton);
+    
     m_clearDataButton = new QPushButton("Clear All Data");
     m_clearDataButton->setStyleSheet("QPushButton { background-color: #dc3545; color: white; }");
     connect(m_clearDataButton, &QPushButton::clicked,
@@ -721,6 +729,58 @@ void PrivacySettingsWidget::onImportData()
             // TODO: Implement data import
             QMessageBox::information(this, "Import Complete", "Data imported successfully from:\n" + fileName);
             emit settingsChanged();
+        }
+    }
+}
+
+void PrivacySettingsWidget::onSignOut()
+{
+    int ret = QMessageBox::question(this, "Sign Out",
+                                   "Are you sure you want to sign out?\n\n"
+                                   "This will clear your authentication but keep your conversations and settings.",
+                                   QMessageBox::Yes | QMessageBox::No,
+                                   QMessageBox::No);
+    
+    if (ret == QMessageBox::Yes) {
+        auto *app = Application::instance();
+        if (app && app->authenticationService()) {
+            qDebug() << "SettingsDialog: Starting sign out process";
+            
+            // Clear authentication credentials
+            app->authenticationService()->signOut();
+            
+            // Also clear the "Remember Me" preference and saved username
+            QSettings loginSettings(QSettings::IniFormat, QSettings::UserScope, "DesktopApp", "ui");
+            qDebug() << "SettingsDialog: Before clearing - rememberMe exists:" << loginSettings.contains("login/rememberMe");
+            qDebug() << "SettingsDialog: Before clearing - rememberMe value:" << loginSettings.value("login/rememberMe", false).toBool();
+            
+            // Explicitly set Remember Me to false instead of removing it to ensure it's unchecked
+            loginSettings.setValue("login/rememberMe", false);
+            loginSettings.remove("login/lastUsername");
+            loginSettings.sync();
+            
+            // Force another sync to ensure the data is written to disk immediately
+            loginSettings.sync();
+            
+            qDebug() << "SettingsDialog: After clearing - rememberMe exists:" << loginSettings.contains("login/rememberMe");
+            qDebug() << "SettingsDialog: After clearing - rememberMe value:" << loginSettings.value("login/rememberMe", false).toBool();
+            qDebug() << "SettingsDialog: Cleared login preferences and set rememberMe to false";
+            
+            // Show success message first
+            QMessageBox::information(this, "Sign Out", "You have been signed out successfully.\n\n"
+                                                      "The application will close. Please restart to sign in again.");
+            
+            // Close the settings dialog first
+            this->close();
+            
+            // Use a timer to delay the application quit to ensure all QSettings are written
+            QTimer::singleShot(200, []() {
+                qDebug() << "SettingsDialog: Delayed application quit executing";
+                QApplication::quit();
+            });
+            
+        } else {
+            QMessageBox::warning(this, "Error", "Authentication service not available.");
         }
     }
 }

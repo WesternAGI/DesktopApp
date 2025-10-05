@@ -80,6 +80,7 @@ public slots:
     QString getCurrentToken() const;
     UserProfile getCurrentUser() const;
     void restoreSession();
+    void clearCredentials();
 
 signals:
     void authenticationFinished(bool success, const QString &message);
@@ -97,7 +98,6 @@ private:
     void makeAuthRequest(const QString &endpoint, const QJsonObject &data);
     void handleAuthResponse(const QJsonObject &response);
     void saveCredentials(const QString &token, const QString &refreshToken, bool rememberMe);
-    void clearCredentials();
     QString hashPassword(const QString &password, const QString &salt = QString());
     QString generateSalt();
     void startTokenRefreshTimer();
@@ -124,6 +124,8 @@ private:
     AuthSession m_session;
     UserProfile m_currentUser;
     bool m_isAuthenticated;
+    bool m_rememberMe;
+    QString m_loginUsername; // Store the username used for login
     
     // Legacy tokens kept to satisfy old compiled references; will be removed after full clean
     QString m_currentToken;

@@ -54,9 +54,34 @@ LoginWindow::LoginWindow(QWidget *parent)
     // Initialize authentication service
     m_authService = new AuthenticationService(this);
     
+    // Initialize settings
+    m_settings = new QSettings(QSettings::IniFormat, QSettings::UserScope,
+                              "DesktopApp", "ui", this);
+    qDebug() << "LoginWindow: Settings file path:" << m_settings->fileName();
+    
     setupUI();
     setupAnimations();
     applyModernStyling();
+    
+    // Restore remember me preference
+    bool rememberMe = m_settings->value("login/rememberMe", false).toBool();
+    qDebug() << "LoginWindow: Restoring rememberMe preference:" << rememberMe;
+    qDebug() << "LoginWindow: rememberMe key exists in settings:" << m_settings->contains("login/rememberMe");
+    if (m_rememberMeCheckBox) {
+        m_rememberMeCheckBox->setChecked(rememberMe);
+        bool actualCheckboxState = m_rememberMeCheckBox->isChecked();
+        qDebug() << "LoginWindow: Remember me checkbox set to:" << rememberMe;
+        qDebug() << "LoginWindow: Actual checkbox state after setting:" << actualCheckboxState;
+        
+        // If remember me is checked, restore the last username for convenience
+        if (rememberMe && m_signInUsernameEdit) {
+            QString lastUsername = m_settings->value("login/lastUsername", "").toString();
+            if (!lastUsername.isEmpty()) {
+                m_signInUsernameEdit->setText(lastUsername);
+                qDebug() << "LoginWindow: Restored username:" << lastUsername;
+            }
+        }
+    }
     
     // Connect authentication service signals
     connect(m_authService, &AuthenticationService::authenticationFinished,
@@ -774,8 +799,21 @@ void LoginWindow::onShowConfirmPassword()
 
 void LoginWindow::onRememberMeToggled(bool checked)
 {
-    // TODO: Save remember me preference
-    Q_UNUSED(checked)
+    // Save remember me preference
+    m_settings->setValue("login/rememberMe", checked);
+    
+    // If unchecked, clear any saved credentials and username immediately
+    if (!checked) {
+        if (m_authService) {
+            m_authService->clearCredentials();
+            qDebug() << "LoginWindow: Cleared saved credentials due to remember me being unchecked";
+        }
+        m_settings->remove("login/lastUsername");
+        qDebug() << "LoginWindow: Cleared saved username";
+    }
+    
+    m_settings->sync();
+    qDebug() << "LoginWindow: Remember me preference saved:" << checked;
 }
 
 void LoginWindow::onTermsAccepted(bool checked)
@@ -993,6 +1031,12 @@ void LoginWindow::performSignIn()
     QString username = m_signInUsernameEdit->text().trimmed();
     QString password = m_signInPasswordEdit->text();
     bool rememberMe = m_rememberMeCheckBox->isChecked();
+    
+    // Save username if remember me is checked
+    if (rememberMe) {
+        m_settings->setValue("login/lastUsername", username);
+        m_settings->sync();
+    }
     
     // Perform authentication via service
     if (m_authService) {

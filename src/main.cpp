@@ -8,6 +8,7 @@
 #include "core/CrashHandler.h"
 #include "ui/MainWindow.h"
 #include "ui/LoginWindow.h"
+#include "services/AuthenticationService.h"
 #include "theme/ThemeManager.h"
 #include <QFile>
 #include <QTextStream>
@@ -37,17 +38,49 @@ int main(int argc, char *argv[])
     
     // Check if user wants to skip authentication (for development purposes)
     bool skipAuth = QApplication::arguments().contains("--skip-auth");
+    bool clearAuth = QApplication::arguments().contains("--clear-auth");
+    
+    // If clear-auth is requested, clear all authentication data and exit
+    if (clearAuth) {
+        qDebug() << "Clearing all authentication data...";
+        DesktopApp::AuthenticationService authService;
+        authService.clearCredentials();
+        
+        // Also clear login preferences
+        QSettings loginSettings(QSettings::IniFormat, QSettings::UserScope, "DesktopApp", "ui");
+        loginSettings.remove("login/rememberMe");
+        loginSettings.remove("login/lastUsername");
+        loginSettings.sync();
+        
+        qDebug() << "Authentication data cleared. Exiting.";
+        return 0;
+    }
     
     DesktopApp::MainWindow *mainWindow = nullptr;
     
     if (!skipAuth) {
-        // Show login window first (no parent window yet)
+        // Create login window first to initialize authentication service
         DesktopApp::LoginWindow loginWindow;
         
-        bool authSuccessful = false;
+        // Check if user is already authenticated (via Remember Me tokens)
+        // The AuthenticationService constructor calls restoreSession() automatically
+        bool alreadyAuthenticated = false;
         QString authenticatedUser;
         QString authToken;
-        bool dialogClosed = false;
+        
+        // Give the authentication service a moment to restore the session
+        QApplication::processEvents();
+        
+        // Check if we have a valid restored session
+        if (loginWindow.getAuthenticationService() && loginWindow.getAuthenticationService()->isAuthenticated()) {
+            alreadyAuthenticated = true;
+            authenticatedUser = loginWindow.getAuthenticationService()->getCurrentUser().username;
+            authToken = loginWindow.getAuthenticationService()->getCurrentToken();
+            qDebug() << "User already authenticated via Remember Me:" << authenticatedUser;
+        }
+        
+        bool authSuccessful = alreadyAuthenticated;
+        bool dialogClosed = alreadyAuthenticated; // Skip dialog if already authenticated
         
         // Connect success signal to capture authentication result
         QObject::connect(&loginWindow, &DesktopApp::LoginWindow::loginSuccessful,
@@ -68,15 +101,20 @@ int main(int argc, char *argv[])
             dialogClosed = true;
         });
         
-        // Show login window (non-modal)
-        qDebug() << "Showing login window (non-modal)";
-        loginWindow.show();
-        
-        // Process events until dialog is closed
-        qDebug() << "Processing events until dialog closes";
-        while (!dialogClosed) {
-            QApplication::processEvents();
-            QThread::msleep(10); // Small delay to prevent busy loop
+        // Only show login window if not already authenticated
+        if (!alreadyAuthenticated) {
+            // Show login window (non-modal)
+            qDebug() << "Showing login window (non-modal)";
+            loginWindow.show();
+            
+            // Process events until dialog is closed
+            qDebug() << "Processing events until dialog closes";
+            while (!dialogClosed) {
+                QApplication::processEvents();
+                QThread::msleep(10); // Small delay to prevent busy loop
+            }
+        } else {
+            qDebug() << "Skipping login window - user already authenticated";
         }
         
         qDebug() << "Dialog closed. Auth successful:" << authSuccessful;
