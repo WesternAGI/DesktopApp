@@ -24,7 +24,7 @@ Write-Host "Executable: $exePath" -ForegroundColor Cyan
 Write-Host ""
 
 # Build windeployqt6 arguments
-$deployArgs = @()
+$deployArgs = @("--force")
 if ($NoTranslations) {
     $deployArgs += "--no-translations"
 }
@@ -33,6 +33,26 @@ if ($NoTranslations) {
 Write-Host "Running windeployqt6..." -ForegroundColor Cyan
 $deployCmd = "windeployqt6 $($deployArgs -join ' ') `"$exePath`""
 Invoke-Expression $deployCmd
+
+# Ensure critical MinGW runtime DLLs are present
+Write-Host "`nVerifying MinGW runtime DLLs..." -ForegroundColor Cyan
+$criticalDlls = @("libgcc_s_seh-1.dll", "libstdc++-6.dll", "libwinpthread-1.dll")
+$msys64Bin = "C:\msys64\ucrt64\bin"
+
+foreach ($dll in $criticalDlls) {
+    $destPath = Join-Path $targetDir $dll
+    if (-not (Test-Path $destPath)) {
+        $sourcePath = Join-Path $msys64Bin $dll
+        if (Test-Path $sourcePath) {
+            Copy-Item $sourcePath $destPath -Force
+            Write-Host "  ✓ Copied: $dll" -ForegroundColor Green
+        } else {
+            Write-Host "  ✗ Warning: $dll not found in MSYS2" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "  ✓ Present: $dll" -ForegroundColor Green
+    }
+}
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host ""
