@@ -64,8 +64,31 @@ Press `Ctrl+Shift+B` to run the default build task.
 
 ### Running the Application
 
+**Option 1: Using the launcher script (Recommended for development)**
 ```powershell
-# Make sure MSYS2 UCRT64 is in PATH (for Qt DLLs)
+# This script automatically adds MSYS2 to PATH and runs the app
+.\run-app.ps1
+
+# Run with skip-auth flag
+.\run-app.ps1 -SkipAuth
+```
+
+**Option 2: Deploy DLLs for standalone execution**
+```powershell
+# Deploy all required Qt DLLs and plugins to build directory
+$env:PATH = "C:\msys64\ucrt64\bin;$env:PATH"
+windeployqt6 --no-translations .\build\DesktopApp.exe
+
+# Or use the deployment script
+powershell -ExecutionPolicy Bypass -File .\deploy-dlls.ps1
+
+# After deployment, run directly without PATH setup
+.\build\DesktopApp.exe
+```
+
+**Option 3: Manual PATH setup**
+```powershell
+# Add MSYS2 UCRT64 to PATH (for Qt DLLs)
 $env:PATH = "C:\msys64\ucrt64\bin;$env:PATH"
 
 # Run the application
@@ -111,13 +134,27 @@ cmake --build build-release
 $env:PATH = "C:\msys64\ucrt64\bin;$env:PATH"
 ```
 
-**Issue**: Qt libraries not found when running
-**Solution**: Ensure MSYS2 UCRT64 bin directory is in PATH before running the executable.
+**Issue**: Missing DLL errors (Qt6Core.dll, libgcc_s_seh-1.dll, libstdc++-6.dll, Qt6Gui.dll)
+**Solution**: Either add MSYS2 to PATH or deploy DLLs to build directory:
+```powershell
+# Option A: Add to PATH (temporary, for current session)
+$env:PATH = "C:\msys64\ucrt64\bin;$env:PATH"
+
+# Option B: Deploy DLLs for standalone execution
+$env:PATH = "C:\msys64\ucrt64\bin;$env:PATH"
+windeployqt6 --no-translations .\build\DesktopApp.exe
+```
 
 **Issue**: Build errors about missing dependencies
 **Solution**: Update MSYS2 packages:
 ```bash
 C:\msys64\usr\bin\bash.exe -lc "pacman -Syu"
+```
+
+**Issue**: PowerShell script execution policy error
+**Solution**: Run scripts with execution policy bypass:
+```powershell
+powershell -ExecutionPolicy Bypass -File .\script-name.ps1
 ```
 
 ### Dependencies Summary
